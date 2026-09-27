@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-18 ~ 2026-09-27</span>
+      <span class="dpr-home-dashboard-kicker">2026-08-29 ~ 2026-09-27</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 16 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 17 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
     <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>6</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>10</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>11</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-27 04:49:18 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-27 05:14:30 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,9 +69,9 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>2026-09-18至09-27日报完成：共梳理16篇论文，精读6篇、速读10篇，焦点集中在开放词汇3D感知与场景理解。</p>
-<p>最值得看的是《Hybrid Gaussians for Robust Open-Vocabulary 3D Segmentation...》（10.0/10）和《A Scene Language Model for Open-Vocabulary Scene Mapping》（9.0/10），它们分别指向更鲁棒的开放词汇3D分割与语言驱动的场景建图。</p>
-<p>普通读者可优先从这两篇精读入手，再结合速读中的多模态3D检测与DINOv3特征迁移，理解开放词汇3D感知这条主线。</p>
+<p>本周期扫读17篇论文，精读6篇、速读11篇，主线聚焦开放词汇3D场景理解与建图。</p>
+<p>最值得看的是两篇9.0分工作：《Dynamic-Robust Photometric-Semantic Reconstruction for Open-Vocabulary 3D Scene Understanding》和《VOIM: Training-Free Open-Vocabulary 3D Instance Mapping for RGB-D and Monocular SLAM》，速读中的《GoDeep》《LangStreet》也值得顺带关注。</p>
+<p>普通读者可先从VOIM这类免训练方案入手，理解开放词汇3D建图如何落地，再回看动态鲁棒重建与语言场方向。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -83,7 +83,7 @@
     <strong class="dpr-home-dashboard-count">6 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Hybrid Gaussians for Robust Open-Vocabulary 3D Segmentation with Multi-View Object Association and Boundary Refinement">Hybrid Gaussians for Robust Open-Vocabulary 3D Segmentation with Multi-View Object Association and Boundary Refinement</span></li><li><span class="dpr-home-dashboard-paper-title" title="A Scene Language Model for Open-Vocabulary Scene Mapping">A Scene Language Model for Open-Vocabulary Scene Mapping</span></li><li><span class="dpr-home-dashboard-paper-title" title="From Alignment to Fusion in 3D Vision-Language">From Alignment to Fusion in 3D Vision-Language</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Dynamic-Robust Photometric-Semantic Reconstruction for Open-Vocabulary 3D Scene Understanding">Dynamic-Robust Photometric-Semantic Reconstruction for Open-Vocabulary 3D Scene Understanding</span></li><li><span class="dpr-home-dashboard-paper-title" title="VOIM: Training-Free Open-Vocabulary 3D Instance Mapping for RGB-D and Monocular SLAM">VOIM: Training-Free Open-Vocabulary 3D Instance Mapping for RGB-D and Monocular SLAM</span></li><li><span class="dpr-home-dashboard-paper-title" title="NormLift: From Lifted Features To Semantic Reliability In 3D Gaussian Splatting">NormLift: From Lifted Features To Semantic Reliability In 3D Gaussian Splatting</span></li></ul>
   </div>
   <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">ovd-fusion <strong>6</strong></span></div>
 </section>
@@ -93,12 +93,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">10 篇</strong>
+    <strong class="dpr-home-dashboard-count">11 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Towards robust multimodal 3D object detection via visual foundation models">Towards robust multimodal 3D object detection via visual foundation models</span></li><li><span class="dpr-home-dashboard-paper-title" title="Hierarchical Floorplan-Guided Vision-Language Exploration for Embodied Question Answering">Hierarchical Floorplan-Guided Vision-Language Exploration for Embodied Question Answering</span></li><li><span class="dpr-home-dashboard-paper-title" title="DIFTA-3D: Depth-Consistent Instance-Level Feature Transfer and Adaptation of DINOv3 for 3D Detection">DIFTA-3D: Depth-Consistent Instance-Level Feature Transfer and Adaptation of DINOv3 for 3D Detection</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="GoDeep: Annotation-Free Open-Vocabulary 3D Scene Understanding via Language-Space Lifting">GoDeep: Annotation-Free Open-Vocabulary 3D Scene Understanding via Language-Space Lifting</span></li><li><span class="dpr-home-dashboard-paper-title" title="LangStreet: Persistent Language Fields for Anchor-Decoded Street Gaussians">LangStreet: Persistent Language Fields for Anchor-Decoded Street Gaussians</span></li><li><span class="dpr-home-dashboard-paper-title" title="Open-vocabulary 3D object detection with promptable segmentation">Open-vocabulary 3D object detection with promptable segmentation</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">ovd-fusion <strong>10</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">ovd-fusion <strong>11</strong></span></div>
 </section>
 </div>
 

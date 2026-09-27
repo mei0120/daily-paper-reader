@@ -1,0 +1,685 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-27T05:10:10.014146+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 10,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 21,
+    "quick_skim_target": 11,
+    "quick_selected": 11
+  },
+  "deep_dive": [
+    {
+      "id": "2608.29177v1",
+      "source": "arxiv",
+      "title": "Dynamic-Robust Photometric-Semantic Reconstruction for Open-Vocabulary 3D Scene Understanding",
+      "abstract": "The integration of novel view synthesis (NVS) and open-vocabulary segmentation (OVS) has recently yielded powerful feed-forward 3D foundation models. However, their inherent reliance on static-scene assumptions leads to severe misalignment of spatial features in unconstrained dynamic environments. To bridge this critical gap, we propose SPAR, a novel joint semantic-geometric encoding architecture that explicitly isolates transient dynamic noise prior to latent space aggregation. Furthermore, we introduce a dynamic-region-aware end-to-end training paradigm that structurally couples motion estimation with multi-view visual and semantic learning. This unified approach enables the network to inherently resolve motion conflicts and distill multi-view consistent, temporally stable scene representations from dynamic inputs. Extensive experiments on the challenging D-RE10K benchmark demonstrate that SPAR achieves state-of-the-art performance. Our end-to-end approach achieves exceptional novel view synthesis quality, yielding a PSNR of 22.15 dB and 23.33 dB given only 3 and 4 input views respectively. Despite being trained in a self-supervised manner, our model achieves an mIoU of 88.5% for motion mask prediction. Furthermore, our analysis reveals a strong inter-task synergy between photometric scene reconstruction and semantic understanding, where semantic synthesis learning consistently enhances photometric fidelity in novel view rendering. Code will be available at https://github.com/dmucby/SPAR.",
+      "authors": [
+        "Boyu Cai",
+        "Li Yang",
+        "Yan Xu",
+        "Wei Liu",
+        "Nian Liu",
+        "Sikui Zhang",
+        "Yan Wang",
+        "Chunfeng Yuan",
+        "Weiming Hu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-29T09:58:24+00:00",
+      "link": "https://arxiv.org/pdf/2608.29177v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Joint semantic-geometric encoding for open-vocabulary 3D scene understanding with multi-view visual and semantic learning",
+      "llm_evidence_cn": "面向开放词汇三维场景理解的语义-几何联合编码与多视角视觉语义学习",
+      "llm_evidence": "面向开放词汇三维场景理解的语义-几何联合编码与多视角视觉语义学习",
+      "canonical_evidence": "面向开放词汇三维场景理解的语义-几何联合编码与多视角视觉语义学习",
+      "llm_tldr_en": "Feed-forward 3D foundation models integrating novel view synthesis and open-vocabulary segmentation fail in dynamic scenes. SPAR jointly encodes semantics and geometry, isolating transient dynamic noise and coupling motion estimation with multi-view visual-semantic learning.",
+      "llm_tldr_cn": "将新视角合成与开放词汇分割结合的前馈三维基础模型性能强大，但其对静态场景的依赖导致在无约束动态环境中空间特征严重失配。本文提出SPAR，一种语义-几何联合编码架构，在隐空间聚合前显式隔离瞬态动态噪声，并引入动态区域感知的端到端训练范式，将运动估计与多视角视觉语义学习结构化耦合。该统一方法使网络能内在化解运动冲突。其贡献在于提升了开放词汇三维场景理解在动态条件下的鲁棒性与语义一致性。",
+      "llm_tldr": "将新视角合成与开放词汇分割结合的前馈三维基础模型性能强大，但其对静态场景的依赖导致在无约束动态环境中空间特征严重失配。本文提出SPAR，一种语义-几何联合编码架构，在隐空间聚合前显式隔离瞬态动态噪声，并引入动态区域感知的端到端训练范式，将运动估计与多视角视觉语义学习结构化耦合。该统一方法使网络能内在化解运动冲突。其贡献在于提升了开放词汇三维场景理解在动态条件下的鲁棒性与语义一致性。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open-vocabulary 3D semantic mapping for scene understanding",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.00775v1",
+      "source": "arxiv",
+      "title": "VOIM: Training-Free Open-Vocabulary 3D Instance Mapping for RGB-D and Monocular SLAM",
+      "abstract": "We present Voxel-Grounded Online Instance Manager (VOIM), a training-free voxel-grounded instance manager that builds open-vocabulary 3D instance maps from RGB-D or from monocular RGB alone, a regime no prior training-free system addresses. Online systems typically segment object instances and label them at first detection, committing when evidence is weakest. VOIM instead defers label and instance decisions until soft evidence from unmodified, off-the-shelf perception has accumulated per voxel across views. We show that the mapping stage, rather than the particular perception models, carries the result: across four perception configurations on ScanNet++, varying the region descriptor, the detector label prior and the mask source, the map exceeds the strongest online RGB-D system, OVO-SLAM, by between 4.8 and 11.7 mIoU. Perception is not neutral, and substituting that baseline's own descriptor family costs 4.1 of the margin, yet the baseline carries the marginally better 2D descriptor (33.7 vs. 31.5 mIoU over three scenes) and still realizes the weaker map. Under a like-for-like protocol VOIM reaches 44.07 mIoU on ScanNet++ against 32.37, winning all ten scenes and both aggregations (pooled 33.31 vs. 25.97), and the same system runs unchanged to fully monocular RGB, matching that baseline pooled on Replica (27.80 vs. 27.50). The advantage is regime-specific: under Replica's all-classes scoring, matched inputs give a split result, 28.60 vs. 27.50 pooled against 24.59 vs. 30.11 on the per-scene mean. Room scale is label-limited and building scale drift-limited. Labeling does not run in real time, dominated by per-class detection over the full vocabulary. The maps export occupancy grids and resolve free-form queries to object instances.",
+      "authors": [
+        "Sangmin Song",
+        "Sarath Kodagoda",
+        "Marc G. Carmichael",
+        "Karthick Thiyagarajan",
+        "Amal Gunatilake",
+        "Kelly Prentice",
+        "Jodi Martin"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-09-01T06:07:25+00:00",
+      "link": "https://arxiv.org/pdf/2609.00775v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Training-free open-vocabulary 3D instance mapping accumulating multi-view voxel evidence",
+      "llm_evidence_cn": "免训练开放词汇三维实例建图，跨视角累积体素证据",
+      "llm_evidence": "免训练开放词汇三维实例建图，跨视角累积体素证据",
+      "canonical_evidence": "免训练开放词汇三维实例建图，跨视角累积体素证据",
+      "llm_tldr_en": "VOIM is a training-free voxel-grounded instance manager building open-vocabulary 3D instance maps from RGB-D or monocular SLAM, deferring label and instance decisions until soft multi-view evidence accumulates per voxel.",
+      "llm_tldr_cn": "在线开放词汇三维建图通常在首次检测时就固化标签与实例，恰在证据最弱时做出判断。本文提出VOIM体素接地在线实例管理器，在RGB-D甚至纯单目SLAM下免训练构建开放词汇三维实例地图，将标签与实例决策推迟到跨视角软证据在体素上累积之后。在ScanNet++上以四种感知配置验证表明，建图阶段而非具体感知模型决定了最终结果。",
+      "llm_tldr": "在线开放词汇三维建图通常在首次检测时就固化标签与实例，恰在证据最弱时做出判断。本文提出VOIM体素接地在线实例管理器，在RGB-D甚至纯单目SLAM下免训练构建开放词汇三维实例地图，将标签与实例决策推迟到跨视角软证据在体素上累积之后。在ScanNet++上以四种感知配置验证表明，建图阶段而非具体感知模型决定了最终结果。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open-vocabulary 3D semantic mapping for scene understanding",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.18898v1",
+      "source": "arxiv",
+      "title": "NormLift: From Lifted Features To Semantic Reliability In 3D Gaussian Splatting",
+      "abstract": "Training-free weighted aggregation is widely used to lift 2D semantic features onto 3D Gaussians for open-vocabulary scene understanding, yet its theoretical role remains insufficiently understood. Existing analyses typically justify this operation from the rendering side, treating Gaussian features as linearly composable Euclidean variables for reconstructing 2D feature maps. However, this view does not match downstream 3D usage, where each Gaussian is often queried independently in a cosine-based embedding space. We revisit feature lifting from the 3D side and formulate per-Gaussian assignment as a cosine alignment problem on the CLIP unit sphere. Under this objective, the L2-normalized semantic back-projected feature emerges as the closed-form solution, providing a complementary interpretation of the standard lifting rule from the perspective of per-Gaussian semantic assignment. The same formulation further yields a norm decomposition into intra-view and inter-view consistency, suggesting that feature magnitude itself can serve as a semantic reliability signal. Calibrated by effective multi-view support, this reliability score guides a mode-voting refinement that preserves CLIP feature validity by avoiding linear averaging. Experiments on open-vocabulary 3D semantic segmentation show that NormLift is an efficient, training-free framework that achieves strong performance across evaluation protocols.",
+      "authors": [
+        "Yihan Zang",
+        "Da Li",
+        "Dominik Engel",
+        "Shinkyu Park",
+        "Ivan Viola"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-16T16:35:35+00:00",
+      "link": "https://arxiv.org/pdf/2609.18898v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "lifting 2D semantic features onto 3D Gaussians for open-vocabulary scene understanding",
+      "llm_evidence_cn": "将二维语义特征提升到三维高斯以实现开放词汇场景理解",
+      "llm_evidence": "将二维语义特征提升到三维高斯以实现开放词汇场景理解",
+      "canonical_evidence": "将二维语义特征提升到三维高斯以实现开放词汇场景理解",
+      "llm_tldr_en": "Training-free aggregation lifts 2D CLIP features onto 3D Gaussians for open-vocabulary understanding. NormLift reformulates per-Gaussian assignment as cosine alignment on the CLIP unit sphere, yielding a normalized feature.",
+      "llm_tldr_cn": "无训练加权聚合被广泛用于把二维语义特征提升到三维高斯以支持开放词汇场景理解，但其理论作用尚不清晰，既有分析多从渲染角度把高斯特征当作可线性合成的欧氏变量。论文从三维使用侧重新审视特征提升，将每个高斯的赋值形式化为CLIP单位球面上的余弦对齐问题，并推导出L2归一化语义反投影特征为闭式解。该分析揭示了归一化对语义可靠性的关键作用，为基于辐射场与点云的语言嵌入对齐提供了理论与实用改进，提升开放词汇三维语义查询的准确性。",
+      "llm_tldr": "无训练加权聚合被广泛用于把二维语义特征提升到三维高斯以支持开放词汇场景理解，但其理论作用尚不清晰，既有分析多从渲染角度把高斯特征当作可线性合成的欧氏变量。论文从三维使用侧重新审视特征提升，将每个高斯的赋值形式化为CLIP单位球面上的余弦对齐问题，并推导出L2归一化语义反投影特征为闭式解。该分析揭示了归一化对语义可靠性的关键作用，为基于辐射场与点云的语言嵌入对齐提供了理论与实用改进，提升开放词汇三维语义查询的准确性。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open vocabulary 3D semantic fusion methods that align vision language embeddings with point clouds or radiance fields",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.19542v2",
+      "source": "arxiv",
+      "title": "PerSeM: Persistent Semantic Memory for Long-Horizon Open-Vocabulary UAV Mapping",
+      "abstract": "Open-vocabulary segmentation enables rich semantic perception for UAVs, but frame-wise predictions can remain temporally inconsistent across repeated observations and changing viewpoints. We present PerSeM, a training-free persistent semantic memory framework for long-horizon open-vocabulary UAV mapping. PerSeM associates frame-wise semantic observations with persistent world-space voxels and constructs a majority-based semantic memory, which is conservatively refined through history-preserving spatial refinement, trust-aware replay, and context-guided verification. Experiments on the Forest and UAVScenes benchmarks show that persistent 3D memory provides substantial gains in semantic correctness and temporal stability over frame-wise predictions. Beyond this strong persistent-memory baseline, PerSeM provides consistent additional improvements, improving both semantic accuracy and temporal stability across all five evaluated UAVScenes sequences. Analysis using regions identified independently of the final PerSeM predictions further shows that these gains are concentrated in semantically difficult and temporally unstable regions, where majority-based memory is most likely to remain uncertain. These results demonstrate that persistent 3D aggregation provides a strong foundation for long-horizon semantic mapping, while conservative refinement of uncertain memory states can provide additional improvements without retraining or additional neural-network inference.",
+      "authors": [
+        "Saurbh Singh Jamwal",
+        "Ganesh Ramakrishnan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-09-17T01:07:57+00:00",
+      "link": "https://arxiv.org/pdf/2609.19542v2",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "open-vocabulary 3D semantic mapping with persistent voxel memory",
+      "llm_evidence_cn": "带持久体素记忆的开放词汇三维语义建图",
+      "llm_evidence": "带持久体素记忆的开放词汇三维语义建图",
+      "canonical_evidence": "带持久体素记忆的开放词汇三维语义建图",
+      "llm_tldr_en": "PerSeM builds persistent world-space voxel semantic memory for long-horizon open-vocabulary UAV mapping, improving temporal consistency over frame-wise predictions.",
+      "llm_tldr_cn": "针对无人机开放词汇分割逐帧预测在重复观测与视角变化下时序不一致的问题，本文提出免训练的持久语义记忆框架PerSeM，将逐帧语义观测关联到世界空间体素并构建多数投票语义记忆，并通过保留历史的空间细化、可信回放与上下文验证进行保守更新。在Forest与UAVScenes基准上，持久3D记忆显著提升语义正确率与时序稳定性，为长期开放词汇建图提供了可靠机制。",
+      "llm_tldr": "针对无人机开放词汇分割逐帧预测在重复观测与视角变化下时序不一致的问题，本文提出免训练的持久语义记忆框架PerSeM，将逐帧语义观测关联到世界空间体素并构建多数投票语义记忆，并通过保留历史的空间细化、可信回放与上下文验证进行保守更新。在Forest与UAVScenes基准上，持久3D记忆显著提升语义正确率与时序稳定性，为长期开放词汇建图提供了可靠机制。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open-vocabulary 3D semantic mapping for scene understanding",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.20475v1",
+      "source": "arxiv",
+      "title": "SenseFuse: Label-Free Fusion of Image and Shape Encoders for Open-Vocabulary 3D Instance Segmentation",
+      "abstract": "Open-vocabulary scene understanding is fundamental for robotics, laying the groundwork for spatial reasoning and object manipulation. While closed-vocabulary 3D instance segmentation heavily leverages 3D shape information, state-of-the-art open-vocabulary methods remain predominantly restricted to 2D image features or image-distilled representations during mask labeling. In this paper, we propose SenseFuse, a label-free fusion method that balances 2D image and 3D shape encoders for robust open-vocabulary 3D instance segmentation, refining only the mask-labeling stage of existing pipelines. We reveal that 2D image and 3D shape encoders exhibit largely disjoint failure patterns and rarely share identical wrong labels, whereas two 2D image encoders frequently repeat the same errors. This distinct behavior makes the 2D and 3D pair inherently complementary. We introduce an adaptive mechanism that selects a scene-level fusion weight to maximize a label-free sensitivity measure, estimated directly from a single scene's unlabeled proposals in milliseconds. SenseFuse improves labeling accuracy in every evaluated setting across ScanNet200, Replica, and ScanNet++, recovering 67-100% (median 93%) of the gain achievable with an oracle weight, and it raises instance AP in 21 of 22 reported settings. Code is available at https://github.com/hanes1207/SenseFuse.",
+      "authors": [
+        "Euiseok Han",
+        "Tri Ton",
+        "Hwanhee Kim",
+        "Seungyeon Ryu",
+        "Chang D. Yoo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-09-17T14:32:00+00:00",
+      "link": "https://arxiv.org/pdf/2609.20475v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "label-free fusion of 2D image and 3D shape encoders for open-vocabulary 3D instance segmentation",
+      "llm_evidence_cn": "为开放词汇三维实例分割无标签融合二维图像与三维形状编码器",
+      "llm_evidence": "为开放词汇三维实例分割无标签融合二维图像与三维形状编码器",
+      "canonical_evidence": "为开放词汇三维实例分割无标签融合二维图像与三维形状编码器",
+      "llm_tldr_en": "Open-vocabulary 3D instance segmentation relies mostly on 2D image features, ignoring 3D shape. SenseFuse is a label-free fusion of image and shape encoders that refines mask labeling by exploiting their disjoint failure patterns.",
+      "llm_tldr_cn": "开放词汇三维场景理解是机器人空间推理与操作的基础，但当前先进方法在掩码标注阶段仍主要依赖二维图像特征或图像蒸馏表示，未能充分利用三维形状信息。论文提出SenseFuse，一种无标签融合方法，在既有流程的掩码标注阶段平衡二维图像编码器与三维形状编码器。作者发现两类编码器的失败模式基本不重叠，很少给出相同的错误标签，据此融合可提升鲁棒性。方法在开放词汇三维实例分割上取得更稳健的标注与分割效果，为跨模态特征对齐与融合提供了实用方案。",
+      "llm_tldr": "开放词汇三维场景理解是机器人空间推理与操作的基础，但当前先进方法在掩码标注阶段仍主要依赖二维图像特征或图像蒸馏表示，未能充分利用三维形状信息。论文提出SenseFuse，一种无标签融合方法，在既有流程的掩码标注阶段平衡二维图像编码器与三维形状编码器。作者发现两类编码器的失败模式基本不重叠，很少给出相同的错误标签，据此融合可提升鲁棒性。方法在开放词汇三维实例分割上取得更稳健的标注与分割效果，为跨模态特征对齐与融合提供了实用方案。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "cross modal feature alignment and fusion for open vocabulary 3D object detection and segmentation",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.29285v1",
+      "source": "arxiv",
+      "title": "3D-MRL: Nested Multimodal 3D Representations via Matryoshka Representation Learning",
+      "abstract": "Vision-Language Models align point clouds with image and text embeddings, enabling zero-shot recognition, retrieval, and open-vocabulary understanding of 3D shapes. Existing multimodal 3D pre-training methods produce fixed-dimensional embeddings, requiring separate models for different computational budgets. We propose 3D Matryoshka Representation Learning (3D-MRL), a multimodal 3D pre-training framework based on Matryoshka Representation Learning. 3D-MRL learns nested 3D representations by aligning point clouds with frozen CLIP image and text embeddings while applying contrastive supervision across multiple embedding dimensions. The Matryoshka objective is applied only to the 3D encoder, allowing a single model to produce representations at different dimensionalities without retraining. Experiments on the Objaverse-LVIS, ModelNet40, and ScanNet datasets show that 3D-MRL achieves competitive performance on zero-shot and few-shot 3D recognition tasks. In addition, the learned representations support retrieval across different embedding dimensions within a single model. On Objaverse-LVIS, 3D-MRL improves Top-1 accuracy from 46.8% to 50.9%. Retrieval experiments further show that different embedding dimensions yield varying levels of semantic and geometric specificity.",
+      "authors": [
+        "Márcus Lobo",
+        "Vitor Matias",
+        "Jeová Farias",
+        "Moacir Ponti"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-29T14:14:32+00:00",
+      "link": "https://arxiv.org/pdf/2608.29285v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "aligning point clouds with CLIP image and text embeddings for open-vocabulary 3D",
+      "llm_evidence_cn": "将点云与CLIP图文嵌入对齐实现开放词汇3D理解",
+      "llm_evidence": "将点云与CLIP图文嵌入对齐实现开放词汇3D理解",
+      "canonical_evidence": "将点云与CLIP图文嵌入对齐实现开放词汇3D理解",
+      "llm_tldr_en": "3D-MRL aligns point clouds with frozen CLIP image and text embeddings under Matryoshka learning, producing nested open-vocabulary 3D representations.",
+      "llm_tldr_cn": "针对现有多模态3D预训练只能产生固定维度嵌入、难以适配不同算力预算的问题，本文提出3D套娃表示学习框架3D-MRL，将点云与冻结的CLIP图像和文本嵌入对齐，并在多个嵌入维度上施加对比监督。单一模型即可输出多粒度嵌套表示，支持零样本识别、检索与开放词汇3D理解，为视觉语言嵌入与点云对齐的多模态3D表示学习提供了灵活方案。",
+      "llm_tldr": "针对现有多模态3D预训练只能产生固定维度嵌入、难以适配不同算力预算的问题，本文提出3D套娃表示学习框架3D-MRL，将点云与冻结的CLIP图像和文本嵌入对齐，并在多个嵌入维度上施加对比监督。单一模型即可输出多粒度嵌套表示，支持零样本识别、检索与开放词汇3D理解，为视觉语言嵌入与点云对齐的多模态3D表示学习提供了灵活方案。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open vocabulary 3D semantic fusion methods that align vision language embeddings with point clouds or radiance fields",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.09082v1",
+      "source": "arxiv",
+      "title": "GoDeep: Annotation-Free Open-Vocabulary 3D Scene Understanding via Language-Space Lifting",
+      "abstract": "Open vocabulary 3D semantic segmentation methods typically lift CLIP features into 3D. This embeds points in a joint vision-language space known to behave like a bag-of-words on compositional tasks. Furthermore, even annotation free variants often require a large 3D training corpus and a dedicated 3D encoder per domain. Instead we use a vision-language model purely as a translator. It produces structured, entity-level descriptions of each posed image. These descriptions are grounded, projected, and aggregated directly in a general-purpose, language-only embedding space, with no 3D training corpus or encoder required. On ScanNet++, our pipeline is competitive with strong annotation free baselines trained on ScanNet. On a 5-building cultural heritage benchmark, raw scores initially favor a CLIP-based variant, but a single systematic vocabulary correction reverses this ranking. An effect confirmed by a second, independent correction on a different class, indicating that language-space embeddings track physical content more faithfully. This fidelity extends to genuinely out-of-vocabulary (OOV) objects on ScanNet++ proving that language-space embeddings separate presence from absence objects far more sharply than CLIP-based embeddings do. GoDeep also localize these OOV objects within the scene, all without any 2D-3D annotation. Because every representation remains discrete text, predictions are also explainable at the point level. Finally, exploiting both a heuristic weighting, that favors precise over merely frequent observations and GoDeep's explainability property, we propose an aggregation strategy, as a proof of concept, that favors finer elements localization.",
+      "authors": [
+        "Thodoris Betsas",
+        "Anastasios Doulamis",
+        "Andreas Georgopoulos"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-09-08T17:31:51+00:00",
+      "link": "https://arxiv.org/pdf/2609.09082v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "open-vocabulary 3D semantic segmentation via language-space lifting",
+      "llm_evidence_cn": "经语言空间提升的开放词汇三维语义分割",
+      "llm_evidence": "经语言空间提升的开放词汇三维语义分割",
+      "canonical_evidence": "经语言空间提升的开放词汇三维语义分割",
+      "llm_tldr_en": "GoDeep lifts vision-language model outputs into a language-only embedding space via entity-level image descriptions, achieving annotation-free open-vocabulary 3D semantic segmentation without 3D training or a 3D encoder.",
+      "llm_tldr_cn": "论文指出现有开放词汇三维语义分割把CLIP特征提升到三维，会在组合任务上退化为词袋，且免标注方法仍依赖大规模三维语料与专用编码器。GoDeep转而把视觉语言模型仅当作翻译器，为每张带位姿图像生成实体级结构化描述，再在通用纯语言嵌入空间中完成落地、投影与聚合。在ScanNet++上，该方法与在ScanNet上训练的强免标注基线相当，并在多建筑数据上得到验证。其意义在于无需三维训练语料和编码器即可实现跨域开放词汇三维场景理解。",
+      "llm_tldr": "论文指出现有开放词汇三维语义分割把CLIP特征提升到三维，会在组合任务上退化为词袋，且免标注方法仍依赖大规模三维语料与专用编码器。GoDeep转而把视觉语言模型仅当作翻译器，为每张带位姿图像生成实体级结构化描述，再在通用纯语言嵌入空间中完成落地、投影与聚合。在ScanNet++上，该方法与在ScanNet上训练的强免标注基线相当，并在多建筑数据上得到验证。其意义在于无需三维训练语料和编码器即可实现跨域开放词汇三维场景理解。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open-vocabulary segmentation for 3D scene mapping",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2608.30870v1",
+      "source": "arxiv",
+      "title": "VCAR: Training-Free 3DGS Segmentation via View Completeness and Axis-Aware Boundary Refinement",
+      "abstract": "Semantic segmentation in 3D Gaussian Splatting (3DGS) is crucial for advancing 3D scene understanding. Existing methods predominantly rely on feature distillation, which incurs substantial per-scene training overhead and often yields blurred segmentation boundaries. We identify that these boundary artifacts are driven in part by insufficient viewpoint coverage and boundary overflow of anisotropic Gaussian primitives. To address these challenges, we propose VCAR, a training-free coarse-to-fine segmentation strategy based on View Completeness and Axis-aware Boundary Refinement. In the coarse stage, a visibility-based weighted multi-view voting scheme rapidly localizes the target. In the fine stage, an object-centric sphere derived from the coarse result generates supplementary viewpoints via Spherical Spiral Sampling (SSS), allowing multi-view voting on the augmented views to precisely refine object boundaries and suppress irrelevant 3D Gaussians. Moreover, we introduce Axis-aware Boundary Refinement (ABR) to mitigate artifacts from anisotropic primitives. By decomposing the projected 2D covariance into per-axis contributions, ABR identifies the dominant axis responsible for boundary leakage and applies targeted anisotropic compression exclusively along that axis. Extensive experiments on NVOS and LERF demonstrate that VCAR achieves state-of-the-art segmentation accuracy and efficiency without training. Our code is available at https://github.com/DDKK0526/VCAR.",
+      "authors": [
+        "Kun Cao",
+        "Di Wang",
+        "Haibin Zhu",
+        "Haozhi Huang",
+        "Xu Wang",
+        "Zheng Shi",
+        "Guanghua Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-31T14:32:26+00:00",
+      "link": "https://arxiv.org/pdf/2608.30870v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Training-free semantic segmentation of 3D Gaussian Splatting scenes with multi-view voting",
+      "llm_evidence_cn": "免训练3D高斯泼溅语义分割与多视角投票",
+      "llm_evidence": "免训练3D高斯泼溅语义分割与多视角投票",
+      "canonical_evidence": "免训练3D高斯泼溅语义分割与多视角投票",
+      "llm_tldr_en": "VCAR tackles 3D Gaussian Splatting semantic segmentation without per-scene training. It uses visibility-weighted multi-view voting for coarse localization and axis-aware boundary refinement, improving blurred boundaries from limited view coverage.",
+      "llm_tldr_cn": "针对3D高斯泼溅语义分割依赖逐场景特征蒸馏、训练开销大且边界模糊的问题，本文提出无需训练的VCAR粗到细分割策略。粗阶段采用基于可见性的加权多视角投票快速定位目标，细阶段用对象中心球体与轴感知边界细化修正各向异性高斯的边界溢出。实验表明该方法在无需训练的前提下显著改善分割边界质量，为3DGS场景理解提供高效分割方案。",
+      "llm_tldr": "针对3D高斯泼溅语义分割依赖逐场景特征蒸馏、训练开销大且边界模糊的问题，本文提出无需训练的VCAR粗到细分割策略。粗阶段采用基于可见性的加权多视角投票快速定位目标，细阶段用对象中心球体与轴感知边界细化修正各向异性高斯的边界溢出。实验表明该方法在无需训练的前提下显著改善分割边界质量，为3DGS场景理解提供高效分割方案。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "semantic segmentation of 3D point clouds and volumetric scenes",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.03891v1",
+      "source": "arxiv",
+      "title": "A hybrid pipeline for dynamic ontology-based semantic mapping",
+      "abstract": "Semantic mapping plays a crucial role in the ability of a robot to interact with objects, operate and navigate a complex environment. The most common pipeline for semantic mapping consists of geometric mapping and localization (SLAM), perception, semantic fusion and semantic representation. However, more recent works also integrate a form of prior knowledge in their application, most notably knowledge graphs or semantic scene graphs, to improve contextual understanding of the environment. In this paper, we present a hybrid pipeline for semantic mapping. Our system incorporates an external calibrated camera using homography projection for geometric mapping and localization, combined with object detection, persistent object tracking and ontology driven semantic updates to build a dynamic semantic world model. Linear regression models are also used for correction of the estimated values of real world coordinates. The system continuously updates object instances, spatial properties and semantic relations based on real time sensory data. Ontologies are selected as form of knowledge representation due to their hierarchical structure, semantic expressiveness and support for dynamic world modelling.",
+      "authors": [
+        "Konstantinos Dimitropoulos",
+        "Ioannis Hatzilygeroudis"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-09-03T14:11:21+00:00",
+      "link": "https://arxiv.org/pdf/2609.03891v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "semantic fusion and semantic mapping pipeline for robots",
+      "llm_evidence_cn": "机器人语义融合与语义建图流水线",
+      "llm_evidence": "机器人语义融合与语义建图流水线",
+      "canonical_evidence": "机器人语义融合与语义建图流水线",
+      "llm_tldr_en": "Presents a hybrid semantic mapping pipeline combining SLAM, object detection, tracking and ontology-driven semantic fusion for robot scene understanding.",
+      "llm_tldr_cn": "机器人语义建图需要几何定位、感知、语义融合与表示的统一，并越来越多地引入本体或场景图等先验知识。本文提出混合语义建图流水线，结合标定相机单应投影、目标检测、持久目标跟踪与本体驱动的语义更新。系统实现了几何建图与语义融合的协同，提升了环境上下文理解能力，为知识驱动的机器人语义建图提供了可行方案。",
+      "llm_tldr": "机器人语义建图需要几何定位、感知、语义融合与表示的统一，并越来越多地引入本体或场景图等先验知识。本文提出混合语义建图流水线，结合标定相机单应投影、目标检测、持久目标跟踪与本体驱动的语义更新。系统实现了几何建图与语义融合的协同，提升了环境上下文理解能力，为知识驱动的机器人语义建图提供了可行方案。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open-vocabulary 3D semantic mapping for scene understanding",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.11616v1",
+      "source": "arxiv",
+      "title": "LangStreet: Persistent Language Fields for Anchor-Decoded Street Gaussians",
+      "abstract": "Language Gaussian fields implicitly assume that the primitive carrying semantics remains identifiable across views. This assumption breaks in scalable anchor-decoded representations, where persistent anchors generate view-conditioned child Gaussians whose geometry and appearance vary with the camera. We introduce Ours, a persistent language field for such structured Gaussian scenes. Our key idea is semantic ownership: transient children route observations, while persistent decoder slots and their parent anchors own the language field. We use alpha-compositing responsibilities to accumulate additive directional evidence at slots; these statistics marginalize exactly to anchors. We then complete weakly supported slots with anchor-aligned evidence while preserving the anchor direction, and represent slot detail through low-rank residuals in anchor-relative semantic coordinates. Our primary model, Ours (base), stores anchor features together with compact slot residuals. Ours (light) retains only anchor features, whereas Ours (max) stores the full-dimensional completed slot features explicitly. Without scene-specific semantic optimization, Ours (base) nearly matches Ours (max) across KITTI, Virtual KITTI, and Waymo. On KITTI, it achieves 34.19 2D mIoU with a 2.72 GiB effective feature footprint, compared with 34.20 mIoU and 12.90 GiB for Ours (max). The same accuracy-storage trend holds on Virtual KITTI and Waymo. These results show that language fields on view-conditioned splats require persistent semantic ownership, conserved evidence, and a hierarchy that balances stability, detail, and representation cost. Our code, checkpoints, and benchmark suite will be publicly available.",
+      "authors": [
+        "Runyi Yang",
+        "Deheng Zhang",
+        "Xiaoye Wang",
+        "Mengjiao Ma",
+        "Lei Sun",
+        "Kanzhi Wu",
+        "Ajad Chhatkuli",
+        "Luc Van Gool",
+        "Danda Pani Paudel"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-10T14:31:02+00:00",
+      "link": "https://arxiv.org/pdf/2609.11616v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "persistent language field aligning language embeddings with anchor-decoded Gaussian scenes",
+      "llm_evidence_cn": "为锚解码高斯场景构建持久语言场并对齐语言嵌入",
+      "llm_evidence": "为锚解码高斯场景构建持久语言场并对齐语言嵌入",
+      "canonical_evidence": "为锚解码高斯场景构建持久语言场并对齐语言嵌入",
+      "llm_tldr_en": "Language Gaussian fields assume the semantic primitive is view-stable, which fails for anchor-decoded Gaussians. The paper introduces a persistent language field using semantic ownership and alpha-compositing evidence that marginalizes to anchors.",
+      "llm_tldr_cn": "语言高斯场通常假设承载语义的基元在各视角下保持可识别，但在可扩展的锚解码表示中，持久锚点会生成随相机变化的子高斯，导致该假设失效。论文提出一种面向结构化高斯场景的持久语言场，以语义归属为核心，让瞬态子高斯负责路由观测，而持久解码槽与父锚点拥有语言场，并利用alpha合成责任累积方向性证据。该证据可精确边缘化到锚点，并对弱支撑槽进行锚对齐补全。方法在街景高斯上提升了开放词汇语义查询的跨视角一致性与可靠性。",
+      "llm_tldr": "语言高斯场通常假设承载语义的基元在各视角下保持可识别，但在可扩展的锚解码表示中，持久锚点会生成随相机变化的子高斯，导致该假设失效。论文提出一种面向结构化高斯场景的持久语言场，以语义归属为核心，让瞬态子高斯负责路由观测，而持久解码槽与父锚点拥有语言场，并利用alpha合成责任累积方向性证据。该证据可精确边缘化到锚点，并对弱支撑槽进行锚对齐补全。方法在街景高斯上提升了开放词汇语义查询的跨视角一致性与可靠性。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open vocabulary 3D semantic fusion methods that align vision language embeddings with point clouds or radiance fields",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2609.04607v1",
+      "source": "arxiv",
+      "title": "Open-Set 3D Scene Graphs for Field Robotics: An Outdoor Case Study",
+      "abstract": "Three-dimensional scene graphs (3DSGs) have emerged as a promising approach for building geometrically grounded, semantically informed, hierarchical general-purpose maps to support high-level robotic reasoning. However, the behavior of 3DSGs in real-world outdoor deployments remains poorly understood, particularly when combined with open-set vision-language models (VLMs). In this field report, we analyze the components common to most 3DSG representations across five outdoor robotic datasets to characterize challenges that arise in complex outdoor environments. Using the recently proposed Terra 3DSG as a case study, we investigate semantic point embeddings, place-node graph navigation, region-level understanding, and memory size across the five diverse datasets. We additionally introduce novel consistency metrics to evaluate whether semantic and structural graph properties remain stable across repeated traversals of the same environment. Our analysis reveals that outliers and multiple modes are common in VLM point embeddings across all tested datasets with outlier ratios above $0.1$ for around $30\\%$ of points. We demonstrate the feasibility of outdoor 3DSGs for navigation-based object retrieval, achieving success rates near $70\\%$, though performance is limited by traversability failures and inefficient routing, with trajectories averaging approximately $66\\%$ suboptimal path efficiency. Region-level understanding remains challenging in complex natural environments, with low average F1 scores around $0.359$. Overall, our results show that outdoor 3DSGs can maintain compact (less than $600$MB for multi-kilometer trajectories) and relatively consistent large-scale environment representations, while highlighting open challenges in handling multiple semantic modes, incorporating traversability into graph structures, and improving higher-level region understanding.",
+      "authors": [
+        "Chad R. Samuelson",
+        "Gabriel R. Slade",
+        "Joshua G. Mangelson"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-09-04T01:14:09+00:00",
+      "link": "https://arxiv.org/pdf/2609.04607v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Open-set 3D scene graphs with vision-language models, semantic point embeddings and region-level understanding",
+      "llm_evidence_cn": "结合视觉语言模型的开放集三维场景图，含语义点嵌入与区域级理解",
+      "llm_evidence": "结合视觉语言模型的开放集三维场景图，含语义点嵌入与区域级理解",
+      "canonical_evidence": "结合视觉语言模型的开放集三维场景图，含语义点嵌入与区域级理解",
+      "llm_tldr_en": "This field report studies 3D scene graphs combined with open-set vision-language models in outdoor robotics, analyzing semantic point embeddings, place-node graph navigation, region-level understanding and memory size across five outdoor datasets.",
+      "llm_tldr_cn": "三维场景图被视为构建几何接地、语义丰富的层次化通用地图的有效途径，但其在真实户外部署中的行为尚不明确，尤其是结合开放集视觉语言模型时。本文以Terra三维场景图为案例，在五个户外机器人数据集上分析语义点嵌入、地点节点图导航、区域级理解与内存开销。研究刻画了复杂户外环境下三维场景图面临的挑战。该工作为开放词汇三维语义地图的构建与评估提供了实践性洞见。",
+      "llm_tldr": "三维场景图被视为构建几何接地、语义丰富的层次化通用地图的有效途径，但其在真实户外部署中的行为尚不明确，尤其是结合开放集视觉语言模型时。本文以Terra三维场景图为案例，在五个户外机器人数据集上分析语义点嵌入、地点节点图导航、区域级理解与内存开销。研究刻画了复杂户外环境下三维场景图面临的挑战。该工作为开放词汇三维语义地图的构建与评估提供了实践性洞见。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open-vocabulary 3D semantic mapping for scene understanding",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.04741v1",
+      "source": "arxiv",
+      "title": "Where to Look Matters: Learning Influential Views for VLM-based 3D Visual Grounding",
+      "abstract": "Recent zero-shot 3D visual grounding methods leverage vision-language models (VLMs) to localize objects in 3D scenes from natural language queries. However, these methods typically rely on heuristic rules to select which camera views are provided to the VLM, often prioritizing object visibility rather than grounding relevance. We present IVSGround, a framework that learns Influential View Selection for VLM-based 3D visual grounding. Instead of using fixed heuristics, a lightweight view selector is trained to identify views that provide discriminative evidence for grounding. To obtain supervision signals, we generate training signals using feedback from a reasoning VLM through a two-stage rejection sampling process. During inference, the learned selector predicts query-conditioned influential views for each candidate object, which are then evaluated by a frozen reasoning VLM through comparative grounding. Experiments on ScanRefer and NR3D show that IVSGround consistently improves grounding accuracy over existing zero-shot pipelines, demonstrating that selecting where to look is crucial for effective 3D visual grounding. Project page: https://ivsground.github.io/",
+      "authors": [
+        "Tsung-Chih Chiang",
+        "Hsuan-Kung Yang",
+        "Jou-Min Liu",
+        "Ting-Ru Liu",
+        "Chun-Wei Huang",
+        "Quan Kong",
+        "Chun-Yi Lee"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-04T05:17:38+00:00",
+      "link": "https://arxiv.org/pdf/2609.04741v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "learning influential multi-view selection for VLM-based 3D grounding",
+      "llm_evidence_cn": "为基于VLM的三维定位学习有影响力的多视角选择",
+      "llm_evidence": "为基于VLM的三维定位学习有影响力的多视角选择",
+      "canonical_evidence": "为基于VLM的三维定位学习有影响力的多视角选择",
+      "llm_tldr_en": "IVSGround learns a lightweight view selector to choose camera views that provide discriminative evidence for VLM-based zero-shot 3D visual grounding, using reasoning-VLM feedback as supervision.",
+      "llm_tldr_cn": "论文指出零样本三维视觉定位方法虽借助视觉语言模型从自然语言查询定位三维物体，但通常用启发式规则选择相机视角，偏重物体可见性而非定位相关性。为此提出IVSGround，训练一个轻量视角选择器来识别对定位最具判别性证据的视角，并利用推理VLM的反馈通过两阶段拒绝采样生成监督信号。摘要强调学习式视角选择优于固定启发式，未给出具体数值。该工作将多视角选择与VLM三维理解结合，为语言引导的三维场景理解提供思路。",
+      "llm_tldr": "论文指出零样本三维视觉定位方法虽借助视觉语言模型从自然语言查询定位三维物体，但通常用启发式规则选择相机视角，偏重物体可见性而非定位相关性。为此提出IVSGround，训练一个轻量视角选择器来识别对定位最具判别性证据的视角，并利用推理VLM的反馈通过两阶段拒绝采样生成监督信号。摘要强调学习式视角选择优于固定启发式，未给出具体数值。该工作将多视角选择与VLM三维理解结合，为语言引导的三维场景理解提供思路。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "multi-view semantic fusion for open-vocabulary 3D maps",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.19358v1",
+      "source": "arxiv",
+      "title": "Open-vocabulary 3D object detection with promptable segmentation",
+      "abstract": "Three-dimensional object detection for autonomous driving is dominated by detectors trained on large corpora of human-annotated 3D boxes. Such a detector learns a fixed category list, and everything outside it is invisible. This paper asks whether the task can be solved training-free and open-vocabulary. A promptable segmentation model (SAM3), queried with class names as text prompts, supplies instance masks in the vehicle's six surround-view cameras, and the masks are turned into metric 3D boxes using the geometry of the scene. The core is a controlled three-stage comparison on nuScenes in which 2D detection is held fixed and only the source of 3D geometry changes. Geometry predicted from images alone reaches 0.183 mean average precision (mAP) under the official protocol; fitting boxes from raw LiDAR points inside the same masks with training-free rules reaches 0.298 mAP / 0.348 nuScenes detection score (NDS) at zero labeling cost; borrowing supervised box geometry at inference time lifts the same detections to 0.413 mAP / 0.555 NDS, which locates the pipeline's largest deficit in measurement precision rather than 2D detection, while class confusion and confidence calibration survive that substitution. Reversing the direction, a three-state camera-witness rule built from the same masks improves a supervised LiDAR-only detector from 0.596 to 0.630 mAP, roughly half the gain of fully supervised camera fusion, with no training. A coverage analysis shows that SAM3 finds 84% of in-range objects with a correctly named mask; the classes that fail in the official metric are misnamed or geometrically unforgiving, not unseen.",
+      "authors": [
+        "Ömer Faruk Deniz",
+        "Mustafa Taha Koçyiğit"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-16T19:31:00+00:00",
+      "link": "https://arxiv.org/pdf/2609.19358v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Open-vocabulary 3D detection via promptable segmentation and geometric box lifting",
+      "llm_evidence_cn": "用可提示分割实现开放词汇三维检测并提升为三维框",
+      "llm_evidence": "用可提示分割实现开放词汇三维检测并提升为三维框",
+      "canonical_evidence": "用可提示分割实现开放词汇三维检测并提升为三维框",
+      "llm_tldr_en": "This work asks whether 3D object detection can be training-free and open-vocabulary. It uses a promptable segmentation model queried by class names across surround-view cameras and lifts masks into metric 3D boxes, reaching 0.183 mAP on nuScenes.",
+      "llm_tldr_cn": "传统三维目标检测依赖大量标注三维框，只能识别固定类别，类别表外的物体被忽略。本文提出免训练开放词汇方案：用可提示分割模型SAM3以类别名作文本提示，在六路环视相机中生成实例掩码，再借助场景几何将掩码提升为度量三维框。在nuScenes上，仅用图像预测几何即可达到0.183 mAP，验证了跨模态提示与几何融合在开放词汇三维检测中的可行性。",
+      "llm_tldr": "传统三维目标检测依赖大量标注三维框，只能识别固定类别，类别表外的物体被忽略。本文提出免训练开放词汇方案：用可提示分割模型SAM3以类别名作文本提示，在六路环视相机中生成实例掩码，再借助场景几何将掩码提升为度量三维框。在nuScenes上，仅用图像预测几何即可达到0.183 mAP，验证了跨模态提示与几何融合在开放词汇三维检测中的可行性。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "cross modal feature alignment and fusion for open vocabulary 3D object detection and segmentation",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2609.06959v1",
+      "source": "arxiv",
+      "title": "MSSP: Multi-Scale Spatially-Constrained Partition for Unsupervised Semantic Segmentation of 3D Point Clouds",
+      "abstract": "3D point cloud semantic segmentation is essential for real-world spatial understanding, yet the prohibitive cost of human annotations motivates unsupervised approaches that require no labels. Existing superpoint-based methods typically rely on spectral analysis at a fixed granularity, failing to capture the hierarchical semantic structures inherent in complex indoor scenes. To bridge this gap, we present a Multi-Scale Spatially-Constrained Partition (MSSP) framework that combines multi-scale spectral analysis with spatially-constrained clustering. Multi-scale spectral analysis constructs enriched superpoint descriptors across multiple clustering granularities; however, the resulting high-dimensional feature space calls for a structural prior to translate into cleaner segmentation. Spatially-constrained clustering supplies this prior by restricting superpoint merging to physically adjacent regions, imposing the spatial coherence needed for multi-scale features to be effective. Extensive experiments on S3DIS and ScanNet show that MSSP achieves the best mIoU among unsupervised methods on the main benchmarks, with particularly significant gains on S3DIS. Notably, our ablation reveals a regularize-then-enrich interaction: multi-scale features alone do not improve final segmentation, yet become highly effective when coupled with spatial regularization, underscoring that spatial coherence is aprerequisite for multi-scale representations in superpoint clustering.",
+      "authors": [
+        "Zhenghao Zhang",
+        "Xinjie Wang",
+        "Wei Wang",
+        "Jun Zhang",
+        "Hanyun Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-09-07T02:56:37+00:00",
+      "link": "https://arxiv.org/pdf/2609.06959v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "unsupervised semantic segmentation of 3D point clouds",
+      "llm_evidence_cn": "3D点云的无监督语义分割",
+      "llm_evidence": "3D点云的无监督语义分割",
+      "canonical_evidence": "3D点云的无监督语义分割",
+      "llm_tldr_en": "MSSP combines multi-scale spectral analysis with spatially-constrained clustering to perform unsupervised semantic segmentation of 3D point clouds without any labels.",
+      "llm_tldr_cn": "该文针对3D点云语义分割标注成本高昂、现有超点方法在固定粒度上做谱分析而无法捕捉室内场景层次语义结构的问题，提出多尺度空间约束划分MSSP框架。方法将多尺度谱分析与空间约束聚类结合，在多个聚类粒度上构建丰富的超点描述子，缓解高维特征空间带来的困难。该框架无需任何标签即可完成点云语义分割，为开放词汇与多视角语义映射提供了可复用的3D点云分割基础。",
+      "llm_tldr": "该文针对3D点云语义分割标注成本高昂、现有超点方法在固定粒度上做谱分析而无法捕捉室内场景层次语义结构的问题，提出多尺度空间约束划分MSSP框架。方法将多尺度谱分析与空间约束聚类结合，在多个聚类粒度上构建丰富的超点描述子，缓解高维特征空间带来的困难。该框架无需任何标签即可完成点云语义分割，为开放词汇与多视角语义映射提供了可复用的3D点云分割基础。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "semantic segmentation of 3D point clouds and volumetric scenes",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.04846v1",
+      "source": "arxiv",
+      "title": "LetOccVote: Learning Weakly Supervised 3D Occupancy through Consensus",
+      "abstract": "Weakly supervised 3D occupancy prediction reduces the reliance on costly 3D annotations by learning from 2D pseudo-labels generated by vision foundation models. However, existing methods typically use these imperfect pseudo-labels directly as supervision, making occupancy learning vulnerable to erroneous geometric and semantic targets. We observe that agreement across repeated observations provides an inexpensive and reliable cue for assessing pseudo-label reliability. Based on this observation, we propose \\textbf{LetOccVote}, a weakly supervised Gaussian-based occupancy framework that leverages cross-frame voting to improve both geometric and semantic supervision. For geometry, Depth Vote exploits cross-frame geometric agreement to refine supported pseudo depth and reject contradictory estimates before volumetric lifting and depth supervision. For semantics, Semantic Vote aggregates pseudo-semantic observations in a shared 3D space to identify reliable and contested evidence, strengthening reliable semantic supervision while filtering unreliable pseudo-label segments. The entire framework is trained solely with 2D pseudo-label supervision without requiring 3D occupancy annotations. On Occ3D-nuScenes, LetOccVote achieves 53.27 IoU and 20.39 mIoU, establishing state-of-the-art performance among methods with 2D pseudo-label supervision.",
+      "authors": [
+        "Chi Zhang",
+        "Qi Song",
+        "Feifei Li",
+        "Jie Li",
+        "Rui Huang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-04T08:03:57+00:00",
+      "link": "https://arxiv.org/pdf/2609.04846v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "weakly supervised 3D occupancy with cross-frame voting for geometric and semantic supervision",
+      "llm_evidence_cn": "利用跨帧投票改进几何与语义监督的弱监督三维占据预测",
+      "llm_evidence": "利用跨帧投票改进几何与语义监督的弱监督三维占据预测",
+      "canonical_evidence": "利用跨帧投票改进几何与语义监督的弱监督三维占据预测",
+      "llm_tldr_en": "Weakly supervised 3D occupancy learns from imperfect 2D pseudo-labels. LetOccVote exploits cross-frame agreement as a reliability cue, using Depth Vote and semantic voting to refine supervision in a Gaussian occupancy framework.",
+      "llm_tldr_cn": "弱监督三维占据预测通过视觉基础模型生成的二维伪标签来减少对昂贵三维标注的依赖，但现有方法直接把这些不完美的伪标签当作监督，使占据学习易受错误几何与语义目标影响。论文观察到重复观测间的一致性可作为廉价可靠的伪标签可靠性线索，提出LetOccVote这一基于高斯的占据框架，利用跨帧投票同时改进几何与语义监督，其中Depth Vote依据跨帧几何一致性精炼伪标签。该方法在弱监督三维占据预测上提升了监督质量与预测精度，为多视角融合下的体素语义学习提供了可借鉴思路。",
+      "llm_tldr": "弱监督三维占据预测通过视觉基础模型生成的二维伪标签来减少对昂贵三维标注的依赖，但现有方法直接把这些不完美的伪标签当作监督，使占据学习易受错误几何与语义目标影响。论文观察到重复观测间的一致性可作为廉价可靠的伪标签可靠性线索，提出LetOccVote这一基于高斯的占据框架，利用跨帧投票同时改进几何与语义监督，其中Depth Vote依据跨帧几何一致性精炼伪标签。该方法在弱监督三维占据预测上提升了监督质量与预测精度，为多视角融合下的体素语义学习提供了可借鉴思路。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "semantic segmentation of 3D point clouds and volumetric scenes",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.20586v1",
+      "source": "arxiv",
+      "title": "CoRef-GS: Cooperative Referring Gaussian Splatting for Multi-Agent Scene Understanding",
+      "abstract": "Referring scene understanding for embodied robots requires grounding object- and relation-centric language queries from a designated viewpoint. While a local semantic Gaussian map can support such grounding within one agent's observations, cooperative settings require this ability to remain effective after independently reconstructed maps are aligned and fused. In this setting, the referred target or its contextual landmark may come from another agent's observations, while spatial relations must still be interpreted from the querying robot's viewpoint. We formulate this problem as cooperative referring Gaussian grounding over fused maps, which requires geometric alignability, instance-level semantic comparability, and view-conditioned relation reasoning. Existing language-aware Gaussian methods mainly focus on single-map querying, whereas Gaussian registration methods optimize geometric or photometric alignment without preserving language-grounding-oriented semantic compatibility. We propose CoRef-GS, a cooperative referring Gaussian splatting framework. CoRef-GS constructs local open-vocabulary instance-aware Gaussian maps, then aligns partially overlapping maps with a cross-agent alignment module by geometric and semantic consistency, and grounds queries using a view-conditioned mask relation graph. We further introduce CoQuad-Ref, a dual-quadruped benchmark spanning both real-world and simulated indoor scenes. Experiments show that, on simulated scenes, CoRef-GS reduces the rotation error from 2.58° after coarse initialization to 0.15° after refinement, and improves real-world referring mIoU over ReferSplat from 52.6% to 68.8%. The established benchmark and source code will be publicly released at https://github.com/ruojiruoli17/CoRef-GS.git.",
+      "authors": [
+        "Zhikun Zhou",
+        "Kunyu Peng",
+        "Runyi Yang",
+        "Junhao Cai",
+        "Di Wen",
+        "Ruiping Liu",
+        "Danda Pani Paudel",
+        "Yi Zhou",
+        "Luc Van Gool",
+        "Kailun Yang"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.CV",
+        "eess.IV"
+      ],
+      "published": "2026-09-17T15:39:25+00:00",
+      "link": "https://arxiv.org/pdf/2609.20586v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Cooperative referring Gaussian grounding over fused multi-agent semantic maps",
+      "llm_evidence_cn": "在融合的多智能体语义高斯地图上进行协同指代定位",
+      "llm_evidence": "在融合的多智能体语义高斯地图上进行协同指代定位",
+      "canonical_evidence": "在融合的多智能体语义高斯地图上进行协同指代定位",
+      "llm_tldr_en": "CoRef-GS formulates cooperative referring Gaussian grounding over fused maps, requiring geometric alignability, instance-level semantic comparability and view-conditioned relation reasoning across agents.",
+      "llm_tldr_cn": "具身机器人需从指定视角理解以物体和关系为中心的语言查询，但单智能体的局部语义高斯地图难以在独立重建地图对齐融合后继续生效，目标或参照物可能来自其他智能体观测。本文提出CoRef-GS协同指代高斯方法，将问题表述为融合地图上的协同指代定位，要求几何可对齐、实例级语义可比较与视角条件化关系推理。该工作为多视角语义融合下的语言引导三维场景理解提供了新范式。",
+      "llm_tldr": "具身机器人需从指定视角理解以物体和关系为中心的语言查询，但单智能体的局部语义高斯地图难以在独立重建地图对齐融合后继续生效，目标或参照物可能来自其他智能体观测。本文提出CoRef-GS协同指代高斯方法，将问题表述为融合地图上的协同指代定位，要求几何可对齐、实例级语义可比较与视角条件化关系推理。该工作为多视角语义融合下的语言引导三维场景理解提供了新范式。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "multi-view semantic fusion for open-vocabulary 3D maps",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2609.10322v1",
+      "source": "arxiv",
+      "title": "Geometry Without Coordinates: LiDAR Diffusion as a 3D Feature Bridge",
+      "abstract": "Transferring the rich priors of large 2D foundation models to sparse 3D LiDAR remains challenging, as training native 3D foundation models at comparable scale is limited by data and annotation scarcity. We introduce a LiDAR-conditioned diffusion model trained on pseudo-labels from off-the-shelf 2D foundation models. The model supports multiple output modalities, including depth, semantic segmentation and instance prediction, selectable via a textual task prompt. Because the model is conditioned on LiDAR, both its outputs and its intermediate UNet features can be projected back onto the input point cloud, enabling analysis of a 3D representation learned entirely under 2D supervision. We study this representation directly in point-cloud space, explicitly excluding raw spatial coordinates to isolate feature content from projection geometry. Linear probes recover up to ~23% Mean Intersection over Union (MIoU) on 3D semantic classes, compared to ~3.5% for a matched Gaussian-noise control, indicating substantial non-trivial structure. Pairwise cosine similarity across modality-specific feature streams reveals a layered organization. Early encoder layers remain weakly aligned across modalities while individually decodable, intermediate layers converge toward a shared representation, and decoder layers re-specialize toward task-specific outputs. These findings indicate that LiDAR-conditioned diffusion models can induce structured 3D representations from 2D supervision alone, with a modality-dependent manifold that locally unifies near a shared bottleneck. This positions diffusion as a viable mechanism for transferring large-scale 2D priors into sparse 3D domains.",
+      "authors": [
+        "Samed Doğan",
+        "Nico Leuze",
+        "Alfred Schöttl"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-09T15:26:35+00:00",
+      "link": "https://arxiv.org/pdf/2609.10322v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "2D foundation model features bridged and projected back onto LiDAR point clouds",
+      "llm_evidence_cn": "将二维基础模型特征桥接并投影回LiDAR点云",
+      "llm_evidence": "将二维基础模型特征桥接并投影回LiDAR点云",
+      "canonical_evidence": "将二维基础模型特征桥接并投影回LiDAR点云",
+      "llm_tldr_en": "A LiDAR-conditioned diffusion model trained on 2D foundation model pseudo-labels bridges 2D priors to sparse 3D point clouds, supporting depth, semantic segmentation and instance prediction while exposing its 3D features.",
+      "llm_tldr_cn": "针对二维大型基础模型先验难以迁移到稀疏LiDAR、而原生三维基础模型受数据与标注稀缺制约的问题，论文提出以LiDAR为条件的扩散模型。该模型用现成二维基础模型的伪标签训练，可通过文本任务提示选择深度、语义分割与实例预测等多种输出，并把输出及UNet中间特征投影回输入点云。作者在点云空间直接分析这一完全由二维监督学到的三维表示。其贡献在于为多模态特征融合到点云表示提供可复用的桥梁方法。",
+      "llm_tldr": "针对二维大型基础模型先验难以迁移到稀疏LiDAR、而原生三维基础模型受数据与标注稀缺制约的问题，论文提出以LiDAR为条件的扩散模型。该模型用现成二维基础模型的伪标签训练，可通过文本任务提示选择深度、语义分割与实例预测等多种输出，并把输出及UNet中间特征投影回输入点云。作者在点云空间直接分析这一完全由二维监督学到的三维表示。其贡献在于为多模态特征融合到点云表示提供可复用的桥梁方法。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "fusing multi-modal features into point cloud representations",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

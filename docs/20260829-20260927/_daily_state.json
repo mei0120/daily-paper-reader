@@ -1,0 +1,281 @@
+{
+  "date": "20260829-20260927",
+  "date_label": "2026-08-29 ~ 2026-09-27",
+  "generated_at": "2026-09-27 05:14:30 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2608.29177v1",
+      "route": "20260829-20260927/2608.29177v1-dynamic-robust-photometric-semantic-reconstruction-for-open-vocabulary-3d-scene-understanding",
+      "title": "Dynamic-Robust Photometric-Semantic Reconstruction for Open-Vocabulary 3D Scene Understanding",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "面向开放词汇三维场景理解的语义-几何联合编码与多视角视觉语义学习",
+      "first_seen_at": "2026-09-27 05:14:30 UTC",
+      "updated_at": "2026-09-27 05:14:30 UTC"
+    },
+    {
+      "paper_id": "2609.00775v1",
+      "route": "20260829-20260927/2609.00775v1-voim-training-free-open-vocabulary-3d-instance-mapping-for-rgb-d-and-monocular-slam",
+      "title": "VOIM: Training-Free Open-Vocabulary 3D Instance Mapping for RGB-D and Monocular SLAM",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "免训练开放词汇三维实例建图，跨视角累积体素证据",
+      "first_seen_at": "2026-09-27 05:14:30 UTC",
+      "updated_at": "2026-09-27 05:14:30 UTC"
+    },
+    {
+      "paper_id": "2609.18898v1",
+      "route": "20260829-20260927/2609.18898v1-normlift-from-lifted-features-to-semantic-reliability-in-3d-gaussian-splatting",
+      "title": "NormLift: From Lifted Features To Semantic Reliability In 3D Gaussian Splatting",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "将二维语义特征提升到三维高斯以实现开放词汇场景理解",
+      "first_seen_at": "2026-09-27 05:14:30 UTC",
+      "updated_at": "2026-09-27 05:14:30 UTC"
+    },
+    {
+      "paper_id": "2609.19542v2",
+      "route": "20260829-20260927/2609.19542v2-persem-persistent-semantic-memory-for-long-horizon-open-vocabulary-uav-mapping",
+      "title": "PerSeM: Persistent Semantic Memory for Long-Horizon Open-Vocabulary UAV Mapping",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "带持久体素记忆的开放词汇三维语义建图",
+      "first_seen_at": "2026-09-27 05:14:30 UTC",
+      "updated_at": "2026-09-27 05:14:30 UTC"
+    },
+    {
+      "paper_id": "2609.20475v1",
+      "route": "20260829-20260927/2609.20475v1-sensefuse-label-free-fusion-of-image-and-shape-encoders-for-open-vocabulary-3d-instance-segmentation",
+      "title": "SenseFuse: Label-Free Fusion of Image and Shape Encoders for Open-Vocabulary 3D Instance Segmentation",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "为开放词汇三维实例分割无标签融合二维图像与三维形状编码器",
+      "first_seen_at": "2026-09-27 05:14:30 UTC",
+      "updated_at": "2026-09-27 05:14:30 UTC"
+    },
+    {
+      "paper_id": "2608.29285v1",
+      "route": "20260829-20260927/2608.29285v1-3d-mrl-nested-multimodal-3d-representations-via-matryoshka-representation-learning",
+      "title": "3D-MRL: Nested Multimodal 3D Representations via Matryoshka Representation Learning",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "将点云与CLIP图文嵌入对齐实现开放词汇3D理解",
+      "first_seen_at": "2026-09-27 05:14:30 UTC",
+      "updated_at": "2026-09-27 05:14:30 UTC"
+    },
+    {
+      "paper_id": "2609.09082v1",
+      "route": "20260829-20260927/2609.09082v1-godeep-annotation-free-open-vocabulary-3d-scene-understanding-via-language-space-lifting",
+      "title": "GoDeep: Annotation-Free Open-Vocabulary 3D Scene Understanding via Language-Space Lifting",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "经语言空间提升的开放词汇三维语义分割",
+      "first_seen_at": "2026-09-27 05:14:30 UTC",
+      "updated_at": "2026-09-27 05:14:30 UTC"
+    },
+    {
+      "paper_id": "2609.11616v1",
+      "route": "20260829-20260927/2609.11616v1-langstreet-persistent-language-fields-for-anchor-decoded-street-gaussians",
+      "title": "LangStreet: Persistent Language Fields for Anchor-Decoded Street Gaussians",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "为锚解码高斯场景构建持久语言场并对齐语言嵌入",
+      "first_seen_at": "2026-09-27 05:14:30 UTC",
+      "updated_at": "2026-09-27 05:14:30 UTC"
+    },
+    {
+      "paper_id": "2609.19358v1",
+      "route": "20260829-20260927/2609.19358v1-open-vocabulary-3d-object-detection-with-promptable-segmentation",
+      "title": "Open-vocabulary 3D object detection with promptable segmentation",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "用可提示分割实现开放词汇三维检测并提升为三维框",
+      "first_seen_at": "2026-09-27 05:14:30 UTC",
+      "updated_at": "2026-09-27 05:14:30 UTC"
+    },
+    {
+      "paper_id": "2609.20586v1",
+      "route": "20260829-20260927/2609.20586v1-coref-gs-cooperative-referring-gaussian-splatting-for-multi-agent-scene-understanding",
+      "title": "CoRef-GS: Cooperative Referring Gaussian Splatting for Multi-Agent Scene Understanding",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "在融合的多智能体语义高斯地图上进行协同指代定位",
+      "first_seen_at": "2026-09-27 05:14:30 UTC",
+      "updated_at": "2026-09-27 05:14:30 UTC"
+    },
+    {
+      "paper_id": "2608.30870v1",
+      "route": "20260829-20260927/2608.30870v1-vcar-training-free-3dgs-segmentation-via-view-completeness-and-axis-aware-boundary-refinement",
+      "title": "VCAR: Training-Free 3DGS Segmentation via View Completeness and Axis-Aware Boundary Refinement",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "免训练3D高斯泼溅语义分割与多视角投票",
+      "first_seen_at": "2026-09-27 05:14:30 UTC",
+      "updated_at": "2026-09-27 05:14:30 UTC"
+    },
+    {
+      "paper_id": "2609.04607v1",
+      "route": "20260829-20260927/2609.04607v1-open-set-3d-scene-graphs-for-field-robotics-an-outdoor-case-study",
+      "title": "Open-Set 3D Scene Graphs for Field Robotics: An Outdoor Case Study",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "结合视觉语言模型的开放集三维场景图，含语义点嵌入与区域级理解",
+      "first_seen_at": "2026-09-27 05:14:30 UTC",
+      "updated_at": "2026-09-27 05:14:30 UTC"
+    },
+    {
+      "paper_id": "2609.06959v1",
+      "route": "20260829-20260927/2609.06959v1-mssp-multi-scale-spatially-constrained-partition-for-unsupervised-semantic-segmentation-of-3d-point-clouds",
+      "title": "MSSP: Multi-Scale Spatially-Constrained Partition for Unsupervised Semantic Segmentation of 3D Point Clouds",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "3D点云的无监督语义分割",
+      "first_seen_at": "2026-09-27 05:14:30 UTC",
+      "updated_at": "2026-09-27 05:14:30 UTC"
+    },
+    {
+      "paper_id": "2609.10322v1",
+      "route": "20260829-20260927/2609.10322v1-geometry-without-coordinates-lidar-diffusion-as-a-3d-feature-bridge",
+      "title": "Geometry Without Coordinates: LiDAR Diffusion as a 3D Feature Bridge",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "将二维基础模型特征桥接并投影回LiDAR点云",
+      "first_seen_at": "2026-09-27 05:14:30 UTC",
+      "updated_at": "2026-09-27 05:14:30 UTC"
+    },
+    {
+      "paper_id": "2609.03891v1",
+      "route": "20260829-20260927/2609.03891v1-a-hybrid-pipeline-for-dynamic-ontology-based-semantic-mapping",
+      "title": "A hybrid pipeline for dynamic ontology-based semantic mapping",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "机器人语义融合与语义建图流水线",
+      "first_seen_at": "2026-09-27 05:14:30 UTC",
+      "updated_at": "2026-09-27 05:14:30 UTC"
+    },
+    {
+      "paper_id": "2609.04741v1",
+      "route": "20260829-20260927/2609.04741v1-where-to-look-matters-learning-influential-views-for-vlm-based-3d-visual-grounding",
+      "title": "Where to Look Matters: Learning Influential Views for VLM-based 3D Visual Grounding",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "为基于VLM的三维定位学习有影响力的多视角选择",
+      "first_seen_at": "2026-09-27 05:14:30 UTC",
+      "updated_at": "2026-09-27 05:14:30 UTC"
+    },
+    {
+      "paper_id": "2609.04846v1",
+      "route": "20260829-20260927/2609.04846v1-letoccvote-learning-weakly-supervised-3d-occupancy-through-consensus",
+      "title": "LetOccVote: Learning Weakly Supervised 3D Occupancy through Consensus",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "利用跨帧投票改进几何与语义监督的弱监督三维占据预测",
+      "first_seen_at": "2026-09-27 05:14:30 UTC",
+      "updated_at": "2026-09-27 05:14:30 UTC"
+    }
+  ]
+}
