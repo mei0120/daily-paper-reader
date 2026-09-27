@@ -1,0 +1,410 @@
+Title: ZVeC: A Zero-Shot Framework for Instance-Level Vehicle Extraction and Generative Point Cloud Completion
+
+URL Source: https://arxiv.org/pdf/2609.24825v1
+
+Published Time: Tue, 22 Sep 2026 03:12:58 GMT
+
+Number of Pages: 9
+
+Markdown Content:
+# ZVeC: A Zero-Shot Framework for Instance-Level Vehicle Extraction and Generative Point Cloud Completion 
+
+# Daisy Li 1, Kyle Gao 1, Quanyun Wu 1, Boris Jutzi 2, John S. Zelek 1∗, Jonathan Li 1∗,
+
+> 1
+
+University of Waterloo 
+
+> 2
+
+Karlsruhe Institute of Technology c779li@uwaterloo.ca, y56gao@uwaterloo.ca, quanyun.wu@uwaterloo.ca, boris.jutzi@kit.edu, jzelek@uwaterloo.ca, junli@uwaterloo.ca 
+
+Abstract 
+
+LiDAR point clouds acquired in underground environments exhibit severe geometric incompleteness due to occlusions and limited sensor viewpoints, making reliable point cloud com-pletion challenging without large supervised datasets. We pro-pose ZVeC , a zero-shot, instance-driven framework that refor-mulates scene-level completion as compositional object-level reconstruction. By decomposing a scene into semantic object instances, ZVeC reduces reconstruction ambiguity in cluttered environments while eliminating the need for scenario-specific training. Each segmented vehicle is completed independently using a depth- and 3D Gaussian-conditioned diffusion model that exploits generalized geometric priors before the recon-structed instances are recomposed into the original scene. To evaluate our approach, we construct a real-world dense Li-DAR benchmark of underground parking environments. Ex-perimental results demonstrate consistent improvements over representative scene-level baselines in both quantitative met-rics and visual quality. The completed point cloud differs sub-stantially from the measured input (average KL divergence 
+
+∼ 2.1), yet reducing the input to only 1% of the original LiDAR measurements changes the completed reconstruction only marginally (KL divergence < 0.50 ). This demonstrates that ZVeC produces geometrically consistent completions even under extreme input sparsity. 
+
+# 1 Introduction 
+
+Reliable understanding of LiDAR point clouds is fundamen-tal to applications including autonomous driving, robotic navigation, and 3D digital twin construction (Guo et al. 2021; Cui et al. 2022). However, point clouds acquired from a single LiDAR pass often suffer from severe geometric in-completeness due to limited viewpoints, weak returns, and heavy occlusions (Qin et al. 2020; Bresson et al. 2017; Yuan et al. 2018a). Since LiDAR cannot penetrate solid objects, large portions of object geometry remain unobserved, mak-ing point cloud completion a critical step for reliable scene understanding and reconstruction (Yu et al. 2021; Xie et al. 2020a). Traditional point cloud completion methods rely on ge-ometric assumptions such as symmetry, surface smooth-
+
+> ∗
+
+Corresponding author. Copyright © 2027, Association for the Advancement of Artificial Intelligence (www.aaai.org). All rights reserved. 
+
+Figure 1: Overview of the proposed ZVeC pipeline. The input point cloud is first preprocessed by removing the ceiling, ground, and noise before being partitioned into individual vehicle instances using a Segment Anything Model-based instance segmentation module. Each normalized instance is then completed using our GenPC-based completion module, after which the reconstructed instances are transformed back and reinserted into the original scene to produce the final completed point cloud. ness, or template matching, limiting their ability to re-cover heavily occluded structures. Recent learning-based methods generally follow either scene-level or instance-level paradigms (Zhang et al. 2024). Scene-level approaches re-construct entire environments but struggle in cluttered scenes where interactions among neighboring objects introduce sig-nificant ambiguity. Instance-level methods alleviate this issue by exploiting category-level shape priors. However, most ex-isting approaches require supervised training on large paired datasets collected under specific acquisition settings, reduc-ing their robustness to domain shifts encountered in real-world deployments. Underground parking environments present a particu-larly challenging setting because severe occlusions and re-stricted viewpoints make complete supervision prohibitively expensive to obtain. Nevertheless, parked vehicles exhibit strong category-level geometric regularities despite substan-tial missing observations. This suggests that scene comple-tion need not be formulated as a global reconstruction prob-lem. Instead, decomposing the scene into semantic object arXiv:2609.24825v1 [cs.CV] 21 Sep 2026 instances transforms completion into independent geometric inference over a low-dimensional object shape space, re-ducing reconstruction ambiguity while enabling zero-shot completion through generalized geometric priors rather than scene-specific supervision. Motivated by this observation, we propose ZVeC , a zero-shot, instance-driven framework for point cloud completion in real-world LiDAR scenes. Rather than learning a scene-specific reconstruction model, ZVeC completes each object independently using our proposed GenPC module, which recovers missing geometry from partial observations with-out additional training or fine-tuning. The framework first extracts vehicle instances using a Segment Anything Model-based segmentation module, applies zero-shot completion to each normalized instance, and finally recomposes the recon-structed objects into the original scene while preserving the global spatial layout. This formulation offers three key advantages. First, instance-level decomposition reduces interference from neighboring objects and background clutter. Second, zero-shot completion improves generalization across diverse envi-ronments by avoiding scene-specific supervision. Third, the recovered instance representations naturally support down-stream applications including digital twin construction, se-mantic mapping, and scene understanding. To evaluate our approach, we construct a dense real-world LiDAR benchmark collected in underground parking envi-ronments. Although the scans contain high point densities, severe occlusions and limited viewpoints create substantial missing geometry, providing a realistic benchmark for zero-shot completion. Experimental results demonstrate consis-tent improvements over representative scene-level baselines in both quantitative metrics and visual quality, particularly in recovering fine-grained vehicle structures. 
+
+Contributions. 
+
+• We propose ZVeC , a zero-shot framework that refor-mulates scene-level point cloud completion as composi-tional instance-level reconstruction, reducing reconstruc-tion ambiguity in cluttered LiDAR scenes through object-wise completion with the proposed GenPC module. 
+
+• We introduce a real-world underground parking LiDAR benchmark for evaluating zero-shot point cloud comple-tion under realistic occlusions and incomplete observa-tions. 1
+
+• Extensive experiments demonstrate consistent improve-ments over representative baselines and robust recon-struction under extreme input sparsity, maintaining ge-ometrically consistent completions using only 1% of the original input points. 
+
+# 2 Related Work 
+
+2.1 Instance-level Point Cloud Completion 
+
+Instance-level point cloud completion aims to recover com-plete object geometry from sparse and partial observa-tions (Chen et al. 2024; Yu et al. 2023). Early learning-based methods, including PCN (Yuan et al. 2018b) and GR-
+
+> 1Our dataset will be released after double blind peer-review.
+
+Net (Xie et al. 2020b), established encoder-decoder architec-tures for directly reconstructing complete shapes from partial point clouds. Recent advances have shifted the field toward Transformer-based and generative models (Yu et al. 2021; Chen et al. 2024; Yu et al. 2023; Kasten, Rahamim, and Chechik 2023). Transformers improve completion by modeling long-range geometric dependencies through self-attention (Yu et al. 2021). PoinTr (Yu et al. 2021) formulates completion as a set-to-set translation task by representing point clouds as geometry-aware point proxies within a Transformer encoder-decoder. AdaPoinTr (Yu et al. 2023) extends this frame-work with adaptive query generation and multi-scale ge-ometric feature extraction. To better recover local geome-try, SnowflakeNet (Xiang et al. 2021) introduces a Skip-Transformer with progressive point splitting, while Seed-Former (Zhou et al. 2022) employs hierarchical “Patch Seeds” for coarse-to-fine shape generation. Despite their strong benchmark performance, these meth-ods rely primarily on geometric observations, resulting in ambiguous predictions under severe occlusions or out-of-distribution inputs. Recent work addresses this limitation by incorporating generative image priors. SDS-Complete (Kas-ten, Rahamim, and Chechik 2023) performs test-time opti-mization using Score Distillation Sampling and a pretrained text-to-image diffusion model, enabling zero-shot comple-tion without large-scale 3D supervision at significant com-putational cost. In contrast, GenPC (Li, Zhu, and Wei 2025) leverages feed-forward image-to-3D generative priors with depth prompting and geometry-preserving fusion, enabling efficient zero-shot completion of real-world scans without iterative optimization while conditioning on depth observa-tions from the input point cloud. 
+
+2.2 3D Instance Segmentation 
+
+Recent 3D indoor instance segmentation methods can be broadly categorized into native 3D approaches and 2D-to-3D lifting methods. Early native 3D methods, including GSPN (Yi et al. 2019), 3D-BoNet (Yang et al. 2019), and OccuSeg (Han et al. 2020), introduced proposal-based and occupancy-aware paradigms for directly segmenting object instances from point clouds. More recent bottom-up ap-proaches, such as PointGroup (Jiang et al. 2020), HAIS (Chen et al. 2021), and SoftGroup (Vu et al. 2022), progressively improved instance grouping through point clustering and hierarchical aggregation, while Transformer-based methods such as Mask3D (Schult et al. 2023) directly predict instance masks using learnable object queries. Although highly ef-fective, these native 3D methods remain limited by severe occlusions and the scarcity of densely annotated 3D datasets. To reduce dependence on large-scale 3D annotations, 2D-to-3D lifting methods leverage mature 2D vision mod-els (Jatavallabhula et al. 2023; Peng et al. 2023). These ap-proaches first segment objects in multi-view RGB-D images before projecting the resulting masks into 3D using camera geometry (Miao et al. 2025; Yin et al. 2024). PanopticFu-sion (Narita et al. 2019) fuses 2D instance predictions into a volumetric TSDF representation, while 3D-SIS (Hou, Dai, and Nießner 2019) lifts high-resolution RGB features to im-prove 3D instance segmentation. A key challenge in 2D-to-3D lifting is maintaining multi-view consistency, as objects are observed from varying viewpoints, scales, and occlu-sion patterns. Recent methods (Peng et al. 2023; Chen et al. 2026) address this using spatial-temporal fusion, bipartite graph matching, or 3D consensus clustering to merge redun-dant predictions into coherent object instances. Following this paradigm, we perform instance segmentation in Bird’s-Eye View (BEV) space and exploit the zero-shot capability of Segment Anything Model 3 (SAM3) (Carion et al. 2026) to obtain accurate instance boundaries. 
+
+# 3 Methodology 
+
+The framework starts from a dense point cloud P, where ceiling and ground removal with denoising are first applied (Figure 1). The cleaned cloud is projected to a 2D bird’s-eye view for zero-shot instance segmentation using SAM3 (Car-ion et al. 2026). The resulting masks are back-projected to 3D to extract clusters Pk, followed by geometric filtering to remove artifacts. After normalization, each partial vehi-cle cloud is processed by GenPC (Li, Zhu, and Wei 2025), which projects Pin to 2D and synthesizes an RGB image 
+
+Igen through depth inpainting Dc for initial 3D completion. The generated shape is aligned with the original scan and represented as 3D Gaussians Gall , where missing regions are refined using Score Distillation Sampling while observed geometry remains fixed before completed instances are rein-serted into the scene. 
+
+3.1 Data Preprocessing 
+
+To efficiently process large-scale parking lot point clouds, we introduce a multi-stage preprocessing pipeline that reduces computational cost. Exploiting the prior that the ceiling and ground form near-parallel horizontal planes, we perform Z-axis histogram slicing followed by RANSAC plane fitting on the highest and lowest slices to estimate the boundary planes. A gravity-axis height filter then removes ground points and points exceeding a vehicle height of 2 m .Residual noise is removed using a decoupled downsam-pling and mapping strategy. Radius Outlier Removal (ROR) and Statistical Outlier Removal (SOR) are applied only to a voxel-downsampled subset. Detected outliers are mapped back to the original dense cloud and removed using bulk ra-dius queries with a k-d tree. The resulting point cloud Pclean 
+
+is defined as 
+
+Pclean = {p ∈ P raw | ∃ q ∈ D outlier , ∥p − q∥2 ≤ r} , (1) where Praw is the original point cloud, Doutlier is the detected outlier set, and r is the expansion radius. This vectorized mapping avoids serial point-wise operations while maintain-ing identical filtering quality and accelerating denoising by up to two orders of magnitude. 
+
+3.2 Instance Segmentation 
+
+To perform 3D instance segmentation, we adapt SAM3 (Car-ion et al. 2026) to point clouds through a Bird’s-Eye View (BEV) projection. Given the input point cloud Pclean =
+
+{pi = ( xi, y i, z i)}Ni=1 , we discretize the horizontal plane into Table 1: Summary statistics of the completed point clouds over all 15 vehicle instances. Values are reported as mean ±
+
+standard deviation across instances. Lower is better for all metrics except voxel coverage. 
+
+Metric Mean ± Std. Min Max 
+
+Surface Smoothness ↓ 0.010 ± 0.001 0.009 0.012 Density CV ↓ 0.109 ± 0.003 0.105 0.115 Voxel Coverage ↑ 0.161 ± 0.021 0.123 0.188 KL Divergence ↓ 2.121 ± 0.359 1.760 3.148 EMD ↓ 0.239 ± 0.045 0.159 0.329 Sinkhorn Distance ↓ 0.288 ± 0.044 0.211 0.375 L1 Distance ↓ 0.094 ± 0.018 0.058 0.120 L2 Distance ↓ 0.143 ± 0.036 0.076 0.198 a 2D grid with resolution ∆r. To preserve height informa-tion after projection, the vertical coordinates are normalized (¯z ∈ [0 , 1] ) and encoded using a fixed pseudo-color mapping (R = ¯ z, G = 0 .5, B = 1 − ¯z). During rasterization, we cache a sparse inverse mapping from each BEV pixel to its corre-sponding 3D point indices. SAM3 predicts a set of binary masks {Mk}, which are projected back into 3D through the cached mapping to produce segmented point cloud instances 
+
+Pk ⊂ P clean .To suppress false positives introduced by the top-down projection, each lifted instance is filtered using simple ge-ometric constraints. For an instance Pk, we compute its bounding-box height Hk, maximum horizontal length Lk,vertical standard deviation σz , and the fraction of points above ground level ρk. An instance is retained only if 
+
+F(Pk) = I(|P k| ≥ nmin ∧ hmin ≤ Hk ≤ hmax 
+
+∧ Lk ≤ lmax ∧ ρk ≥ τratio ∧ σz ≥ τstd ), (2) where nmin is the minimum number of points, hmin and 
+
+hmax define the allowable vehicle height range, lmax is the maximum allowable vehicle length, τratio is the minimum fraction of elevated points, and τstd is the minimum vertical standard deviation required to reject nearly planar structures. Instances that fail these criteria are discarded as projection artifacts. Although similar filtering could be achieved by in-creasing the confidence thresholds of SAM3, doing so often suppresses heavily occluded vehicles with incomplete geom-etry. 
+
+3.3 Canonical Instance Normalization 
+
+Following instance segmentation, each object is transformed into a canonical coordinate frame before point cloud comple-tion. This normalization standardizes the coordinate system, pose, and scale, ensuring consistent depth rendering for the completion model while recording the transformations re-quired for later scene reconstruction. Let the segmented point cloud be 
+
+P = {pi}Ni=1 , pi = [ xi, y i, z i]⊤. (3) If the input is represented in a Z-up coordinate system, it is first converted to a standard Y-up right-handed frame, 
+
+p(y) 
+
+> i
+
+= Rz→y p(z) 
+
+> i
+
+, Rz→y =
+
+"1 0 00 0 10 −1 0
+
+#
+
+. (4) The point cloud is then centered at its centroid, 
+
+˜pi = p(y) 
+
+> i
+
+− c, c = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+p(y) 
+
+> i
+
+, (5) which is more robust to irregular object geometry than axis-aligned bounding-box centering. To estimate the object heading, the centered point cloud is projected onto the ground plane and Principal Component Analysis (PCA) is applied. Let 
+
+qi = [˜ xi, ˜zi]⊤, (6) with covariance 
+
+Σ = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+(qi − ¯q)( qi − ¯q)⊤, ¯q = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+qi. (7) The dominant principal component defines the horizontal heading direction. For nearly symmetric or partially observed objects, PCA may produce a 90 ◦ ambiguity. We resolve this by comparing the principal direction with the longer hori-zontal axis of the axis-aligned bounding box and rotating it by 90 ◦ when inconsistent. The sign ambiguity is removed by enforcing a positive X direction. The resulting heading angle θ defines the canonical rota-tion, 
+
+θ = atan2( vz , v x), ˆpi = Ry (−θ)˜ pi, (8) where 
+
+Ry (θ) = 
+
+"cos θ 0 − sin θ
+
+0 1 0sin θ 0 cos θ
+
+#
+
+. (9) To obtain a unique canonical orientation, the aligned point cloud is required to satisfy 
+
+lx ≥ lz . (10) If this condition is violated, an additional rotation of π/ 2
+
+about the Y-axis is applied. The rotated point cloud is then recentered using the axis-aligned bounding-box center, 
+
+¯pi = ˆ pi − o, o = 12
+
+"max ˆ x + min ˆ x
+
+max ˆ y + min ˆ y
+
+max ˆ z + min ˆ z
+
+#
+
+. (11) Finally, the instance is normalized by its maximum bounding-box extent, 
+
+s = max( dx, d y , d z ), pnorm  
+
+> i
+
+= ¯pi
+
+s . (12) The resulting canonical representation is Y-up, centered, consistently oriented, and normalized to unit scale. The cor-responding translation, rotation, coordinate transformation, and scale parameters are retained to restore the completed instances to the original scene coordinate frame during re-composition. 
+
+3.4 Point Cloud Completion 
+
+Our GenPC-based completion module reconstructs complete vehicle geometries from sparse partial scans using the zero-shot framework of GenPC (Li, Zhu, and Wei 2025). Given a normalized point cloud Pin ⊆ RN ×3 and semantic prompt 
+
+Tin (e.g., “car”), the input is projected to a coarse depth map 
+
+Draw . A diffusion-based depth inpainting model produces a completed depth map Dc, which conditions a ControlNet to synthesize an RGB image Igen . The generated image is then converted into an initial complete point cloud Pgen using a pre-trained image-to-3D model. To preserve the observed geometry, the input point cloud is colorized to form Ppartial and aligned with Pgen by optimiz-ing a scale factor s that minimizes geometric and color-based Chamfer Distances: 
+
+s∗ = arg min 
+
+> s
+
+
+
+α CD XY Z (Ppartial , s Pgen )+ β CD RGB (Ppartial , s Pgen )
+
+
+
+.
+
+(13) The aligned point cloud is represented as 3D Gaussians 
+
+Gall , where the observed geometry Gpartial remains fixed while the missing regions Gmiss are refined using Score Distillation Sampling (SDS). This optimization preserves the measured vehicle geometry while improving the fidelity of the synthesized regions. 
+
+3.5 Recomposition 
+
+After completion, each object resides in a normalized Y-up coordinate system. To recover the original scene coordinates, the inverse preprocessing transformations are applied to the completed point cloud 
+
+Pcomp = {pcomp  
+
+> i
+
+}Mi=1 . (14) If heading normalization was applied during preprocess-ing, each point is restored by 
+
+pscene  
+
+> i
+
+= R⊤
+
+> z→y
+
+ Ry (θ)⊤ (spcomp  
+
+> i
+
++ o) + b , (15) where s, o, θ, and b denote the stored scale factor, post-rotation offset, heading angle, and bounding-box center, re-spectively. When heading normalization or axis conversion is not applied, the corresponding transformations reduce to the identity. For K completed instances, the restored object set is 
+
+Pobj =
+
+> K
+
+[
+
+> k=1
+
+Pk, (16) and the reconstructed scene is obtained by merging the re-stored objects with the background point cloud, 
+
+Pscene = Pbg ∪
+
+> K
+
+[
+
+> k=1
+
+Pk. (17) 
+
+# 4 Experiments and Analysis 
+
+All experiments were conducted using two computational environments. The first two stages were performed on a local (a) (b) (c) 
+
+Figure 2: ( Left ) Scene decomposition via instance segmentation. Our pipeline first segments target objects into instances, then reconstructs each object’s point cloud independently. ( Center ) Qualitative results of point cloud completion. Visualization of the initial and reconstructed point cloud datasets. A per-instance result is shown in the top row. ( Right ) Visual comparison of least and most changed instances by KL divergence. Top: most changed. Bottom: least changed. Large changes after completion reflect differences in the quality of the initial point cloud rather than the final reconstruction quality. 
+
+Figure 3: Histograms of the evaluation metrics. (Left) No-reference geometry-based metrics show consistent geometric quality across the final per-instance point clouds. (Right) Full-reference metrics exhibit substantial variation in the pre- and post-completion differences across instances, primarily due to differences in the quality and completeness of the initial point clouds. computer equipped with an Intel Core i7-9700K CPU run-ning at 3.60 GHz, 64 GB of RAM, and an NVIDIA GeForce RTX 2080 Ti GPU with 11 GB of memory, executed in Docker Desktop using the pytorch/pytorch:2.7.0-cuda12.6-cudnn9-devel container image, with Ubuntu 22.04 as the runtime environment. The rest of the stages were executed on a remote GPU server. The server was configured with an NVIDIA Triton Server 24.12 image, Python 3.12, Ubuntu 24.04, and CUDA 12.6. Its hardware configuration consisted of 16 vCPUs based on an Intel Xeon Gold 6430 processor, 120 GB of RAM, and a single NVIDIA GeForce RTX 4090 GPU with 24 GB of memory. 
+
+4.1 Dataset 
+
+We validated our pipeline on our newly collected real-world dense LiDAR point cloud dataset of an underground parking lot using an Orbis mobile scanning system. The acquisition was conducted over an approximately 8-minute scanning se-quence, capturing dense LiDAR observations of parked vehi-cles, structural elements, and surrounding indoor geometry. Based on a robust estimate of the horizontal spatial extent of the reconstructed point cloud, the scanned area covers approximately 36m × 40m . The per-point attributes in our dataset comprise spatial coordinates (x, y, z), intensity, and GPS time. Despite the relatively high density of the scan, lo-calized data gaps and geometric incompleteness remain due to occlusions and limited viewpoints in a realistic single-pass drive through. 
+
+4.2 Evaluation Metrics 
+
+Since complete ground-truth geometry is unavailable for real-world LiDAR scans, conventional full-reference eval-uation cannot be directly applied. We therefore assess recon-struction quality using (i) no-reference geometric metrics that quantify the quality of the completed point cloud and (ii) distribution- and distance-based metrics that measure consistency between the completed point cloud Pg and the observed input Pr .
+
+No-Reference Metrics The following metrics evaluate the geometric quality of the completed point cloud Pg without requiring ground truth. 
+
+• Surface Smoothness ( Ssm ): Measures local planarity by averaging the orthogonal distance from each point to its local tangent plane: 
+
+Ssm = 1
+
+|P g |
+
+X
+
+> pi∈P g
+
+|(pi − μi) · ni| , (18) where ni and μi denote the local surface normal and neighborhood centroid, respectively. 
+
+• Density Coefficient of Variation ( Dcv ): Measures spatial density uniformity: 
+
+Dcv = σρ
+
+μρ + ϵ , (19) where μρ and σρ are the mean and standard deviation of the local point density. 
+
+• Voxel Coverage ( Vcov ): Measures spatial occupancy by computing the fraction of occupied voxels within the dis-cretized 3D bounding volume. 
+
+Distribution-Based Metrics The following metrics quan-tify the similarity between the completed point cloud Pg and the observed point cloud Pr .
+
+• KL Divergence ( DKL ): Measures the divergence be-tween 3D occupancy histograms: 
+
+DKL (Pr ∥P g ) = X
+
+> x
+
+Hr (x) log Hr (x)
+
+Hg (x) + ϵ , (20) where Hr and Hg denote 3D histograms computed over a common bounding box. 
+
+• Earth Mover’s Distance (EMD): Measures the optimal transport cost between equally sampled point sets: 
+
+EMD( Pg , Pr ) = min 
+
+> ϕ
+
+1
+
+N
+
+X
+
+> x∈P g
+
+∥x − ϕ(x)∥2, (21) where ϕ is the optimal bijection. 
+
+• Sinkhorn Distance ( dS ): Approximates EMD using entropy-regularized optimal transport: 
+
+dS = X
+
+> i,j
+
+Pij ∥xi − yj ∥2. (22) 
+
+• Chamfer L1 ( dL1) and L2 ( dL2): Measure symmetric nearest-neighbor distances between Pg and Pr . Let 
+
+Λ = 
+
+
+
+min 
+
+> y∈P r
+
+∥x − y∥2
+
+
+
+> x∈P g
+
+∪
+
+
+
+min 
+
+> x∈P g
+
+∥y − x∥2
+
+
+
+> y∈P r
+
+,
+
+(23) then 
+
+dL1 = Ed∈Λ[|d|], dL2 = pEd∈Λ[d2].
+
+Table 2: Incremental ablation of the proposed normalization pipeline. Lower is better. 
+
+Configuration CD-L1 CD-L2 EMD Sinkhorn 
+
+No normalization 9.28 450.74 18.22 67.68 + Centroid centering 0.418 0.991 0.741 0.855 + Orientation adjustment 0.127 0.051 0.148 0.094 Ours 0.020 0.002 0.044 0.030 
+
+4.3 Point Cloud Completion Results 
+
+The quantitative results demonstrate consistent reconstruc-tion quality across all 15 vehicle instances. For the no-reference metrics in Table 1 and Figure 3 (surface smooth-ness scaled by ×10 for visualization), surface smoothness (0.010 ± 0.001 ) and density CV ( 0.109 ± 0.003 ) exhibit very small variance, indicating smooth surfaces and uniform point sampling across the completed vehicles. Voxel cover-age averages 0.161 ± 0.021 , reflecting expected variation in the amount of recovered geometry due to differing occlusion levels. For the full-reference metrics in Table 1 and Figure 3 (KL divergence scaled by 110 ), KL divergence averages 
+
+2.121 ± 0.359 , indicating varying degrees of point den-sity redistribution during completion. In contrast, EMD (0.239 ± 0.045 ), Sinkhorn distance ( 0.288 ± 0.044 ), and the Chamfer L1 ( 0.094 ± 0.018 ) and L2 ( 0.143 ± 0.036 )distances remain consistently low with relatively small vari-ance, demonstrating stable geometric alignment between the completed and observed point clouds. Unlike EMD, Sinkhorn, and Chamfer distances, which measure geometric correspondence, KL divergence quanti-fies changes in the underlying point density distribution and is therefore more sensitive to the redistribution of proba-bility mass introduced during completion. We consequently use KL divergence to guide the qualitative analysis while reporting all metrics. This behavior is illustrated by Instances 6 and 14 in Fig-ure 2c. Instance 6 exhibits the highest KL divergence due to severe occlusions, density imbalance, and segmentation ar-tifacts (red box), requiring substantial redistribution of point density during completion. Nevertheless, the reconstructed geometry remains visually coherent, consistent with the sta-ble no-reference and geometric correspondence metrics. In contrast, Instance 14 exhibits the lowest KL divergence be-cause the input already closely approximates the underlying vehicle geometry, requiring only minor refinement during completion. 
+
+4.4 Ablation Study 
+
+To validate instance-to-scene grounding, we perform an ab-lation with four variants that progressively incorporate nor-malization and grounding. A near-complete instance is se-lected from the raw point cloud as the reference, and a partial Figure 4: Reconstruction results for a representative vehicle instance under varying levels of input sparsity. Despite significant differences in the number of input points, the completed geometry remains largely unchanged, demonstrating the robustness of the method to input sparsity. Table 3: Average KL divergence values under different downsampling ratios. Lower values indicate greater similarity. 
+
+Comparison 50 % 25 % 10 % 5 % 1 % 
+
+Completed (downsampled) vs. Raw (downsampled) 1.9717 2.3142 1.6554 1.4924 1.5233 Completed (downsampled) vs. Raw (full) 2.2159 2.8865 2.3241 2.0662 2.3425 Completed (downsampled) vs. Completed (full) 0.2904 0.3153 0.3423 0.3082 0.4955 input is generated by removing surface regions before com-pletion. Performance is evaluated against the reference using symmetric Chamfer Distance (L1/L2), EMD, and Sinkhorn Distance. As shown in Table 2, removing normalization and ground-ing substantially degrades performance, confirming their im-portance. Centering alone provides only marginal improve-ment, while omitting the coordinate transformation further reduces accuracy, demonstrating that Z-up to Y-up align-ment is essential. The full normalization pipeline consistently achieves the best performance. 
+
+4.5 Robustness Analysis 
+
+To evaluate robustness under varying observation sparsity, we randomly downsample the input point clouds to reten-tion ratios of 50%, 25%, 10%, 5%, and 1%. KL divergence measures the difference between completions generated from downsampled and full-resolution inputs, as well as between the completed and raw point clouds. As shown in Table 3, the completed point clouds remain highly consistent with the full-resolution completions. The KL divergence increases only from 0.2904 at 50% reten-tion to 0.4955 at 1% retention, while Figure 4 shows strong structural consistency across all sparsity levels. In contrast, the divergence between the completed and raw point clouds is substantially larger, reflecting the incompleteness of the observations. These results demonstrate that the proposed completion framework is robust to extreme input sparsity, producing consistent geometries even when only 1% of the original points are retained. 
+
+4.6 Discussion 
+
+Our newly collected dataset lacks complete ground truth, so evaluation reflects a realistic deployment setting rather than exact reconstruction accuracy. We therefore assess per-instance geometric quality using no-reference metrics, quan-tify geometric and distributional changes before and after completion, and evaluate robustness under varying input sparsity. Manual inspection further confirms the plausibil-ity and structural consistency of all completed instances. Future work will investigate automated point cloud quality assessment metrics for scalable evaluation. Although this study focuses on vehicle reconstruction in indoor parking environments, the framework is largely environment- and class-agnostic. Future work will evaluate generalization to outdoor scenes and additional object cate-gories, including pedestrians, traffic signs, and autonomous driving datasets, while introducing task-specific adaptations where necessary. This work also advances object-centric digital twin rep-resentations. Future research will investigate object-level meshing and scene graph-based modeling with per-object pose, semantic attributes, and geometric descriptors for dig-ital twin creations. 
+
+# 5 Conclusions 
+
+In this paper, we propose ZVeC, a zero-shot, instance-driven framework for point cloud completion in underground park-ing environments, following a compositional scene comple-tion pipeline. By transforming a complex scene-level prob-lem into instance-level reconstruction tasks, our method ef-fectively overcomes the geometric incompleteness in point clouds caused by occlusions and clutter. Experiments on a real-world dense LiDAR dataset demonstrate that our frame-work achieves high-fidelity reconstructions both qualitatively and quantitatively. Beyond this specific scenario, ZVeC highlights the effec-tiveness of a zero-shot, instance-driven formulation for han-dling incomplete observations in structured environments. This paradigm provides a scalable and generalizable direc-tion for robust 3D scene reconstruction and can benefit a range of downstream perception tasks, such as intelligent object-based scene representation for autonomous driving, embodied systems, and digital twin creation. References 
+
+Bresson, G.; Alsayed, Z.; Yu, L.; and Glaser, S. 2017. Si-multaneous Localization and Mapping: A Survey of Current Trends in Autonomous Driving. IEEE Transactions on In-telligent Vehicles , 2(3): 194–220. Carion, N.; Gustafson, L.; Hu, Y.-T.; Debnath, S.; Hu, R.; Suris, D.; Ryali, C.; Alwala, K. V.; Khedr, H.; Huang, A.; Lei, J.; Ma, T.; Guo, B.; Kalla, A.; Marks, M.; Greer, J.; Wang, M.; Sun, P.; Rädle, R.; Afouras, T.; Mavroudi, E.; Xu, K.; Wu, T.-H.; Zhou, Y.; Momeni, L.; Hazra, R.; Ding, S.; Vaze, S.; Porcher, F.; Li, F.; Li, S.; Kamath, A.; Cheng, H. K.; Dollár, P.; Ravi, N.; Saenko, K.; Zhang, P.; and Feichtenhofer, C. 2026. SAM 3: Segment Anything with Concepts. In Inter-national Conference on Learning Representations (ICLR) .Chen, S.; Fang, J.; Zhang, Q.; Liu, W.; and Wang, X. 2021. Hierarchical Aggregation for 3D Instance Segmentation. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , 15467–15476. Chen, X.; Chu, F.-J.; Gleize, P.; Liang, K. J.; Sax, A.; Tang, H.; Wang, W.; Guo, M.; Hardin, T.; Li, X.; et al. 2026. Sam 3D: 3dfy anything in images. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pat-tern Recognition , 7220–7232. Chen, Z.; Long, F.; Qiu, Z.; Yao, T.; Zhou, W.; Luo, J.; and Mei, T. 2024. Learning 3D Shape Latent for Point Cloud Completion. IEEE Transactions on Multimedia , 26: 8717– 8729. Cui, Y.; Chen, R.; Chu, W.; Chen, L.; Tian, D.; Li, Y.; and Cao, D. 2022. Deep Learning for Image and Point Cloud Fu-sion in Autonomous Driving: A Review. IEEE Transactions on Intelligent Transportation Systems , 23(2): 722–739. Guo, Y.; Wang, H.; Hu, Q.; Liu, H.; Liu, L.; and Bennamoun, M. 2021. Deep Learning for 3D Point Clouds: A Survey. 
+
+IEEE Transactions on Pattern Analysis and Machine Intelli-gence , 43(12): 4338–4364. Han, L.; Zheng, T.; Xu, L.; and Fang, L. 2020. OccuSeg: Occupancy-Aware 3D Instance Segmentation. In Proceed-ings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2938–2947. Hou, J.; Dai, A.; and Nießner, M. 2019. 3D-SIS: 3D Semantic Instance Segmentation of RGB-D Scans. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 4421–4430. Jatavallabhula, K.; Kuwajerwala, A.; Gu, Q.; Omama, M.; Chen, T.; Li, S.; Iyer, G.; Saryazdi, S.; Keetha, N.; Tewari, A.; Tenenbaum, J.; de Melo, C.; Krishna, M.; Paull, L.; Shkurti, F.; and Torralba, A. 2023. ConceptFusion: Open-Set Multi-modal 3D Mapping. In Robotics: Science and Systems (RSS) .Jiang, L.; Zhao, H.; Shi, S.; Liu, S.; Fu, C.-W.; and Jia, J. 2020. PointGroup: Dual-Set Point Grouping for 3D Instance Segmentation. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 4867– 4876. Kasten, Y.; Rahamim, O.; and Chechik, G. 2023. Point Cloud Completion with Pretrained Text-to-Image Diffusion Mod-els. In Advances in Neural Information Processing Systems 36 (NeurIPS) , 12171–12191. Li, A.; Zhu, Z.; and Wei, M. 2025. GenPC: Zero-Shot Point Cloud Completion via 3D Generative Priors. In Proceed-ings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 1308–1318. Miao, X.; Duan, H.; Qian, Q.; Wang, J.; Long, Y.; Shao, L.; Zhao, D.; Xu, R.; and Zhang, G. 2025. Towards Scalable Spatial Intelligence via 2D-to-3D Data Lifting. In Proceed-ings of the IEEE/CVF International Conference on Computer Vision (ICCV) , 945–959. Narita, G.; Seno, T.; Ishikawa, T.; and Kaji, Y. 2019. Panop-ticFusion: Online Volumetric Semantic Mapping at the Level of Stuff and Things. In Proceedings of the IEEE/RSJ Interna-tional Conference on Intelligent Robots and Systems (IROS) ,4205–4212. Peng, S.; Genova, K.; Jiang, C. M.; Tagliasacchi, A.; Polle-feys, M.; and Funkhouser, T. 2023. OpenScene: 3D Scene Understanding with Open Vocabularies. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 815–824. Qin, T.; Chen, T.; Chen, Y.; and Shen, S. 2020. AVP-SLAM: Semantic Visual Mapping and Localization for Autonomous Vehicles in the Parking Lot. In Proceedings of the IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS) , 5939–5945. Schult, J.; Engelmann, F.; Hermans, A.; Litany, O.; Tang, S.; and Leibe, B. 2023. Mask3D: Mask Transformer for 3D Semantic Instance Segmentation. In Proceedings of the IEEE International Conference on Robotics and Automation (ICRA) , 8216–8223. Vu, T.; Kim, K.; Luu, T. M.; Nguyen, T.; and Yoo, C. D. 2022. SoftGroup for 3D Instance Segmentation on Point Clouds. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2708–2717. Xiang, P.; Wen, X.; Liu, Y.-S.; Cao, Y.-P.; Wan, P.; Zheng, W.; and Han, Z. 2021. SnowflakeNet: Point Cloud Completion by Snowflake Point Deconvolution with Skip-Transformer. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , 5499–5509. Xie, H.; Yao, H.; Zhou, S.; Mao, J.; Zhang, S.; and Sun, W. 2020a. GRNet: Gridding Residual Network for Dense Point Cloud Completion. In Computer Vision – ECCV 2020 ,365–381. Xie, H.; Yao, H.; Zhou, S.; Mao, J.; Zhang, S.; and Sun, W. 2020b. GRNet: Gridding Residual Network for Dense Point Cloud Completion. In Proceedings of the European Conference on Computer Vision (ECCV) , 365–381. Yang, B.; Wang, J.; Clark, R.; Hu, Q.; Zeng, D.; Wang, L.; Markham, A.; and Trigoni, N. 2019. Learning Object Bounding Boxes for 3D Instance Segmentation on Point Clouds. In Advances in Neural Information Processing Sys-tems (NeurIPS) , volume 32. Yi, L.; Zhao, W.; Wang, H.; Sung, M.; and Guibas, L. J. 2019. GSPN: Generative Shape Proposal Network for 3D Instance Segmentation in Point Cloud. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 3947–3956. Yin, Y.; Liu, Y.; Xiao, Y.; Cohen-Or, D.; Huang, J.; and Chen, B. 2024. SAI3D: Segment Any Instance in 3D Scenes. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 3292–3302. Yu, X.; Rao, Y.; Wang, Z.; Liu, Z.; Lu, J.; and Zhou, J. 2021. PoinTr: Diverse Point Cloud Completion with Geometry-Aware Transformers. In Proceedings of the IEEE/CVF In-ternational Conference on Computer Vision (ICCV) , 12498– 12507. Yu, X.; Rao, Y.; Wang, Z.; Lu, J.; and Zhou, J. 2023. AdaPoinTr: Diverse Point Cloud Completion with Adap-tive Geometry-Aware Transformers. IEEE Transactions on Pattern Analysis and Machine Intelligence , 45(12): 14114– 14130. Yuan, W.; Khot, T.; Held, D.; Mertz, C.; and Hebert, M. 2018a. PCN: Point Completion Network. In Proceedings of the International Conference on 3D Vision (3DV) , 728–737. Yuan, W.; Khot, T.; Held, D.; Mertz, C.; and Hebert, M. 2018b. PCN: Point Completion Network. In Proceedings of the International Conference on 3D Vision (3DV) , 728–737. Zhang, K.; Zhang, A.; Wang, X.; and Li, W. 2024. Deep-Learning-Based Point Cloud Completion Methods: A Re-view. Graphical Models , 136: 101233. Zhou, H.; Cao, Y.; Chu, W.; Zhu, J.; Lu, T.; Tai, Y.; and Wang, C. 2022. SeedFormer: Patch Seeds Based Point Cloud Com-pletion with Upsample Transformer. In Computer Vision – ECCV 2022 , 416–432.

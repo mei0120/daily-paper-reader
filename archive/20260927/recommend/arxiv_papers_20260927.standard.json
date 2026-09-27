@@ -1,0 +1,218 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-27T22:18:39.725828+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.30056v1",
+      "source": "arxiv",
+      "title": "M3GD: Multi-Modal Multi-View Geometric Diffusion for Camera--LiDAR Novel View Synthesis",
+      "abstract": "Robotic novel view synthesis (NVS) must recover both visual appearance and metric 3D structure, yet most generative NVS methods rely only on images, overlooking LiDAR, a complementary sensor common on robotic platforms. We present M3GD, a Camera--LiDAR multimodal representation for generative NVS that composes independently pretrained 2D image and 3D point-cloud foundation models without separately pretraining a cross-modal translator. We show that, after camera projection, frozen LiDAR and image features exhibit substantial shared spatial structure, providing a natural cross-modal representation. M3GD conditions generation on LiDAR through this structure: it combines explicit geometry statistics with learned point-cloud descriptors into view-aligned packets on the image-latent grid, injected through a lightweight residual adapter into a multi-view flow-matching generator whose latent space, decoders, and training objective remain intact. On the GrandTour dataset, M3GD improves target-view RGB and depth synthesis over an image-only version of the same backbone. Ablations show that the gains come from pixel-aligned LiDAR content and that target-view LiDAR acts as a geometric query linking the requested view to source observations. Deployment on a ground robot demonstrates practical real-world operation, with a configurable quality--cost trade-off controlled by the number of Euler integration steps.",
+      "authors": [
+        "Yang Zhou",
+        "Jiuhong Xiao",
+        "Shizhao Ye",
+        "Long Quang",
+        "Carlos Nieto-Granda",
+        "Giuseppe Loianno"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.CV"
+      ],
+      "published": "2026-09-24T16:14:00+00:00",
+      "link": "https://arxiv.org/pdf/2609.30056v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "fusing frozen image and LiDAR point-cloud features into a shared cross-modal representation",
+      "llm_evidence_cn": "将冻结图像与LiDAR点云特征融合为共享跨模态表示",
+      "llm_evidence": "将冻结图像与LiDAR点云特征融合为共享跨模态表示",
+      "canonical_evidence": "将冻结图像与LiDAR点云特征融合为共享跨模态表示",
+      "llm_tldr_en": "M3GD composes frozen pretrained 2D image and 3D point-cloud foundation models for Camera-LiDAR novel view synthesis, exploiting shared spatial structure after projection to condition generation on LiDAR without cross-modal pretraining.",
+      "llm_tldr_cn": "机器人新视角合成需同时恢复外观与度量三维结构，但多数生成方法仅依赖图像，忽略了激光雷达这一互补传感器。本文提出M3GD相机-激光雷达多模态表示，组合独立预训练的二维图像与三维点云基础模型，无需单独预训练跨模态转换器；作者发现经相机投影后冻结的LiDAR与图像特征共享显著空间结构。实验表明该表示可有效条件化生成，兼顾外观与几何，为跨模态融合提供免预训练方案。",
+      "llm_tldr": "机器人新视角合成需同时恢复外观与度量三维结构，但多数生成方法仅依赖图像，忽略了激光雷达这一互补传感器。本文提出M3GD相机-激光雷达多模态表示，组合独立预训练的二维图像与三维点云基础模型，无需单独预训练跨模态转换器；作者发现经相机投影后冻结的LiDAR与图像特征共享显著空间结构。实验表明该表示可有效条件化生成，兼顾外观与几何，为跨模态融合提供免预训练方案。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "fusing multi-modal features into point cloud representations",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.24825v1",
+      "source": "arxiv",
+      "title": "ZVeC: A Zero-Shot Framework for Instance-Level Vehicle Extraction and Generative Point Cloud Completion",
+      "abstract": "LiDAR point clouds acquired in underground environments exhibit severe geometric incompleteness due to occlusions and limited sensor viewpoints, making reliable point cloud completion challenging without large supervised datasets. We propose ZVeC, a zero-shot, instance-driven framework that reformulates scene-level completion as compositional object-level reconstruction. By decomposing a scene into semantic object instances, ZVeC reduces reconstruction ambiguity in cluttered environments while eliminating the need for scenario-specific training. Each segmented vehicle is completed independently using a depth- and 3D Gaussian-conditioned diffusion model that exploits generalized geometric priors before the reconstructed instances are recomposed into the original scene. To evaluate our approach, we construct a real-world dense LiDAR benchmark of underground parking environments. Experimental results demonstrate consistent improvements over representative scene-level baselines in both quantitative metrics and visual quality. The completed point cloud differs substantially from the measured input (average KL divergence ~ 2.1), yet reducing the input to only 1% of the original LiDAR measurements changes the completed reconstruction only marginally (KL divergence < 0.50). This demonstrates that ZVeC produces geometrically consistent completions even under extreme input sparsity.",
+      "authors": [
+        "Daisy Li",
+        "Kyle Gao",
+        "Quanyun Wu",
+        "Boris Jutzi",
+        "John S. Zelek",
+        "Jonathan Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-21T16:13:21+00:00",
+      "link": "https://arxiv.org/pdf/2609.24825v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "instance-level semantic decomposition of LiDAR point clouds under occlusion",
+      "llm_evidence_cn": "遮挡下LiDAR点云的实例级语义分解",
+      "llm_evidence": "遮挡下LiDAR点云的实例级语义分解",
+      "canonical_evidence": "遮挡下LiDAR点云的实例级语义分解",
+      "llm_tldr_en": "ZVeC is a zero-shot, instance-driven framework that reformulates scene-level LiDAR point cloud completion as compositional object-level reconstruction, decomposing scenes into semantic instances and completing each vehicle with a depth- and 3D Gaussian-conditioned diffusion model.",
+      "llm_tldr_cn": "针对地下LiDAR点云因遮挡与视角受限而严重不完整、又缺乏大规模监督数据难以补全的问题，论文提出零样本实例驱动框架ZVeC，将场景级补全重构为对象级重建。方法把场景分解为语义目标实例，用深度与3D高斯条件扩散模型对每辆车独立补全，从而降低杂乱环境中的重建歧义。结果无需场景特定训练即可完成补全，为遮挡点云的实例级语义处理提供零样本方案，与开放词汇3D语义映射部分相关。",
+      "llm_tldr": "针对地下LiDAR点云因遮挡与视角受限而严重不完整、又缺乏大规模监督数据难以补全的问题，论文提出零样本实例驱动框架ZVeC，将场景级补全重构为对象级重建。方法把场景分解为语义目标实例，用深度与3D高斯条件扩散模型对每辆车独立补全，从而降低杂乱环境中的重建歧义。结果无需场景特定训练即可完成补全，为遮挡点云的实例级语义处理提供零样本方案，与开放词汇3D语义映射部分相关。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "semantic segmentation of 3D point clouds and volumetric scenes",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.25490v1",
+      "source": "arxiv",
+      "title": "SAM-V: Geometry-Aware Segment Anything for Multi-View Instance Segmentation",
+      "abstract": "Consistent multi-view object segmentation is critical for 3D perception and robotics, yet remains challenging under severe viewpoint and occlusion changes. Existing methods typically perform 3D instance segmentation on point clouds or rely on offline 2D mask-matching pipelines. However, 3D instance segmentation is limited by scarce 3D annotations, while offline 2D matching suffers from object identity ambiguity across frames. To leverage strong 2D and 3D priors jointly, we propose SAM-V (Geometry-Aware Segment Anything for Multi-View Instance Segmentation). Instead of combining the two priors through post-hoc matching, SAM-V directly integrates features from a feed-forward geometry model (VGGT) into a 2D segmentation foundation model (SAM), trained end-to-end for cross-view instance prediction. SAM-V introduces a prompt-fusion mechanism that enriches sparse SAM prompt tokens with view-specific camera tokens and local VGGT features, making the prompt representation both view-aware and spatially grounded, together with a mask decoder that attends to dense 2D and 3D features. By conditioning the mask decoding directly on multi-view geometry, SAM-V produces consistent multi-view segmentation of a prompted object in a single forward pass without offline mask matching or explicit 3D reconstruction. On the IGGT 3D tracking benchmark, where consistent instance identity across frames directly determines performance, SAM-V improves overall IoU by 5 points and frame-level recall by 12 points on the ScanNet++ split over the state-of-the-art multi-view instance segmentation baseline and leads on all metrics in the zero-shot ScanNet split. Our code and pretrained models are available at https://github.com/gong208/SAM-V.git.",
+      "authors": [
+        "Jiangshan Gong",
+        "Yuqun Wu",
+        "Qiqian Fu",
+        "Yao Xiao",
+        "Chuhang Zou",
+        "Shenlong Wang",
+        "Derek Hoiem"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-09-21T23:39:19+00:00",
+      "link": "https://arxiv.org/pdf/2609.25490v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multi-view instance segmentation robust under occlusion, fusing geometry features into a 2D segmentation model",
+      "llm_evidence_cn": "遮挡下多视角实例分割，融合几何特征与二维分割模型",
+      "llm_evidence": "遮挡下多视角实例分割，融合几何特征与二维分割模型",
+      "canonical_evidence": "遮挡下多视角实例分割，融合几何特征与二维分割模型",
+      "llm_tldr_en": "SAM-V injects feed-forward geometry-model features into SAM to achieve consistent multi-view instance segmentation under severe viewpoint and occlusion changes, avoiding offline mask matching.",
+      "llm_tldr_cn": "针对多视角物体分割在剧烈视角变化与遮挡下难以保持一致性的问题，SAM-V 摒弃离线二维掩码匹配流程，将前馈几何模型 VGGT 的特征直接注入二维分割基础模型 SAM，使二维与三维先验联合训练。方法缓解了跨帧物体身份歧义与三维标注稀缺的限制，在严重遮挡与视角变化下提升了多视角实例分割的一致性，为三维感知与机器人应用提供了新的融合范式。",
+      "llm_tldr": "针对多视角物体分割在剧烈视角变化与遮挡下难以保持一致性的问题，SAM-V 摒弃离线二维掩码匹配流程，将前馈几何模型 VGGT 的特征直接注入二维分割基础模型 SAM，使二维与三维先验联合训练。方法缓解了跨帧物体身份歧义与三维标注稀缺的限制，在严重遮挡与视角变化下提升了多视角实例分割的一致性，为三维感知与机器人应用提供了新的融合范式。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open vocabulary 3D semantic mapping under occlusions with multi view fusion",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.27671v1",
+      "source": "arxiv",
+      "title": "SGDet3D++: Geometry-Grounded Semantics for 4D Radar and Camera 3D Object Detection",
+      "abstract": "4D radar complements dense image semantics with long-range geometry and radial motion, but existing radar--camera detectors largely solve \\emph{where} to align the modalities while leaving \\emph{whether} a piece of evidence supports an evolving object hypothesis implicit. An image token may describe an occluder, a nearby radar return may belong to another object, and a pose-aligned memory slot may carry incompatible motion. We formulate \\emph{hypothesis-conditioned evidence grounding}, which separates candidate access from evidence use: semantic, geometric, or temporal evidence is filtered or conditioned by the evolving 3D state before updating the corresponding query. \\sgdetpp{} instantiates this principle through Anchor-Grounded Semantic Retrieval (AGR), which conditions deformable image retrieval on pooled anchor-consistent radar support; Geometry-Consistent Anchor Refinement (GCR), which attentively aggregates individual associated returns; and Doppler-Verified Correspondence (DVC), which replaces history only when current radial motion contradicts it. \\sgdetpp{} improves the strongest compared method by 3.82 mAP and 6.82 ODS on OmniHD-Scenes and by 6.82 mAP and 9.22 NDS on ManTruckScenes, while also leading the listed methods in the TJ4DRadSet test comparison. Mechanism-targeted evaluations show that AGR improves strict AP in every projected-occlusion bin, the yaw-aligned box gate raises target-return purity from 29.95\\% to 58.87\\%, and DVC preserves 96.11\\% of motion-consistent history while retaining 75.90\\% contradiction recall. Code will be released.",
+      "authors": [
+        "Xiaokai Bai",
+        "Zhenyu Fan",
+        "Lianqing Zheng",
+        "Songkai Wang",
+        "Si-Yuan Cao",
+        "Hui-liang Shen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-23T10:42:13+00:00",
+      "link": "https://arxiv.org/pdf/2609.27671v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "cross-modal camera-radar fusion with occlusion-aware evidence grounding for 3D detection",
+      "llm_evidence_cn": "相机-雷达跨模态融合与遮挡感知证据接地用于3D检测",
+      "llm_evidence": "相机-雷达跨模态融合与遮挡感知证据接地用于3D检测",
+      "canonical_evidence": "相机-雷达跨模态融合与遮挡感知证据接地用于3D检测",
+      "llm_tldr_en": "SGDet3D++ addresses radar-camera 3D detection by formulating hypothesis-conditioned evidence grounding, filtering semantic, geometric and temporal evidence by the evolving 3D state before updating queries, improving robustness to occluders and mismatched evidence.",
+      "llm_tldr_cn": "针对现有雷达-相机检测器只解决模态在哪对齐、却未判断证据是否支持演化中目标假设的问题，论文提出假设条件化证据接地，将候选访问与证据使用分离，先按演化3D状态过滤或调节语义、几何与时序证据再更新查询。SGDet3D++以锚定语义等方式实例化该原则，在雷达-相机3D检测中验证了对遮挡与不一致证据的鲁棒性，为多模态3D检测的跨模态对齐与融合提供可迁移框架。",
+      "llm_tldr": "针对现有雷达-相机检测器只解决模态在哪对齐、却未判断证据是否支持演化中目标假设的问题，论文提出假设条件化证据接地，将候选访问与证据使用分离，先按演化3D状态过滤或调节语义、几何与时序证据再更新查询。SGDet3D++以锚定语义等方式实例化该原则，在雷达-相机3D检测中验证了对遮挡与不一致证据的鲁棒性，为多模态3D检测的跨模态对齐与融合提供可迁移框架。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "cross modal feature alignment and fusion for open vocabulary 3D object detection and segmentation",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.29235v1",
+      "source": "arxiv",
+      "title": "SARFusion: Scene-Aware Routing Fusion for Robust Camera-LiDAR 3D Object Detection",
+      "abstract": "Camera-LiDAR fusion has become a prevailing paradigm for 3D object detection in autonomous driving. However, existing fusion detectors often establish strong inter-modality dependencies by decoding object queries from tightly coupled multimodal representations. Under corrupted driving conditions, such dependencies make the detector vulnerable to unreliable modalities, where degraded observations may interfere with reliable modality-specific evidence and lead to suboptimal predictions. Moreover, modality reliability can vary across both global driving scenes and individual object queries, requiring adaptive fusion decisions at a finer granularity. To bridge this gap, we reformulate robust camera-LiDAR fusion as a scene-aware branch routing problem and propose SARFusion, a robust 3D object detector. Instead of producing detections from a single fused representation, SARFusion decouples object-query decoding into three parallel reasoning branches: a camera branch, a LiDAR branch, and a camera-LiDAR fusion branch. Guided by a Scene Reliability Prior estimated from the global driving context, SARFusion further incorporates object-level evidence to route each query to the most suitable branch. This query-wise routing strategy alleviates harmful cross-modal interference while preserving the benefits of multimodal fusion when complementary cues are trustworthy. On the nuScenes test set, SARFusion achieves strong performance with 72.5 mAP and 74.4 NDS. Extensive analyses demonstrate its robustness under challenging conditions, including sensor corruptions and environmental changes.",
+      "authors": [
+        "Yuting Zhao",
+        "Ziyi Zheng",
+        "Shuxiao Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-09-24T08:43:04+00:00",
+      "link": "https://arxiv.org/pdf/2609.29235v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "adaptive camera-LiDAR feature fusion for robust 3D detection",
+      "llm_evidence_cn": "面向鲁棒3D检测的自适应相机-LiDAR特征融合",
+      "llm_evidence": "面向鲁棒3D检测的自适应相机-LiDAR特征融合",
+      "canonical_evidence": "面向鲁棒3D检测的自适应相机-LiDAR特征融合",
+      "llm_tldr_en": "SARFusion reformulates robust camera-LiDAR fusion as a scene-aware branch routing problem, enabling adaptive modality selection at both scene and query granularity to avoid corrupted modalities interfering with reliable evidence in 3D detection.",
+      "llm_tldr_cn": "针对现有相机-LiDAR融合检测器因紧密耦合多模态表示而在模态损坏时脆弱、退化观测干扰可靠证据的问题，论文提出SARFusion。方法将鲁棒融合重构为场景感知分支路由问题，在全局场景与单个目标查询两种粒度上自适应选择可靠模态证据。实验表明该路由融合在模态退化条件下提升了3D检测的鲁棒性与精度，为多模态点云融合提供自适应机制，可迁移至开放词汇3D感知。",
+      "llm_tldr": "针对现有相机-LiDAR融合检测器因紧密耦合多模态表示而在模态损坏时脆弱、退化观测干扰可靠证据的问题，论文提出SARFusion。方法将鲁棒融合重构为场景感知分支路由问题，在全局场景与单个目标查询两种粒度上自适应选择可靠模态证据。实验表明该路由融合在模态退化条件下提升了3D检测的鲁棒性与精度，为多模态点云融合提供自适应机制，可迁移至开放词汇3D感知。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "fusing multi-modal features into point cloud representations",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
