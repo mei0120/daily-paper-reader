@@ -25,3 +25,82 @@ subscriptions:
     stage: A
     diff_threshold_pct: 15
   keyword_recall_mode: or
+  intent_profiles:
+    - tag: ovd-fusion
+      description: 面向遮挡场景的开放词汇三维语义映射与多视角融合方法研究
+      enabled: true
+      paper_sources:
+        - arxiv
+        - biorxiv
+      keywords:
+        - keyword: 3D semantic segmentation
+          keyword_cn: 三维语义分割
+          query: semantic segmentation of 3D point clouds and volumetric scenes
+        - keyword: point cloud fusion
+          keyword_cn: 点云融合
+          query: fusing multi-modal features into point cloud representations
+        - keyword: vision language model
+          keyword_cn: 视觉语言模型
+          query: vision-language model for open-vocabulary 3D semantic fusion
+        - keyword: open-vocabulary 3D mapping
+          keyword_cn: 开放词汇三维映射
+          query: open-vocabulary 3D semantic mapping for scene understanding
+        - keyword: open-vocabulary segmentation
+          keyword_cn: 开放词汇分割
+          query: open-vocabulary segmentation for 3D scene mapping
+        - keyword: multi-view semantic fusion
+          keyword_cn: 多视角语义融合
+          query: multi-view semantic fusion for open-vocabulary 3D maps
+      intent_queries:
+        - query: >-
+            open vocabulary 3D semantic fusion methods that align vision language embeddings with point clouds or
+            radiance fields
+          query_cn: 将视觉语言嵌入与点云或辐射场对齐的开放词汇三维语义融合方法
+          enabled: true
+          source: manual
+          note: ''
+        - query: >-
+            language guided fusion of 2D vision language features into 3D scene representations for semantic
+            understanding
+          query_cn: 用于语义理解的、将二维视觉语言特征语言引导融合到三维场景表示中的方法
+          enabled: true
+          source: manual
+          note: ''
+        - query: cross modal feature alignment and fusion for open vocabulary 3D object detection and segmentation
+          query_cn: 面向开放词汇三维目标检测与分割的跨模态特征对齐与融合
+          enabled: true
+          source: manual
+          note: ''
+        - query: open vocabulary 3D semantic mapping under occlusions with multi view fusion
+          query_cn: 面向遮挡场景的多视角融合开放词汇三维语义映射
+          enabled: true
+          source: manual
+          note: ''
+      updated_at: '2026-09-27T04:40:55.030Z'
+source_backends:
+  arxiv:
+    papers_table: arxiv_papers
+    use_vector_rpc: true
+    vector_rpc: match_arxiv_papers
+    vector_rpc_exact: match_arxiv_papers_exact
+    use_bm25_rpc: true
+    bm25_rpc: match_arxiv_papers_bm25
+    sync_table: arxiv_sync_status
+    sync_success_value: success
+    schema: public
+    kind: supabase
+    enabled: true
+    url: https://lyucdwgefyfbmaiopjbk.supabase.co
+    anon_key: sb_publishable_lX-oi64Uxyd7SIVv3_w2Uw_MTOojeKq
+  biorxiv:
+    papers_table: biorxiv_papers
+    use_vector_rpc: true
+    vector_rpc: match_biorxiv_papers_exact
+    vector_rpc_exact: match_biorxiv_papers_exact
+    use_bm25_rpc: true
+    bm25_rpc: match_biorxiv_papers_bm25
+    schema: public
+    kind: supabase
+    enabled: true
+    url: https://lyucdwgefyfbmaiopjbk.supabase.co
+    anon_key: sb_publishable_lX-oi64Uxyd7SIVv3_w2Uw_MTOojeKq
