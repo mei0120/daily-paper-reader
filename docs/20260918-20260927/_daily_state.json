@@ -1,0 +1,265 @@
+{
+  "date": "20260918-20260927",
+  "date_label": "2026-09-18 ~ 2026-09-27",
+  "generated_at": "2026-09-27 04:49:18 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.27462v1",
+      "route": "20260918-20260927/2609.27462v1-hybrid-gaussians-for-robust-open-vocabulary-3d-segmentation-with-multi-view-object-association-and-boundary-refinement",
+      "title": "Hybrid Gaussians for Robust Open-Vocabulary 3D Segmentation with Multi-View Object Association and Boundary Refinement",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 10.0,
+      "evidence": "融合多视角与语言对齐语义的开放词汇三维分割",
+      "first_seen_at": "2026-09-27 04:49:18 UTC",
+      "updated_at": "2026-09-27 04:49:18 UTC"
+    },
+    {
+      "paper_id": "2609.21400v1",
+      "route": "20260918-20260927/2609.21400v1-a-scene-language-model-for-open-vocabulary-scene-mapping",
+      "title": "A Scene Language Model for Open-Vocabulary Scene Mapping",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "以结构化文本维护开放词汇三维场景地图的场景语言模型",
+      "first_seen_at": "2026-09-27 04:49:18 UTC",
+      "updated_at": "2026-09-27 04:49:18 UTC"
+    },
+    {
+      "paper_id": "2609.28222v1",
+      "route": "20260918-20260927/2609.28222v1-from-alignment-to-fusion-in-3d-vision-language",
+      "title": "From Alignment to Fusion in 3D Vision-Language",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "对点云、体素与多视角图像先对齐后融合以服务三维视觉语言任务",
+      "first_seen_at": "2026-09-27 04:49:18 UTC",
+      "updated_at": "2026-09-27 04:49:18 UTC"
+    },
+    {
+      "paper_id": "2609.29157v1",
+      "route": "20260918-20260927/2609.29157v1-oren-x-octree-residual-network-for-real-time-multi-modal-mapping",
+      "title": "OREN-X: Octree Residual Network for Real-Time Multi-Modal Mapping",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "统一八叉树场存储视觉语言特征用于开放词汇定位",
+      "first_seen_at": "2026-09-27 04:49:18 UTC",
+      "updated_at": "2026-09-27 04:49:18 UTC"
+    },
+    {
+      "paper_id": "2609.21522v1",
+      "route": "20260918-20260927/2609.21522v1-refine-then-fusion-training-free-3d-point-cloud-adaptation-with-priority-refinement-and-multi-modal-knowledge-fusion",
+      "title": "Refine Then Fusion: Training-Free 3D Point Cloud Adaptation with Priority Refinement and Multi-Modal Knowledge Fusion",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "免训练地将多模态知识融合进三维点云表示",
+      "first_seen_at": "2026-09-27 04:49:18 UTC",
+      "updated_at": "2026-09-27 04:49:18 UTC"
+    },
+    {
+      "paper_id": "2609.22687v1",
+      "route": "20260918-20260927/2609.22687v1-panoseg3r-feed-forward-3d-semantic-segmentation-for-panoramic-images-with-an-automatic-data-curation-pipeline",
+      "title": "PanoSeg3R: Feed-Forward 3D Semantic Segmentation for Panoramic Images with an Automatic Data Curation Pipeline",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "前馈式三维语义分割，联合预测几何与多视图语义",
+      "first_seen_at": "2026-09-27 04:49:18 UTC",
+      "updated_at": "2026-09-27 04:49:18 UTC"
+    },
+    {
+      "paper_id": "2609.23541v1",
+      "route": "20260918-20260927/2609.23541v1-towards-robust-multimodal-3d-object-detection-via-visual-foundation-models",
+      "title": "Towards robust multimodal 3D object detection via visual foundation models",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "借助视觉基础模型融合LiDAR与相机的多模态三维检测",
+      "first_seen_at": "2026-09-27 04:49:18 UTC",
+      "updated_at": "2026-09-27 04:49:18 UTC"
+    },
+    {
+      "paper_id": "2609.26360v1",
+      "route": "20260918-20260927/2609.26360v1-hierarchical-floorplan-guided-vision-language-exploration-for-embodied-question-answering",
+      "title": "Hierarchical Floorplan-Guided Vision-Language Exploration for Embodied Question Answering",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "从RGB-D增量构建开放词汇占据图与分层场景图用于场景理解",
+      "first_seen_at": "2026-09-27 04:49:18 UTC",
+      "updated_at": "2026-09-27 04:49:18 UTC"
+    },
+    {
+      "paper_id": "2609.26702v1",
+      "route": "20260918-20260927/2609.26702v1-difta-3d-depth-consistent-instance-level-feature-transfer-and-adaptation-of-dinov3-for-3d-detection",
+      "title": "DIFTA-3D: Depth-Consistent Instance-Level Feature Transfer and Adaptation of DINOv3 for 3D Detection",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "在遮挡下以深度一致方式将二维视觉基础特征融合进三维检测",
+      "first_seen_at": "2026-09-27 04:49:18 UTC",
+      "updated_at": "2026-09-27 04:49:18 UTC"
+    },
+    {
+      "paper_id": "2609.29836v1",
+      "route": "20260918-20260927/2609.29836v1-splatlabel-pseudo-labelling-through-4d-gaussian-splatting",
+      "title": "SplatLabel: Pseudo-Labelling through 4D Gaussian Splatting",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "基于4D高斯泼溅的3D语义伪标注与占据栅格",
+      "first_seen_at": "2026-09-27 04:49:18 UTC",
+      "updated_at": "2026-09-27 04:49:18 UTC"
+    },
+    {
+      "paper_id": "2609.23144v1",
+      "route": "20260918-20260927/2609.23144v1-probabilistic-scene-graphs-hierarchical-representation-and-real-time-system",
+      "title": "Probabilistic Scene Graphs: Hierarchical Representation and Real-time System",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "面向机器人场景理解的三维场景图分层表示",
+      "first_seen_at": "2026-09-27 04:49:18 UTC",
+      "updated_at": "2026-09-27 04:49:18 UTC"
+    },
+    {
+      "paper_id": "2609.24564v1",
+      "route": "20260918-20260927/2609.24564v1-hyperclip-fine-tuning-clip-foropen-vocabulary-semantic-segmentation-in-hyperbolic-space",
+      "title": "HyperCLIP++: Fine-tuning CLIP forOpen-vocabulary Semantic Segmentation in Hyperbolic Space",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "通过视觉语言嵌入对齐微调CLIP实现开放词汇语义分割",
+      "first_seen_at": "2026-09-27 04:49:18 UTC",
+      "updated_at": "2026-09-27 04:49:18 UTC"
+    },
+    {
+      "paper_id": "2609.25832v1",
+      "route": "20260918-20260927/2609.25832v1-partllm-a-unified-multimodal-foundation-for-3d-part-segmentation",
+      "title": "PartLLM: A Unified Multimodal Foundation for 3D Part Segmentation",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "语言引导三维部件分割的统一多模态模型",
+      "first_seen_at": "2026-09-27 04:49:18 UTC",
+      "updated_at": "2026-09-27 04:49:18 UTC"
+    },
+    {
+      "paper_id": "2609.25860v1",
+      "route": "20260918-20260927/2609.25860v1-matchfusion-explicit-implicit-instance-matching-for-spatio-temporal-multimodal-autonomous-driving",
+      "title": "MatchFusion: Explicit-Implicit Instance Matching for Spatio-Temporal Multimodal Autonomous Driving",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "激光雷达-相机多模态特征的可学习实例匹配与融合",
+      "first_seen_at": "2026-09-27 04:49:18 UTC",
+      "updated_at": "2026-09-27 04:49:18 UTC"
+    },
+    {
+      "paper_id": "2609.25966v1",
+      "route": "20260918-20260927/2609.25966v1-grip-gaussian-rendering-as-a-cross-modal-bridge-for-image-to-point-cloud-registration",
+      "title": "GRIP: Gaussian Rendering as a Cross-Modal Bridge for Image-to-Point Cloud Registration",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "以高斯渲染融合点云特征与图像特征",
+      "first_seen_at": "2026-09-27 04:49:18 UTC",
+      "updated_at": "2026-09-27 04:49:18 UTC"
+    },
+    {
+      "paper_id": "2609.28645v1",
+      "route": "20260918-20260927/2609.28645v1-pepeseg3d-perception-prior-enhances-multi-scale-segmentation-for-3d-gaussian-splatting",
+      "title": "PePESeg3D: Perception Prior Enhances Multi-Scale Segmentation for 3D Gaussian Splatting",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "基于3D高斯泼溅辐射场的多尺度语义分割",
+      "first_seen_at": "2026-09-27 04:49:18 UTC",
+      "updated_at": "2026-09-27 04:49:18 UTC"
+    }
+  ]
+}

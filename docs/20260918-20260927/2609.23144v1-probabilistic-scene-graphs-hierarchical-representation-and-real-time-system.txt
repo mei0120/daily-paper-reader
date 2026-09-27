@@ -1,0 +1,2914 @@
+1
+Probabilistic Scene Graphs:
+Hierarchical Representation and Real-time System
+Waqas Ali1, Michele Antonazzi1, Timon Homberger1, Thien-Minh Nguyen2, Lukas Rosenberger Schmid3, Patric
+Jensfelt1, Yixi Cai1
+Abstract—3D scene graphs provide semantically rich and hier-
+archical representations for robot perception. However, existing
+systems do not maintain uncertainty as an explicit belief or
+propagate it through the operations that construct and refine the
+graph. We introduce Probabilistic Scene Graph (PSG), a general-
+ization of the conventional scene graph that represents a posterior
+over possible graphs, factorized into a discrete graph structure
+of entities, relations, and semantic attributes, and continuous
+states that ground them spatially, with uncertainty maintained
+over both components. Geometry is carried directly by the nodes
+rather than selected from a separately constructed metric map, so
+a metric map, where needed, follows from the graph rather than
+preceding it. We instantiate PSG’s probabilistic spatial grounding
+with hierarchical graphs of Gaussians (HGG): each object primi-
+tive is represented by a full-covariance Gaussian under a Normal-
+Inverse-Wishart belief, and the same parametrization applied
+recursively within a node yields a geometry graph that resolves
+its surface at finer resolution. We then build a mapping pipeline
+that preserves these beliefs throughout graph construction and
+refinement: a purely graph-based coarse-to-fine alignment reg-
+isters observations by comparing node beliefs, while a nested
+Expectation-Maximization and factor-graph optimization jointly
+refines poses, object parameters, and internal geometry. Across
+six datasets spanning indoor RGB-D, outdoor LiDAR, and cross-
+modality deployment, HGG operates at sensor rate with near-
+constant memory and achieves state-of-the-art object accuracy
+and zero-shot graph alignment.
+I. INTRODUCTION
+As robots are tasked with complex, instruction-driven ob-
+jectives, a purely geometric map no longer suffices: acting on
+an instruction requires knowing not only where things are,
+but what they are and how they relate to one another. 3D
+scene graphs have emerged as a powerful representation for
+this, encoding semantic entities and their relations, often across
+multiple levels of abstraction [1].
+Recent work has substantially advanced 3D scene graphs
+toward real-time, hierarchical, and open-vocabulary scene
+understanding. Kimera [2], [3] integrated a dynamic scene
+graph into a visual-inertial SLAM pipeline, demonstrating
+semantic abstraction with full state estimation. Hydra [4],
+[5] established the current state of the art, incrementally
+constructing a hierarchical scene graph, combining fast lo-
+cal updates with a dedicated optimization back-end. Open-
+vocabulary systems [6]–[8] showed that this hierarchy extends
+1Authors are with the Division of Robotics, Perception, and Learning
+(RPL), KTH Royal Institute of Technology, Stockholm 114 28, Sweden.
+2Thien-Minh Nguyen is with the School of Mechanical and Mining
+Engineering (SMME), The University of Queensland, Brisbane, QLD 4072,
+Australia.
+3Lukas Rosenberger Schmid is with the Department of Computer Science
+and Artificial Intelligence, University of Technology Nuremberg, 90461
+N¨urnberg, Germany.
+Fig. 1: Our hierarchical probabilistic scene graph (HGG).
+Top: a symbolic object graph Go, with a belief over centroid
+and full covariance, connected by relational edges. Middle:
+the geometry graph Gg
+i held inside each object, the same
+definition applied one level down, whose combined means and
+covariances provide a belief over continuous surface geometry.
+Bottom: detail of the geometry graph (left). Realizations of
+dense semantic point clouds of the scene can be sampled from
+our PSG (right), comparable to the original measurements.
+Color denotes the semantic label.
+naturally to open-vocabulary semantics, replacing closed label
+sets with vision-language features without sacrificing struc-
+ture. Collectively, these systems represent substantial progress.
+However, uncertainty is not maintained as an explicit proba-
+bilistic belief in these scene graphs or propagated through the
+graph operations. Consequently, the uncertainty arising from
+noisy and partial observations is not consistently preserved
+throughout the mapping process.
+This gap is at odds with the nature of the measurement
+process itself. A robot does not have direct access to the true
+state of the scene; it receives noisy measurements drawn from
+a probabilistic generative process. Consider an object observed
+only partially and with noisy measurements. A conventional
+scene graph typically assigns it a point estimate of position
+and extent when the node is created. Once this estimate is
+stored, the graph no longer records how uncertain that estimate
+was. A later observation is therefore fused with a seemingly
+established object, even though the first observation may have
+been highly uncertain. This matters because uncertainty is
+arXiv:2609.23144v1  [cs.RO]  19 Sep 2026
+
+
+2
+not needed only at node creation. It affects every subsequent
+operation: deciding whether two observations correspond to
+the same object, registering a new graph to the map, and
+refining the object as more observations arrive. If uncertainty
+is discarded at the node, these operations cannot use it later.
+We therefore propose the Probabilistic Scene Graph (PSG),
+which represents a scene as a posterior over possible scene
+graphs rather than a single deterministic graph. Building
+on the scene-graph formulation of Rotondi et al. [1], we
+decompose the graph into a discrete structure of entities,
+relations, and semantic attributes, and continuous states that
+ground these entities spatially. A PSG makes uncertainty an
+intrinsic part of the scene graph representation, maintaining
+beliefs over both components conditioned on the observations
+as the graph is constructed and refined. Within the continuous
+states, geometry is represented directly by each node: rather
+than grounding each entity through a separately constructed
+metric map, each node describes where its entity is and how
+far it extends. A metric map can therefore be derived from the
+scene graph when needed, rather than serving as a prerequisite
+for constructing it.
+We instantiate this definition hierarchically around object
+primitives. At the object level, each node represents one object
+primitive, including both discrete objects such as chairs and
+desks and spatial structures such as walls or floor regions.
+These nodes form the object graph Go, while applying the
+same definition within each node yields a geometry graph Gg
+that describes the same object primitive at a finer resolution.
+Together, these two layers form the basis for the hierarchical
+representation of Figure 1.
+The probabilistic representation must be preserved through
+the process that constructs and refines the graph. Nodes
+are created from partial observations, associated with nodes
+already in the map to determine which observations corre-
+spond to the same object primitive, and corrected as new
+observations arrive and the trajectory is revised. We therefore
+make each stage uncertainty-aware. Alignment compares node
+beliefs rather than point estimates, while a nested Expectation-
+Maximization and factor-graph optimization updates the be-
+liefs as the map and trajectory are refined. In this way,
+the belief established at node creation is carried through
+association and correction rather than being discarded along
+the way. We summarize our contributions as follows:
+• The representation. We introduce the probabilistic scene
+graph (PSG), a generalization of the conventional scene
+graph that represents a posterior over possible graphs
+rather than a single deterministic graph. The formulation
+makes uncertainty an intrinsic part of the representation,
+providing a principled basis for maintaining and updating
+uncertainty as the graph evolves.
+• Creation. We instantiate PSG with hierarchical graphs of
+Gaussians (HGG): each object primitive is represented by
+a Gaussian under a Normal-Inverse-Wishart belief over
+its mean and covariance. Each object primitive further
+carries a geometry graph of finer Gaussians expressed
+in its object frame, whose aggregate statistics define the
+detailed object-level geometry.
+• Alignment. We extend the probabilistic representation to
+graph alignment with a purely graph-based coarse-to-
+fine method that registers newly observed graphs to the
+global graph without a dense metric map or learned
+embedding. Correspondences are determined from dis-
+tributional geometry and structural context, then fused
+through evidence-weighted conjugate merging to preserve
+the probabilistic belief during map update.
+• Correction. We extend the probabilistic representation to
+graph correction with a nested factor-graph optimization
+and Expectation-Maximization that jointly refines poses
+and the parameters of object primitives while refining
+their internal geometry. A Fisher-information analysis
+shows that this separation incurs only a second-order loss
+in estimation efficiency relative to joint optimization.
+We evaluate HGG on six datasets spanning indoor RGB-D,
+outdoor LiDAR, and cross-modality deployment, showing that
+the probabilistic representation yields state-of-the-art object
+accuracy and zero-shot graph alignment while operating in
+real time with near-constant memory. Language-grounded
+retrieval and navigation are built on the same probabilistic
+representation. Retrieval uses the spatial extent and relations
+encoded in the node beliefs to resolve relational queries, while
+navigation uses the uncertainty associated with the supporting
+nodes when planning through traversable space. In both cases,
+the robot reasons directly over the probabilistic scene graph
+rather than first reducing it to a deterministic map.
+II. RELATED WORK
+We organize related work along four lines that converge
+on the limitation that motivates this work. Section II-A re-
+views 3D scene graphs, the representational paradigm this
+paper extends, tracing the field’s progression toward real-
+time, open-vocabulary, and structurally integrated systems.
+Section II-B reviews object-based SLAM, which approaches
+the same problem from an estimation-theoretic rather than a
+hierarchical-graph perspective and endows objects with first-
+class representational status. This line of work includes the
+parallel emergence of 3D Gaussian Splatting as a primitive.
+Section II-C reviews graph alignment, the problem of regis-
+tering newly observed scene fragments into an existing map,
+which our mapping pipeline depends on directly. Section II-D
+reviews graph-based optimization strategies for maintaining
+global consistency.
+Across all four lines of work, we identify the same structural
+limitation: node geometry is selected from a metric map that
+must be built first, and committed to a deterministic primitive
+that propagates no uncertainty. The field has reached a related
+diagnosis in a different register. Rotondi et al. [1] name uncer-
+tainty among the open challenges of dynamic scene graphs,
+observing that most approaches maintain a single estimate
+of the world state despite the uncertainty inherent in partial
+observability, ambiguous data association, and future scene
+evolution. Their open questions are about semantics and about
+time, while ours is about what both rest on. These pipelines
+decide that two observations are the same entity primarily
+from geometry, with semantics as a filter, and both are carried
+as point estimates. Neither geometry nor semantics has been
+
+
+3
+treated as a belief that survives the operations performed on
+the node. We take up geometry, the channel every operation
+on a node passes through, and return to the semantic one in
+Section VI.
+A. 3D Scene Graphs
+3D scene graphs have emerged as the dominant paradigm
+for hierarchical, semantically rich environment representations
+in robotics. Armeni et al. [9] proposed a multi-layered struc-
+ture encoding unified semantics, 3D geometry, and camera
+relationships from RGB-D data. Kim et al. [10] introduced
+a sparse, object-centric formulation with objects as nodes
+and spatial-semantic attributes in the graph topology, an ap-
+proach that proved effective for downstream task planning.
+Rosinol et al. [11] established the 3D Dynamic Scene Graph
+(DSG), a layered, actionable spatial perception model that
+integrates places, objects, and humans, which Kimera [2],
+[3] grounded in a full visual-inertial SLAM pipeline. Wald
+et al. [12] subsequently proposed learning the 3D scene
+graph structure directly from a point cloud and its instance
+segmentation, agnostic to the sensor or pipeline that pro-
+duced the reconstruction. Hydra [4], [5] established the state
+of the art for real-time construction, incrementally building
+a layered scene graph spanning mesh, places, objects, and
+rooms, from visual-inertial data with fast local processing and
+slower global optimization. Despite these contributions, Hydra
+retains two structural limitations: it relies on dense metric-
+semantic meshes as its geometric substrate, and it enforces
+rigid, deterministic geometric constraints throughout, making
+it brittle to sensor noise and segmentation uncertainty.
+The advent of large vision-language foundation models
+catalyzed a new generation of open-vocabulary scene graph
+systems. SceneGraphFusion [13] demonstrated incremental
+scene graph prediction from RGB-D sequences using graph
+neural networks, with an attention mechanism to handle partial
+observations. ConceptGraphs [6] carried the open-vocabulary
+idea by fusing pre-trained CLIP and large language model
+features into 3D via multi-view association, producing object-
+centric representations that generalize to unseen semantic
+classes without task-specific fine-tuning. HOV-SG [7] ex-
+tended this to a hierarchical open-vocabulary scene graph that
+covers object, room, and floor levels, each layer enriched with
+visual-language features. Clio [8] introduces the first real-
+time hierarchical open-set scene graph, using the open-set
+features to define task-relevant graph and object granularity.
+FunGraph [14] refined the granularity of objects to affordance-
+relevant object parts, enabling language-prompted interaction
+with functional elements rather than whole objects. LEXI-
+SG [15] relaxed sensor requirements, demonstrating a dense
+monocular open-vocabulary scene graph mapping system by
+partitioning the scene into rooms and aligning per-room feed-
+forward reconstructions in a room-based factor graph. Col-
+laborative dynamic scene graphs [16] further extended the
+paradigm to autonomous driving, building shared semantic
+graphs among multiple vehicles for cooperative scene under-
+standing.
+A distinct research direction is the Situational Graphs (S-
+Graphs) family, which departs from the visual-inertial ap-
+proaches by tightly coupling the scene graph into the SLAM
+factor graph itself. Bavle et al. [17] introduced S-Graphs
+as a jointly optimized three-layered graph combining pose
+keyframes, wall planes from 3D LiDAR, and topological
+room and corridor nodes. S-Graphs+ [18] extended this to an
+optimizable hierarchy spanning keyframes, walls, rooms, and
+floors, showing that architectural structure as first-class graph
+nodes improves trajectory accuracy and map consistency. The
+framework was later scaled to collaborative multi-robot map-
+ping [19], extended with hierarchical semantic optimization in
+S-Graphs 2.0 [20], and brought to the visual domain by vS-
+Graphs [21]. The family shows the value of structural seman-
+tics as optimization variables, but its nodes are deterministic
+primitives, including planar surfaces, room centroids, and floor
+levels, with no uncertainty model over their geometry.
+Among LiDAR-based approaches, SGLC [22] employs a
+semantic graph of object nodes organized by class and spatial
+topology to drive coarse-to-fine loop closure detection. Wang
+et al. [23] integrated a globally maintained semantic graph map
+constructed from foreground objects as an anchor structure
+running alongside a dense local point cloud. The graph map
+is used for place recognition and the dense local map for
+registration.
+Across this line of work, the node primitive collapses the
+observation to a point estimate at creation, and no system
+propagates distributional uncertainty over geometry through
+association, registration, or optimization. We instead make
+each node a Gaussian with full covariance over the object’s
+extent, maintaining a belief over that Gaussian which is carried
+through association and correction.
+B. Object-based SLAM
+Object-based SLAM elevates semantic object instances
+to first-class landmarks, enabling richer scene understand-
+ing and more discriminative loop closure than feature-point
+or volumetric backends alone. SLAM++ [24] established
+the paradigm using pre-built CAD models, later relaxed by
+CubeSLAM [25] and QuadricSLAM [26], which estimate
+object pose and extent as cuboids and dual quadrics directly
+from detections, removing the closed-vocabulary constraint.
+Bowman et al. [27] maintain a distribution over which land-
+mark generated each measurement, preserving uncertainty
+over object identity. The landmark itself remains a point,
+however: once association is resolved, no distributional state
+remains over the object’s extent or shape. NodeSLAM [28]
+instead reconstructs per-instance shape using neural priors.
+OA-SLAM [29] and VOOM [30] integrate ellipsoidal and
+dual-quadric object landmarks into conventional bundle adjust-
+ment, the latter using coarse object correspondence to guide
+fine point-feature association. ObVi-SLAM [31] extends this
+paradigm to long-term, multi-session operation, and Wu et
+al. [32] provide a systematic treatment of how object-level
+maps support downstream manipulation and navigation tasks.
+A
+parallel
+line
+of
+work
+replaces
+parametric
+object
+shapes with 3D Gaussian Splatting (3DGS) [33], whose
+anisotropic Gaussians (mean, full covariance, opacity, view-
+dependent color) enable real-time, directly-manipulable radi-
+ance fields. GS-SLAM [34], Gaussian Splatting SLAM [35],
+
+
+4
+SplaTAM [36], and Photo-SLAM [37] adapted this representa-
+tion to real-time dense tracking and mapping, while Gaussian-
+LIC [38] and MM3DGS SLAM [39] extended it to LiDAR-
+camera fusion, and SGS-SLAM [40], NEDS-SLAM [41], and
+SemGauss-SLAM [42] augmented individual Gaussians with
+semantic labels or learned features. Across this literature, how-
+ever, the Gaussian remains a sub-object primitive: thousands
+are aggregated into a dense representation, and none is used
+to represent a complete semantic object in its own right [43]–
+[45].
+The two lines converge on the same limitation from opposite
+directions. Object-based SLAM fixes geometry as a parametric
+shape that absorbs no noise, and where that shape is already
+an ellipsoid [26], [29], it is estimated as a point rather than
+maintained as a belief. In 3DGS-SLAM the Gaussian is a
+rendering primitive: its covariance is a splat footprint fitted
+to photometric error rather than a statement about an object’s
+extent, and no belief is maintained over it. Our method closes
+the gap by representing each object’s position and extent
+with a full-covariance Gaussian and recovering finer shape
+by applying the same primitive within the node rather than
+over a dense representation, so its geometry graph Gaussians
+are attributes of a single object rather than an unsegmented
+reconstruction of the scene.
+C. Graph Alignment
+Graph alignment seeks a consistent node-level correspon-
+dence between two graphs with partial overlap, differing
+topology, or heterogeneous attributes; in 3D scene mapping, it
+underpins place recognition and the registration of new scene
+fragments into a global representation. Classical formulations
+cast matching as quadratic assignment solved via spectral
+relaxation [46], [47], but are computationally expensive and
+ill-suited to the partial-overlap regime ubiquitous in robotics.
+The Weisfeiler-Lehman kernel [48] yields graph-level similar-
+ity rather than node correspondence, though its iteration can
+be adapted into a per-node structural descriptor, as we do in
+Section IV-B3. For 3D scene graphs, SGAligner [49] learns a
+joint multi-modal contrastive embedding for node matching,
+followed by a decoupled point cloud registration step. SG-
+PGM [50] fuses scene graph and point cloud geometry in a
+shared encoder with differentiable top-k partial matching to
+handle partial overlap explicitly. ROMAN [51] aligns open-set
+object maps by solving a densest edge-weighted clique over
+a pairwise consistency graph, without an initial pose estimate.
+SG-REG [52] fuses open-set semantic, topological, and shape
+cues into a single compact node feature, targeting the gen-
+eralization gap of learning-based registration. OpenSGA [53]
+demonstrated open-world 3D scene graph alignment, extend-
+ing the domain from indoor closed-set scenes to arbitrary
+environments with novel semantic classes.
+All of these methods, spanning contrastive embeddings [49],
+fused geometric-semantic encoders [50], [52], and open-world
+matching [53], resolve the correspondence over deterministic
+node attributes. We instead make the correspondence cost itself
+a distributional distance between node beliefs, evaluated under
+a structure valid on the manifold that their covariances occupy,
+and requires neither a point cloud encoder nor an embedding
+trained for graph alignment.
+D. Graph Correction
+Graph correction is crucial to achieving locally and globally
+consistent maps. Current strategies perform the correction by
+reintegrating volumes [54], realigning submaps [55], optimiz-
+ing unstructured surfels [56], or applying deformation graphs
+to meshes [3]. However, these methods focus on optimizing
+dense representations, so object-level entities are corrected
+only as a consequence of the surface or volume they were
+derived from rather than being estimation variables in their
+own right. Hydra [4] introduces a graph-based backend that
+optimizes the object and place layers alongside the meshes, yet
+remains limited to rigid geometric constraints, which hinders
+its robustness to sensor noise and perception uncertainty.
+Factor graph representations have also been proposed for
+scene-level uncertainty reasoning beyond pure pose estimation.
+Khronos [57] extends Hydra to object-level reconstruction
+and uses a factor graph to disambiguate object association
+from scene changes. Millan-Romera et al. [58] demonstrated
+that factor graphs can represent distributional uncertainty over
+semantic concepts in factorized 3D scene graphs, motivating
+the use of probabilistic factor formulations at the scene graph
+level. Their formulation, however, covers semantic concepts
+rather than object geometry, and operates offline rather than
+incrementally. Every strategy above either optimizes a dense
+map or treats object nodes as points in Euclidean parameter
+space. Our nested framework optimizes poses and object
+parameters jointly in a factor graph and refines each object’s
+internal geometry conditioned on them, with residuals formu-
+lated on the manifold of symmetric positive-definite matrices
+(Sym+(3)) rather than its Euclidean embedding.
+III. FOUNDATION OF A PROBABILISTIC SCENE GRAPH
+A. Distribution over Scene Graphs
+Across the systems of Section II, a scene graph is typically
+the output of a two-stage pipeline
+Z
+reconstruct
+−−−−−−→M
+abstract
+−−−−−→G,
+(1)
+carrying sensor measurements Z to a metric map M ⊆R3
+and then to the tuple G = (V, Vg, Vf, E, Ef, [L]) – a node set
+V , a grounding of nodes on the map Vg, node attributes Vf,
+an edge set E, edge attributes Ef, and an optional assignment
+of nodes to layers [L] – consolidated by Rotondi et al. [1].
+Each node vi ∈V represents an entity grounded in 3D space
+(an object, an object part, or a region), and the grounding
+Vg : V →{0, 1}M assigns it the subset of map points that the
+entity occupies. This pipeline design is appealing, as it deals
+effectively with two of the primary challenges in 3D scene
+graph estimation. First, scene graphs are inherently discrete,
+symbolic structures, whereas the scene geometry is a contin-
+uous entity. Thus, M creates a continuous reconstruction of
+geometry, from which the symbolic graph can be abstracted.
+Second, if a map M is maintained, especially in the presence
+of odometry drift and other perceptual challenges, associations
+
+
+5
+Vg of V into M provide an effective solution to the hard
+problem of spatially grounding the scene graph.
+However, this separation has notable limitations, as mea-
+surements are collapsed to a single belief and a one-way
+dependence of the scene graph on the geometric map is
+created. We address these limitations of (1) as follows. First,
+we estimate a posterior over possible scene graphs rather
+than a single scene graph. Let G denote the set of scene
+graphs, with each graph decomposed into a discrete structure
+S = (V, E, Vf), for example describing its entities, relations,
+and semantic attributes, and continuous states θ. While any
+attributes of the graph may be continuous, without loss of
+generality, we here focus on capturing the spatial grounding
+in θ, an essential component of any probabilistic scene graph.
+The resulting posterior P(S, θ|Z) thus captures uncertainty
+in both components, symbolic and spatial, allowing it to be
+maintained as the graph is created, aligned, and corrected:
+each operation takes a posterior to a posterior rather than
+reading out a point estimate. Second, within the continuous
+states θ, we change how geometry is captured. In the classical
+formulation, Vg grounds each entity by selecting the subset
+of points in the metric map M that it occupies. We instead
+propose a scene-graph-first approach, where each node carries
+its geometric state directly: θi describes where the entity is,
+how far it extends, and how its surface is distributed. This
+removes a prerequisite, not a modality. The map M may be a
+point cloud, a mesh, or a splat model, but Vg can only ground
+an entity in a map that has already been built and is thereafter
+kept. In our formulation θ is itself a distribution over scene
+geometry, so a metric map follows from the graph rather than
+preceding it and can be be sampled from θ if desired. This
+leads to the following formal definition of a probabilistic scene
+graph.
+Definition 1 (Probabilistic scene graph). A probabilistic scene
+graph is a posterior P(S, θ|Z) over G,
+Z −→P(S, θ|Z) = π(S|Z)
+| {z }
+symbolic
+B(θ|S, Z)
+|
+{z
+}
+geometry
+∈P(G).
+(2)
+Here, π(S|Z) represents the posterior over the discrete struc-
+ture, while B(θ|S, Z) represents the conditional belief over
+the continuous states. Written field by field against the clas-
+sical tuple, and suppressing the common conditioning on Z,
+Definition 1 becomes GP ,
+GP =
+ π(V ), B(θ|S), π(Vf|V, E), π(E|V ), π(Ef|V, E), π(L)
+
+(3)
+with symbolic entries π(S) = π(V ) π(E|V ) π(Vf|V, E), and
+π(Ef|V, E), and continuous belief B(θ|S).
+The probabilistic entries in GP replace the corresponding
+deterministic fields in G with distributions over the values they
+could take: π(V ) over which entities exist, π(E|V ) over which
+are related, π(Vf|V, E) over what they are, π(Ef|V, E) over
+how they are related, B(θ|S) over their geometry, and π(L)
+over their organization in hierarchical layers. The definition
+leaves open the parametric family, the granularity of the
+entities, and which groundings are realized as beliefs rather
+than point estimates.
+TABLE I: Notation for the Probabilistic Scene Graph
+Notations
+Description
+t
+Frame index
+Gt
+Local scene graph created from frame t
+Gt
+Global scene graph registered up to frame t
+Go, Go
+Superscript o denotes the object graph
+Gg
+i , Gg
+i
+Superscript g denotes the geometry graph belonging to
+ith-node of the object graph Go, Go
+B. From Definition to Parametrization
+The PSG formulation in Definition 1 is general and does
+not prescribe how uncertainty is represented or how the scene
+graph is organized. However, as a first step, any PSG requires
+probabilistic spatial grounding that generalizes across levels
+of granularity, from a whole entity to the surface within it,
+and that can be efficiently manipulated and updated while
+maintaining its probabilistic properties. We thus propose hier-
+archical graphs of Gaussians (HGG) as a representation for
+probabilistic spatial grounding.
+In HGG, the same parametrization is applied in each layer.
+We parameterize θi for each symbolic node i as a density
+over space, described by a mean position µi and a covariance
+Σi, which specify where the node is and how far it extends.
+Among all densities on R3 with a given mean and covariance,
+the Gaussian has maximum entropy [59], making N(µi, Σi)
+the least committed choice consistent with these two quan-
+tities. We use a full covariance rather than an isotropic or
+axis-aligned one to capture directional variation in the extent
+of an entity. Consequently, Σi lies on the manifold Sym+(3)
+rather than in a flat parameter space. We therefore perform
+comparison, interpolation, and refinement using operations
+that respect this manifold structure.
+Note that the pair (µi, Σi) describes the physical node
+extent and is not itself an uncertainty. Instead, the PSG
+formulation requires the node to hold a belief over these
+parameters, represented here as a distribution P(µi, Σi|Z)
+on R3 × Sym+(3). We maintain this in conjugate form as a
+Normal-Inverse-Wishart posterior [60], [61]. This choice also
+provides two useful properties: the dispersion of the belief is
+governed by the number of measurements attributed to the
+node, and the posterior remains proper at every finite number
+of observations. Section IV-A introduces these parameters and
+their update in more detail.
+Since spatial relations are an essential component of most
+scene graphs, we further introduce a set of probabilistic spatial
+edges E(V ). In this formulation, E denotes the neighborhood
+between nodes within a layer L. Their corresponding edge
+attributes Ef are weights induced from the node geometry
+and therefore inherit uncertainty from the beliefs of the nodes
+they connect.
+Finally, a mean and covariance describe where, for example,
+an object is and how far it extends, but not its detailed shape.
+We therefore introduce a geometry graph Gg
+i capturing the
+continuous surface of node i, which is simply another layer of
+the HGG representation introduced above. The geometry graph
+provides this finer representation: its nodes cover parts of the
+same entity, and their combined mean and covariance define
+the probabilistic distribution over surface geometry. Thus, the
+symbolic node and its geometry graph represent the same
+
+
+6
+Fig. 2: System overview. Given a semantic point cloud frame and odometry, we create a hierarchical local graph Gt, align it
+with the global graph Gt−1 through coarse-to-fine graph alignment, and update the global graph Gt through map registration.
+The resulting representation is refined through nested optimization within a sliding window, followed by global optimization.
+object at two resolutions rather than as two separate represen-
+tations. The finer graph also carries spatial relations between
+its nodes, providing the structure used for fine alignment and
+for propagating geometric corrections between neighboring
+parts.
+C. Probabilistic Scene Graph Instantiation
+In this work, we demonstrate PSGs in one instantiation of
+Definition 1, although many others are possible. We build a
+hierarchical PSG spanning a symbolic and a continuous layer;
+an object graph Go whose nodes are the entities of the scene,
+and within each of those nodes a geometry graph Gg describing
+the same entity at a finer resolution. Table I describes the
+notations.
+We model the geometric factor B(θ|S, Z) probabilistically,
+while the symbolic factor π(S|Z) is instantiated determinis-
+tically. This is a design choice reflecting our focus on spatial
+grounding rather than a restriction of the PSG formulation; the
+broader formulation also allows uncertainty in the symbolic
+components, as discussed in Section VI. Similarly, each layer
+contains a set of spatial edges E and features Ef denot-
+ing probabilistic neighborhood relations. Again, additional
+semantic edges or features can readily be added to the PSG
+formulation.
+IV. METHODOLOGY
+Our approach to estimate the HGG introduced above in
+real-time is summarized in Figure 2. The system takes as
+input a semantic point cloud and odometry and processes
+them through three stages: creation, alignment, and correction.
+Creation (Section IV-A) constructs a local hierarchical graph
+Gt from each input frame, expressed in the local body frame.
+The graph is thus the unit of measurement rather than a product
+of accumulation. Creating it per frame bounds the front-end
+cost by one frame rather than by the mapped volume, letting
+κo record what a single observation actually saw, and makes
+every downstream stage graph-to-graph and hence indifferent
+to the sensor. Alignment (Section IV-B) establishes coarse-
+to-fine correspondences between the local graph Gt and the
+global graph Gt−1, using the odometry Tinit to initialize the
+registration and refining it to obtain Trefine. Map update then
+transforms Gt by Trefine and merges it into Gt−1 to produce
+the updated global graph Gt. Correction (Section IV-C) refines
+the poses and the representation at two levels; locally within a
+sliding window using nested optimization, followed by global
+loop closure detection and pose-graph optimization to enforce
+global consistency.
+A. Creation
+We create a local scene graph, including an object graph
+and the geometry graphs within its nodes, from a point cloud
+and its semantic labels. In this process, the scene graph
+components in (3) are instantiated with only the geometric
+factor B represented as a belief: π(V ) and π(Vf|V, E) are
+taken from instance segmentation as point estimates, π(E|V )
+from a deterministic neighborhood rule and the edge attributes
+Ef are computed from the beliefs of the two nodes an edge
+connects. We group the semantic point cloud into object
+instances Oi using Euclidean clustering [62], [63], and use
+Pi to represent the set of points of each object Oi.
+1) Object Graph: The objects Oi form the node set Vo of
+the object graph Go. Each node holds one joint distribution
+over an object’s position and extent and the robot’s confidence
+in it. The parameters (µo
+i , Σo
+i ) describe the physical object:
+µo
+i is its position and Σo
+i its spatial extent. Together with κo
+i
+they parameterize a single distribution over that object, the
+geometric factor B of (3) in the conjugate form,
+P(µi, Σi|Zi) = NIW (µ, Σ|µo
+i , κo
+i , κo
+i Σo
+i , νi) ,
+(4)
+where Zi denotes the observations attributed to Oi, κo
+i ∈R+
+is the pseudo-count, and νi = κo
+i + n0 with n0 = d + 1 = 4
+for d = 3 dimensions.
+At creation, the parameters are read off the sufficient
+statistics of Pi: µo
+i and Σo
+i are its sample mean and covariance,
+and κo
+i = |Pi|, so that each measurement counts as one unit
+of evidence. Two properties follow. The offset n0 = d + 1
+makes the posterior expectations exact, E[µ|Zi] = µo
+i and
+E[Σ|Zi] = Σo
+i , so the belief is centered on the measured
+position and extent rather than on a contracted version of
+them, and the single Gaussian N(µo
+i , Σo
+i ) that alignment
+and correction act on is formed from these two expectations
+directly. The width of the belief is then governed by κo
+i alone:
+
+
+7
+the position is localized to within Σo
+i /κo
+i , without the extent
+being presumed known, and the extent is resolved at the same
+1/κo
+i rate. This is what makes κo
+i a measure of how much
+of the object the sensor has seen. An object glimpsed once
+at range thus remains uncertain in both position and extent
+until further views accumulate. The complete definition of the
+object is:
+Oi = (Pi, ℓi, ıi, Gg
+i , (µo
+i , Σo
+i ), κo
+i ).
+(5)
+Here Gg
+i is the geometry graph of Section III-B, built in
+Section IV-A2. Note that the point set Pi is held only while Oi
+lies within the sliding window of Section IV-C and is released
+once the window passes, so the memory footprint of a node
+in the persistent map is its parameters alone.
+We define edges based on relative neighborhood graph
+topology (RNG) [64], which yields a sparse connected topol-
+ogy and is widely used in pattern recognition [65], [66].
+The edge set Eo contains (i, j) when no third object Ok is
+closer, in Euclidean distance between centroids, to either Oi
+or Oj than they are to each other. However, since spatial edge
+attributes Ef should capture the similarity of two nodes, a
+weight wi,j computed from the centroids alone would defy
+the probabilistic nature of our approach. We instead define an
+edge weight that makes full use of θ.
+To measure geometric similarity, we use S1 as the unified
+distance of [67], which sums a term in the centroids [68] and
+a term in the covariances, the Affine Invariant Riemannian
+Metric [69]:
+S1 =
+µo
+i −µo
+j
+
+S−1 +
+v
+u
+u
+t
+d
+X
+k=1
+(ln λk)2,
+(6)
+where S = 1
+2(Σo
+i +Σo
+j) and λ1, . . . , λd denotes the generalized
+eigenvalues λk solving Σo
+i xk = λkΣo
+jxk. The first term of (6)
+is the separation of the centroids scaled by their combined
+extent, so that a given separation counts for less between large
+objects than between small ones. The second is the geodesic
+distance between Σo
+i and Σo
+j on Sym+(3). An edge weight
+therefore reads the entities as distributions rather than as
+points: it grows with separation measured against the objects’
+own extent, and with disagreement between their shapes.
+In addition, we define a semantic term S2 based on a label
+consistency check:
+S2 =
+(
+0
+if ℓi = ℓj
+1
+otherwise .
+(7)
+The final edge weight wi,j combines the means, the covari-
+ances, and the semantic labels:
+wi,j = c
+S1
+Smax,1
++ (1 −c)S2,
+(8)
+where Smax,1 is the maximum of S1 over Eo, used for normal-
+ization. The weights are collected in W = [wi,j](i,j)∈Eo, the
+edge attribute of the object graph Go
+t ≜(Vo, Eo). Intuitively,
+wi,j grows with separation, shape disagreement, and label
+mismatch, thus marking a more dissimilar pair.
+2) Geometry Graph: Within the i-th node of the object
+graph Go
+t, we recursively partition the point cloud Pi using
+a K-D tree into Ni subsets {Pi,k}Ni
+k=1, with the recursion
+terminating when each leaf contains at most a preset number
+of points. These subsets instantiate the nodes of the geometry
+graph Gg
+i . For each subset Pi,k, we estimate its parameters
+(µg
+k, Σg
+k) as the mean and covariance, expressed in the object
+frame. The object frame is centered at the object centroid
+µo
+i and oriented such that its axes are aligned with the
+eigenvectors of the object covariance Σo
+i . The pseudo-count
+is defined as κg
+k = |Pi,k|, corresponding to (4) applied to the
+subset Pi,k. It provides the initial evidence weight of each
+geometry node and is subsequently re-estimated during EM
+optimization (Section IV-C2). Applying the RNG condition
+to the geometry nodes yields the edge set Eg
+i . Expressing
+the geometry graph in the object frame isolates its internal
+geometry from the object’s global position and orientation,
+providing the local coordinate system used for subsequent
+geometric refinement.
+The construction is identical for all nodes, including things
+and stuff classes. Note that the resolution is governed by
+the granularity parameter and the number of observations in
+the measurement, which thus automatically prioritizes detailed
+close-up observations. At the same time, the background is
+described at the same resolution. This is possible because
+HGG is efficiently and sparsely parametrized.
+3) Recursive Hierarchy: More generally, the same con-
+struction can be applied at a coarser level, since the PSG
+formulation does not prescribe the granularity at which nodes
+are represented. Groups of object primitives that belong to-
+gether, such as a room indoors or a car park outdoors, can
+therefore be represented as a higher-level node. Its mean,
+covariance, and belief are obtained by merging its constituent
+nodes with Equation (20), while its edges are constructed from
+the resulting parameters using Equation (8). Further levels
+introduce the additional question of which object primitives
+belong together, i.e., uncertainty in the symbolic structure,
+which is left deterministic in our current instantiation and
+discussed in Section VI.
+B. Alignment
+Alignment registers the graph Gt of the current frame into
+the global graph Gt−1 and fuses it with what is already there. It
+is the first stage that compares beliefs rather than constructing
+them. Its cost functions compare distributions directly. We
+propose a coarse-to-fine method that follows the hierarchy
+(Figure 2). The method applies to any number of levels,
+with each level gating the search at the one below; in our
+instantiation two suffice, since the object graph is sparse, so
+correspondences can be efficiently sought globally over every
+semantically valid pair, giving Tcoarse. The geometry graphs
+are far denser, but need only be searched within the pairs the
+object graph has already matched, giving the refined ˆTfine. The
+matched nodes are then merged into the map, and the two
+stages together make the estimate robust to odometry error
+and to geometric inconsistency from sensor noise or partial
+observation.
+
+
+8
+Fig. 3: Coarse-to-fine graph alignment between the local graph Go
+t and the global graph Go
+t−1. Top: object-node-level corre-
+spondences combine geometric and structural costs, solved by the Hungarian algorithm. Bottom: the resulting correspondences
+initialize geometry-level matching, which combines spatial and Weisfeiler–Lehman structural costs.
+1) Coarse Correspondence Estimation: To initialize the
+alignment pipeline between graphs Go
+t and Go
+t−1, we seek to
+build an optimal set of node-to-node correspondences Co =
+{(i, j)|i ∈Vo
+t , j ∈Vo
+t−1}, each pair (i, j) matching a node
+of Go
+t to a node of the map Go
+t−1. The coarse correspondence
+estimation Co is illustrated in Figure 3(a)-(b).
+The main problem is formulated as a global minimization
+problem with hard semantic constraints, i.e., nodes that are not
+of the same label will not make a correspondence. For each
+valid pair of nodes, we calculate a cost with a combination
+of geometric attributes and topological context, as shown in
+Figure 3(b). To estimate the geometric cost Eo
+g(i, j), where
+i ∈Vo
+t and j ∈Vo
+t−1, we quantify the position and extent
+discrepancy by computing the 2-Wasserstein distance [70].
+Note that neither of the standard alternatives leverages this
+information: a cost on µo decides the association purely on
+the centroid and IoU between fitted volumes vanishes as soon
+as two objects stop overlapping, both of which are highly
+sensitive to pose errors and sensing noise. The 2-Wasserstein
+distance instead uses µo and Σo together, and between Gaus-
+sians it can be computed in closed form, efficiently enough to
+be evaluated at the association rate:
+Eo
+g(i, j) =
+qµo
+i −µo
+j
+2 + Di,j,
+Di,j ≜tr
+
+Σo
+i + Σo
+j −2
+
+(Σo
+i )1/2Σo
+j(Σo
+i )1/21/2
+.
+(9)
+The geometric cost Eo
+g(i, j) can be ambiguous in certain
+environments. To tackle this, we estimate a semantic neigh-
+bor histogram Hi for object Oi that provides a topological
+overview of the local neighborhood graph of Oi. The his-
+togram encodes the distribution of semantic classes over Ni,
+the objects adjacent to Oi in Eo.
+Hi = [. . . hl . . . ]⊤∈R|L|, hl =
+X
+j∈Ni
+I(ℓj = l), l ∈L. (10)
+where L is the set of all class labels in Go, I(·) is the indicator
+function. The structural cost Eo
+st(i, j) is then calculated on the
+basis of the L2 norm between the histograms of two objects
+Eo
+st(i, j) = ∥Hi −Hj∥.
+(11)
+The final cost Eo(i, j) is a convex combination of geometric
+cost Eo
+g(i, j) and structural cost Eo
+st(i, j), controlled by a
+weighting coefficient αc
+Eo(i, j) = αc · Eo
+g(i, j) + (1 −αc) · Eo
+st(i, j).
+(12)
+We build a cost matrix based on cost Eo between all seman-
+tically valid pairs of nodes and solve for optimal assignment
+using the Hungarian algorithm [71]. This provides a robust
+set of node-node correspondences Co for subsequent graph
+registration.
+2) Coarse Graph Registration: For the set of correspon-
+dences Co, we aim to estimate a rigid transformation Tcoarse =
+(R, t), following the split pose representation [72], that
+aligns the two graphs. The fundamental challenge for graph
+
+
+9
+registration solely on objects is that the sparse information
+it involves can lead to ambiguity in orientation, especially
+in scenes with few objects. We introduce a structure-aware
+registration approach which utilizes the graph nodes and the
+spatial relationship between objects in the graph. The cost
+function for alignment between the two object graphs Go
+t and
+Go
+t−1 can be defined as a combination of the node alignment
+cost EO and the edge alignment cost EE:
+E(T) =
+X
+(i,j)∈C
+EO(i, j) +
+X
+e∈E
+EE(e).
+(13)
+where Eo
+C are the edges of Go
+t whose two endpoints are both
+matched by Co, so that each has a counterpart in Go
+t−1. EO is a
+probabilistic distribution-to-distribution cost in the manner of
+Generalized-ICP [73], minimizing the Mahalanobis distance
+between two matched nodes under their combined covariance:
+EO(i, j) =
+(Rµo
+i + t) −µo
+j
+2
+WO , WO ≜
+
+Σo
+j + RΣo
+i R⊤−1
+(14)
+To construct EE, for each edge connecting two nodes u
+and v in the graph, we take K parameters γ1, . . . , γK evenly
+spaced in (0, 1) and interpolate the mean and covariance along
+the edge into intermediary Gaussians (µo
+k, Σo
+k):
+µo
+k = (1 −γk)µo
+u + γkµo
+v,
+Σo
+k = (Σo
+u)1/2[(Σo
+u)−1/2Σo
+v(Σo
+u)−1/2]γk(Σo
+u)1/2.
+(15)
+This is the geodesic on Sym+(3) under the Affine-Invariant
+Riemannian Metric rather than a Euclidean interpolation, and
+the difference is systematic rather than numerical. For two
+covariances related by a rotation, the same extent seen from
+two orientations, the flat midpoint satisfies det
+  1
+2(Σo
+u+Σo
+v)
+
+≥
+p
+det Σou det Σov, with equality only when the two agree. The
+determinant being the squared represented volume, the flat
+mean of two equal-volume objects is a strictly larger object
+than either. The geodesic keeps every virtual Gaussian on the
+manifold and at the volume its endpoints imply, throughout
+the tunnel from one node to the other.
+This method produces a set of virtual edge Gaussian dis-
+tributions (µo
+t−1,k, Σo
+t−1,k) for graph Go
+t−1 and (µo
+t,k, Σo
+t,k) for
+graph Go
+t, which can be intuitively visualized as a “tunnel”
+that delineates a smooth transformation pathway from one
+Gaussian to another. In the same Mahalanobis form as EO,
+the constraints EE are built on pairs of virtual Gaussians:
+EE(e) =
+X
+k
+(Rµo
+t,k + t) −µo
+t−1,k
+2
+WE,k ,
+WE,k ≜
+
+Σo
+t−1,k + RΣo
+t,kR⊤−1
+.
+(16)
+The transformation Tcoarse is then estimated by solving the
+joint non-linear least squares problem:
+Tcoarse = argmin
+(R,t)
+E(T).
+(17)
+For efficient solution, we initialize Tcoarse from the odometry
+estimate Tinit of the motion between the last two frames
+(Figure 2). The coarse transformation estimate thus aligns
+both the HGG nodes and the spatial topology of the scene,
+and provides a robust initialization estimate for the complete
+registration problem.
+3) Fine Correspondence Estimation and Registration: After
+Co and Tcoarse align the nodes at the object graph, local
+misalignment persists due to the sparse nature of the graphs.
+To further improve the result, we formulate a fine registration
+step that uses Co and Tcoarse as initialization.
+Using a correspondence (i, j) between objects Oi ∈Vo
+t
+and Oj ∈Vo
+t−1, the objective is to find Gaussian-Gaussian
+correspondences for the geometry graphs Gg
+i and Gg
+j , as illus-
+trated in Figure 3(c). Solely relying on geometric proximity
+for node association is challenging due to semantic and spatial
+ambiguities. To resolve this, we incorporate structural infor-
+mation using the Weisfeiler-Lehman (WL) framework [48].
+While typically used for whole-graph comparison, we adapt
+the WL iteration to generate a structural feature vector hu
+for each individual node u ∈Vg
+i . This allows us to define a
+structural distance metric DW L(hu, hv) between two nodes u
+and v (u ∈Vg
+i , v ∈Vg
+j ):
+DW L(hu, hv) = ∥hu −hv∥2 .
+(18)
+The fine level matching cost Eg is then determined by
+combining this feature with the spatially constrained distance
+Eg(u, v) = αr||µs
+u
+′ −µg
+v||2 + (1 −αr)DW L(hu, hv), (19)
+where µg
+u
+′ is the centroid of a node in Gg
+i using the coarse
+estimate Tcoarse, which restricts the search space to the local
+neighborhood. Note that the Euclidean term here is the one
+place the pipeline compares geometry off the manifold, and
+the gating is what makes it admissible: it ranks candidates
+within a set the object graph stage has already selected under
+a distributional cost, so it cannot introduce a correspondence
+that a valid comparison would exclude.
+A cost matrix is constructed between all pairs of nodes
+between two graphs Gg
+i and Gg
+j , and solved for optimal
+assignment with the Hungarian algorithm [71], as shown in
+Figure 3(d). This method results in fine Gaussian-level cor-
+respondences for each geometry graph, which are aggregated
+into the correspondence set Cg. Next, we estimate the refined
+pose ˆTfine by solving (17) again, with Cg in place of Co and
+the geometry graph edges in place of Eo
+C.
+4) Map Update: Map update incorporates the local graph
+into the global scene graph using the refined pose Tfine and
+node correspondences Co. The object nodes associated through
+Co are merged in the global scene graph. Because each node
+carries its evidence count, the merge is no longer a symmetric
+combination of two equally trusted estimates but a fusion
+weighted by accumulated evidence. For an associated pair
+(i, j), the node from the local graph Go
+t is first brought into the
+global scene graph Go
+t−1, µo
+i ←Rµo
+i + t and Σo
+i ←RΣo
+i R⊤,
+after which the two states (µi, Σi, κi) and (µj, Σj, κj) merge
+into:
+κ = κi + κj,
+µ = κi µi + κj µj
+κ
+,
+Σ = 1
+κ (κiΣi + κjΣj) + κi κj
+κ2
+ µi −µj
+ µi −µj
+⊤.
+(20)
+The merge accumulates disjoint evidence into a single belief
+by adding raw statistics rather than applying any distance
+metric, and is exactly the conjugate update of Equation (4).
+
+
+10
+The counts add, κ = κi+κj, so the calibration contracts rather
+than being preserved as an average would, and the between-
+means term composes two partial views rather than swelling
+one extent. Nodes of Go
+t left unmatched by Co enter the global
+scene graph Gt as new objects with their counts unchanged.
+Similarly, we merge the geometry graphs using the geometry-
+graph correspondences Cg.
+Nodes of stuff classes such as road, building, and terrain are
+unbounded along the traversal, so merging them by (20) alone
+would accumulate a single node whose mean and covariance
+describe no physical extent. Therefore for nodes of classes, we
+admit a merge only when the two nodes are within a spatial
+bound, and instantiate a new node otherwise, so that such
+nodes are carried as a sequence of bounded submaps rather
+than one growing node.
+C. Correction
+Local correction operates on a sliding window of the
+M most recent frames, addressing two errors with different
+scopes: pose drift induces a correlated displacement of all
+nodes observed within the window, whereas an error in an
+individual object’s extent is local and can only be corrected
+through further observations of that object. Accordingly, cor-
+rection jointly refines the representation at two levels: a
+factor graph optimizes the frame poses X and the object
+frames θo
+i = (µo
+i , Σo
+i ) (Section IV-C1), while an EM step
+refines the frame-conditioned internal geometry θg
+i of each
+geometry graph Gg
+i in its object frame (Section IV-C2). The
+two optimizations are nested: the factor graph does not update
+the geometry graphs, and EM does not update the poses or
+object frames.
+1) Factor Graph Optimization: The variables are the poses
+in the sliding window, X = {T1, T2, . . . , TM}, obtained from
+alignment, and the frames θo
+i = (µo
+i , Σo
+i ) of the objects Oi
+observed within it. The internal geometry of each object is
+held fixed at this level. Poses and frames are estimated in
+one graph because their Fisher information blocks are strongly
+coupled: an object’s frame is observed only through the poses
+it was seen from, so neither resolves without the other. The
+cost function is:
+E(X, {θo
+i }) =
+M
+X
+m=2
+rodom
+
+ˆTm−1, ˆTm
+
+2
+Ωm
+odom
+|
+{z
+}
+Odometry Constraints
++
+X
+(m,i)∈F
+robj
+
+ˆTm, Oi
+
+2
+Ω(m,i)
+obj
+|
+{z
+}
+Object Constraints
+.
+(21)
+where Ωm
+odom is the information matrix associated with the
+odometry measurement at frame m, and Ω(m,i)
+obj
+is the infor-
+mation matrix associated with the observation of object Oi
+from frame Tm, given by
+Ω(m,i)
+obj
+= ˘κo
+m,i(˘Σo
+m,i)−1 ⊕˘κo
+m,i
+2 I6.
+Here, F is the set of object factors, with one factor for
+each pair (m, i) such that Oi is observed from Tm. Each
+observation consists of a mean ˘µo
+m,i, a covariance ˘Σo
+m,i, and
+a point count ˘κo
+m,i. The point count determines the strength
+of the corresponding constraint: an object supported by more
+measurements contributes greater information than one ob-
+served only sparsely. Importantly, ˘κo
+m,i denotes the evidence
+contributed by the observation from frame m, rather than
+the accumulated count κo
+i maintained by the corresponding
+object in the global graph. The odometry factor constrains
+consecutive frame poses according to the measured relative
+transformation ˘Tm−1
+m
+:
+rodom
+
+ˆTm−1, ˆTm
+
+= ˆT−1
+m−1 ˆTm ⊟˘Tm−1
+m
+.
+(22)
+The object factor constrains a pose against the objects ob-
+served from it. The parameters of Oi are first brought into the
+body frame of Tm = (Rm, tm),
+µ′o
+m,i = R⊤
+m(µo
+i −tm), Σ′o
+m,i = R⊤
+mΣo
+i Rm,
+(23)
+and compared with the observation:
+robj (·) =
+
+rµ
+rΣ
+
+=
+
+µ′o
+m,i −˘µo
+m,i
+vechW
+ U ⊤(log Σ′o
+m,i −log ˘Σo
+m,i) U
+
+
+,
+(24)
+where ˘Σo
+m,i = U diag(λ1, λ2, λ3) U ⊤is the eigendecomposi-
+tion of the observed covariance, computed once per factor,
+where λ∗is the extent along the corresponding principal
+axis. Working in this basis, the residual compares the two
+covariances axis by axis: a and b index the axes; δab =
+log λa −log λb is the gap between two of them, and vechW
+is the half-vectorization [69], [74] with entry (a, b) scaled by:
+wab =
+
+
+
+1,
+a = b,
+√
+2 sinh(δab/2)
+δab/2
+,
+a < b.
+(25)
+The weights wab make vechW an isometry from the tangent
+space at ˘Σo
+m,i under the affine-invariant metric onto Euclidean
+R6. The resulting residual rΣ therefore captures all six degrees
+of freedom of Σo
+i , allowing the factor-graph optimization
+to jointly refine the object’s spatial extent and principal-
+axis orientation while remaining consistent with the geometry
+of Sym+(3). Finer geometric structure beyond the single
+Gaussian is represented and refined by the geometry graph.
+2) EM Optimization: A topology-constrained EM refines
+the nodes of each Gg
+i in its object frame while keeping Eg
+i
+fixed. The objects are refined independently, as permitted by
+the Fisher information: conditioned on their object frames,
+the internal geometries of distinct objects have no cross-
+information.
+a) E-Step: We estimate the probability that each ob-
+served point belongs to a specific Gaussian node. Let PW
+i
+=
+{pl}Li
+l=1 denote the points attributed to Oi within the sliding
+window, where Li = |Pi|, and let k = 1, . . . , Ni index the
+nodes of Gg
+i with mixing weights πk = κg
+k/PNi
+r=1 κg
+r set by
+their evidence counts κg
+k. Given the node parameters (µk, Σk),
+the responsibility γl,k of point pl with respect to node k is
+γ(t)
+l,k =
+π(t)
+k N
+
+pl|µ(t)
+k , Σ(t)
+k
+
+PNi
+m=1 π(t)
+m N
+
+pl|µ(t)
+m , Σ(t)
+m
+,
+(26)
+so that PNi
+k=1 γ(t)
+l,k = 1 for every point.
+
+
+11
+b) M-Step: We update the Gaussian parameters of the
+geometry graph by maximizing the expected complete-data
+log-likelihood, equivalently minimizing the KL divergence to
+the empirical point distribution. Writing nk for the responsi-
+bility mass accumulated by node k, which is the re-estimated
+count κg
+k of that node, the parameters are re-estimated as:
+nk =
+Li
+X
+l=1
+γ(t)
+l,k,
+ˆπk = nk
+Li
+,
+ˆµk = 1
+nk
+Li
+X
+l=1
+γ(t)
+l,k pl,
+ˆΣk = 1
+nk
+Li
+X
+l=1
+γ(t)
+l,k (pl −ˆµk) (pl −ˆµk)⊤+ λI3,
+(27)
+(28)
+Iterating (26)–(28) lets the geometry graph morph toward
+finer geometric detail while the edge set Eg
+i is held fixed:
+only the node parameters and their counts are re-estimated, so
+the topology built at creation persists through refinement and
+continues to relate the parts of the object to one another.
+Remark 1. The two levels could in principle be jointly opti-
+mized, but the object-frame formulation makes their coupling
+negligible at the resolution of the internal geometry. Under
+the gauge constraints of the supplementary material [75], all
+cross-information between pose and internal geometry van-
+ishes except for a channel coupling rotation and covariance,
+whose normalized magnitude is O(ε), where ε = s/ρ is
+the ratio of internal scale to object extent. Consequently,
+decoupling the factor-graph and EM optimizations incurs only
+an O(ε2) difference in the Cram´er–Rao bound, as proved in
+the supplementary material [75]. Under model or attribution
+errors, the same coupling can instead propagate errors be-
+tween pose and internal geometry; the decoupled formulation
+removes this transmission path.
+3) Loop Closure and Pose Graph Optimization: Global
+correction reuses the representation rather than adding to
+it: loop closure candidates are retrieved from the graph’s
+own topology, verified by the coarse-to-fine alignment of
+Section IV-B applied unchanged, and the accepted constraints
+enter a standard pose graph optimization. Needing no loop-
+specific descriptor and no dense re-registration is a property
+of the representation rather than a separate contribution; the
+algorithm and its thresholds are given in the supplementary
+material [75].
+V. EXPERIMENT
+We evaluate HGG in three parts, across indoor, outdoor,
+and cross-modality data. The main benchmark measures the
+complete system against representative scene graph and object-
+SLAM systems on object accuracy and computational cost.
+The module evaluation then tests creation, alignment, and
+correction separately, each against the claim it was designed to
+support. The downstream evaluation asks whether the resulting
+graph is actionable.
+A. Experiment Setup
+1) Datasets: Table II summarizes the six datasets used
+in our evaluation. uHumans2 [3] provides three structurally
+TABLE II: Evaluation Datasets
+Dataset
+Sensor
+Environment
+Semantic Labels
+uHumans2
+RGB-D
+indoor
+Simulator [4]
+KITTI
+LiDAR
+outdoor
+RangeNet++ [76]
+KITTI-Carla LiDAR
+outdoor
+Simulator [77]
+MCD
+LiDAR
+outdoor
+2DPASS [78]
+ScanNet-SG RGB-D
+indoor
+ScanNet-SG [79]
+In-house
+LiDAR+RGB indoor+outdoor Mask2Former [80]+SAM2 [81]
+distinct indoor environments (Apartment, Office, Subway).
+The outdoor evaluation spans three LiDAR datasets of increas-
+ing difficulty: KITTI [82]; KITTI-Carla [77], whose noise-
+free simulated ground truth isolates odometry failures as the
+sole source of localization error in this demanding regime;
+and MCD [83], the hardest case, where predicted labels are
+evaluated against survey-grade Leica RTC360 reference maps,
+so the geometry is exact but the semantics are not. We
+use all KITTI sequences except 01 and 04 (highway scenes
+with too few objects to populate a graph), all seven KITTI-
+Carla sequences, and all six sequences from each of MCD’s
+NTU and KTH campuses. Results reported for KITTI, KITTI-
+Carla, MCD-NTU, and MCD-KTH are averaged over their se-
+quences. ScanNet-SG [79] poses an offline pairwise alignment
+task: recover the rigid transform between two independently
+segmented submaps from adjacent ScanNet sequences, with
+no temporal dependence on the originating trajectory. We
+use the Subscan test split (Scenes 600–705, 3,435 pairs),
+whose ground-truth correspondences are defined by 3D in-
+stance IoU rather than semantic consistency, leaving 27.4%
+of pairs inter-class. Two in-house sequences test deployment
+beyond controlled benchmarks, collected with the Manifold
+Odin suite [84]: a solid-state LiDAR with a 120◦horizontal
+FoV, an RGB camera, and a built-in visual-inertial-LiDAR
+odometry pipeline whose output serves as reference poses.
+The first covers multiple floors of a lab building; the second
+combines indoor and outdoor traversal.
+2) Ground Truth Scene Graph: For each dataset, we gen-
+erate a ground-truth scene graph directly from the ground-
+truth poses, accumulating the raw semantic point clouds
+and partitioning them into object instances. The partition
+follows the procedure used for the instance annotations of
+SemanticKITTI [85]: semi-automated clustering with per-class
+parameters, then manual inspection and revision against a
+single criterion: each segment corresponds to one physically
+distinct object, and each object to one segment. This differs
+from the protocol of [4], which clusters a batch mesh recon-
+struction: accumulating points under known poses introduces
+fewer processing stages between sensor and reference, whereas
+a mesh carries its own surface-fitting error and imposes the
+object boundaries the reconstruction produced. Absolute val-
+ues here are consequently not comparable with those reported
+there. On MCD, the question does not arise, as the reference
+is anchored to a survey-grade Leica RTC360 scan.
+3) Metrics: The object accuracy metric follows [4]: each
+predicted node is matched to the nearest unmatched ground-
+truth instance within a fixed radius, with matches counted as
+true positives and unmatched predictions as false positives. We
+report the position error ∆p, the mean centroid displacement
+
+
+12
+of matched pairs in meters, together with precision, recall, and
+F1. The radius is set per dataset to the scale of the odometry
+error, adopting the values of [4] on uHumans2; all values are
+listed in the supplementary material [75]. Graph alignment
+follows the ScanNet-SG protocol [53], reporting accuracy,
+precision, recall, and F1 over correspondences at the full-
+set level. Trajectory accuracy is the absolute trajectory error
+(ATE), and geometric fidelity is quantified by the Chamfer
+distance and map accuracy [86], [87], both computed between
+the points extracted from the combined geometry graphs and
+the survey-grade reference, in meters. Computational cost
+is the per-frame processing time and the RAM footprint in
+megabytes as a function of sequence length, both measured
+on a desktop (i7-12700 CPU with 128 GB RAM and RTX
+3080 GPU).
+4) Baselines: Indoors we compare against three systems
+that derive their scene graph from a dense reconstruc-
+tion: Kimera [3], Hydra [4], which maintains a hierarchi-
+cal metric–semantic map, and ConceptGraphs [6], which is
+open-vocabulary. We also compare against the object-SLAM
+systems OA-SLAM [29] and VOOM [30], which represent
+objects as deterministic quadrics. Outdoors, object-level 3D
+scene graph systems are effectively absent, as the systems
+above target structured indoor RGB-D, so we adopt SG-
+SLAM [23], which maintains a global object-level semantic
+graph.
+All indoor systems receive the same Kimera-VIO odome-
+try, except OA-SLAM and VOOM, which require an ORB-
+SLAM2 front-end and are therefore compared against HGG
+run on that front-end. For outdoor experiments, both SG-
+SLAM and HGG use KISS-ICP [88] as the front-end odom-
+etry. For loop closure, Kimera, Hydra, and SG-SLAM close
+their own loops; ConceptGraphs uses the loop-closed trajec-
+tory our system produces. Graph alignment baselines are taken
+from [53] and are not re-run.
+B. Main Benchmark
+1) Object Accuracy Evaluation: We follow the thing/stuff
+distinction of SemanticKITTI [85] and evaluate over thing
+classes only, since stuff classes such as road, building, veg-
+etation, and terrain admit no well-posed decomposition into
+instances. Stuff nodes are still built and still carry the spatial
+relations the graph depends on; however, they are not consid-
+ered in the object accuracy evaluation. On uHumans2, the split
+follows the label space of [4]. Table III reports the complete
+evaluation.
+Indoors, all methods use the same Kimera-VIO providing
+accurate odometry input, so differences stem from how each
+system converts observations into map nodes rather than from
+localization. The baselines cluster at low F1, Kimera and
+Hydra between 0.26 and 0.50 and ConceptGraph between 0.09
+and 0.33, each limited by recall. In contrast, HGG reaches F1
+0.83∼0.88 at recall 0.79∼0.97, recovering the large majority
+of ground-truth objects. Two mechanisms separate HGG from
+the baselines. A node collapsed to a point at creation cannot
+be distinguished from its neighbours once drift displaces it,
+so two views of one object either merge into a ghost or fail
+to associate, whereas a node carrying its covariance stays
+associable through a distributional distance. Independently of
+drift, a graph derived from a dense reconstruction can contain
+only the objects that the reconstruction builds, a ceiling on
+recall that better poses do not lift (Section V-B2). Subway
+shows both at once: Hydra holds precision 0.93 at recall 0.34,
+admitting only objects confirmed from many views.
+The two in-house sequences test deployment outside a
+controlled benchmark. The platform is LiDAR-visual-inertial,
+the semantic labels are predicted rather than clean, and the
+sequence In-house-02 traverses from an indoor corridor into
+open outdoor space, enlarging the mapped volume by orders of
+magnitude mid-sequence. The baselines degrade sharply under
+that pressure, to F1 between 0.17 and 0.60. Cost is part of it,
+but the sharper penalty is due to determinism: with predicted
+rather than clean labels, a node fused from a mislabeled or
+partial first view carries no record of how little evidence stood
+behind it, so later, better views cannot outweigh it. HGG holds
+at F1 0.94 indoors and 0.88 across the transition, at real-time
+rates. Two properties account for it. Geometry lives in the
+node, so no dense map is built first and nothing scales with
+the volume traversed. Moreover, a node’s belief is set by the
+evidence behind it, so an object seen partially, which a 120◦
+field of view makes common, stays associable instead of being
+committed to the shape of its first view; Section V-C1 ablates
+exactly this on In-house-02.
+The sensor changes outdoors, the scale grows, and the
+data gets sparser, across four settings and three datasets.
+These scenes are where deterministic association is most
+exposed, being dominated by repeated, weakly distinctive
+structure: a point-based semantic graph facing many near-
+identical candidates, with no distributional distance, resolves
+them inconsistently and drops objects. SG-SLAM reports F1
+between 0.54 and 0.67, again limited by recall, while HGG
+reaches 0.80∼0.91 at recall 0.79∼0.93 by disambiguating
+those candidates through their full distributional geometry
+rather than centroid proximity. MCD is the sharpest case since
+its geometry is measured by a terrestrial laser scan while
+the semantics feeding the system are noisy predictions. HGG
+attains the best position error and F1 above 0.80 on both
+campuses, at 14∼20 ms per frame.
+2) Object Accuracy under Varying Odometry: To separate
+representational quality from localization error, we re-run the
+indoor comparison with ground-truth poses. HGG improves
+F1 from 0.83∼0.88 to 0.89∼0.97. The baselines improve too
+but remain far below it, Hydra recovering at most 0.37 of
+ground-truth objects and ConceptGraph at most 0.62, so their
+low recall is not a localization artifact that better poses can fix.
+A graph read off a dense reconstruction can contain only what
+the reconstruction builds. That imposes a floor: the mesh or
+TSDF is held at a fixed voxel resolution, typically 10–20 cm,
+so a smaller object never reaches the graph however accurate
+the poses are. Creating nodes directly from the segmented
+point cloud replaces that floor with the sensor’s own sampling
+density, so what can become a node is limited by what was
+measured rather than by what the map stores.
+Outdoors we vary the odometry source instead, running
+HGG with ground-truth odometry, GICP, and FLOAM on
+
+
+13
+Fig. 4: Qualitative object accuracy on uHumans2-Subway. All panels share Ground-truth rgb point cloud map and objects
+colored by classes in (a), and matching accuracy in (b-d). Hydra (b) is dominated by missed detection (blue), since a graph
+abstracted from a dense reconstruction can contain only what that reconstruction builds. ConceptGraph (c) reaches most
+instances but re-instantiates them, surrounding recovered objects with ghosts (red). HGG (d) cover almost all object nodes with
+high precision.
+TABLE III: Object Accuracy Evaluation
+Apartment
+Office
+Subway
+Method
+∆p
+Recall
+Prec.
+F1
+t (ms)
+∆p
+Recall
+Prec.
+F1
+t (ms)
+∆p
+Recall
+Prec.
+F1
+t (ms)
+Kimera
+0.13
+0.30
+0.51
+0.38
+2018.5
+0.26
+0.29
+0.50
+0.36
+1956.7
+0.73
+0.34
+0.78
+0.47
+3742.8
+Hydra
+0.14
+0.26
+0.58
+0.35
+62.8
+0.18
+0.18
+0.49
+0.26
+58.4
+1.46
+0.34
+0.93
+0.50
+41.6
+ConceptGraph
+0.21
+0.23
+0.77
+0.36
+1033.8
+0.26
+0.24
+0.47
+0.32
+3169.1
+0.82
+0.65
+0.23
+0.34
+4672.7
+HGG
+0.06
+0.79
+0.94
+0.86
+29.3
+0.11
+0.79
+0.86
+0.83
+28.5
+0.55
+0.97
+0.80
+0.88
+30.6
+In-house-01
+In-house-02
+Method
+∆p
+Recall
+Precision
+F1
+t (ms)
+∆p
+Recall
+Precision
+F1
+t (ms)
+Kimera
+0.21
+0.47
+0.70
+0.56
+699.8
+0.33
+0.51
+0.36
+0.43
+1649.4
+Hydra
+0.25
+0.52
+0.70
+0.60
+68.5
+0.10
+0.21
+0.38
+0.25
+61.8
+ConceptGraph
+0.73
+0.25
+0.13
+0.17
+2046.6
+0.43
+0.22
+0.23
+0.22
+3641.0
+HGG
+0.03
+0.88
+1.00
+0.94
+43.6
+0.05
+0.92
+0.85
+0.88
+50.6
+KITTI-Carla
+KITTI
+MCD-KTH
+MCD-NTU
+Method
+∆p
+Recall Prec.
+F1
+t(ms)
+∆p
+Recall Prec.
+F1
+t(ms)
+∆p
+Recall Prec.
+F1
+t(ms)
+∆p
+Recall Prec.
+F1
+t(ms)
+SG-SLAM
+1.18
+0.63
+0.62
+0.63
+23.5
+1.22
+0.75
+0.61
+0.67
+14.2
+0.58
+0.65
+0.46
+0.54
+40.3
+0.86
+0.78
+0.45
+0.56
+51.0
+HGG
+1.12
+0.89
+0.88
+0.88
+13.4
+1.26
+0.93
+0.90
+0.91
+26.1
+0.52
+0.79
+0.83
+0.80
+14.4
+0.75
+0.84
+0.82
+0.82
+20.1
+∆p: Position error (m), t: per-frame runtime in milliseconds.
+TABLE IV: Object Accuracy Evaluation with Ground-Truth Poses and Different Odometry.
+Apartment
+Office
+Subway
+Method
+∆p
+Recall
+Prec.
+F1
+∆p
+Recall
+Prec.
+F1
+∆p
+Recall
+Prec.
+F1
+Hydra+GT
+0.12
+0.36
+0.76
+0.50
+0.14
+0.33
+0.89
+0.48
+0.60
+0.37
+1.00
+0.54
+ConceptGraph+GT
+0.06
+0.15
+0.62
+0.24
+0.12
+0.20
+0.57
+0.30
+0.40
+0.62
+0.37
+0.46
+HGG+GT
+0.04
+0.87
+0.98
+0.92
+0.05
+0.88
+0.90
+0.89
+0.10
+0.98
+0.97
+0.97
+KITTI-Carla
+KITTI
+MCD-KTH
+MCD-NTU
+Method
+∆p
+Recall
+Prec.
+F1
+∆p
+Recall
+Prec.
+F1
+∆p
+Recall
+Prec.
+F1
+∆p
+Recall
+Prec.
+F1
+HGG+GT Odom
+0.26
+0.87
+0.98
+0.92
+0.21
+0.92
+0.95
+0.94
+0.25
+0.80
+0.84
+0.82
+0.37
+0.83
+0.87
+0.84
+HGG+GICP
+1.13
+0.88
+0.84
+0.86
+1.57
+0.92
+0.89
+0.90
+0.66
+0.79
+0.81
+0.80
+1.35
+0.81
+0.80
+0.81
+HGG+FLOAM
+1.13
+0.87
+0.90
+0.88
+1.13
+0.93
+0.91
+0.92
+0.73
+0.78
+0.81
+0.79
+1.22
+0.83
+0.81
+0.81
+the same sequences. F1 stays between 0.79 and 0.94 across
+all three, and recall is almost unchanged, within 0.02 of
+the ground-truth-odometry value on every dataset, while the
+position error moves with odometry quality. Alignment and
+correction therefore absorb the difference between front-ends
+rather than passing it to the map, so recovering the objects does
+not depend on having a strong odometry front-end available.
+3) Run-time Evaluation:
+A representation whose cost
+scales with the number of objects rather than with the volume
+of the environment should hold its per-frame cost at sensor
+rate regardless of scene scale. The proposed system runs at
+28.5∼30.6 ms on indoor RGB-D, 43.6∼50.6 ms on the in-
+house solid-state LiDAR, and 13.4∼26.1 ms on 64- and 128-
+channel outdoor LiDAR (Table III), without reconfiguration
+
+
+14
+between them and at or above the acquisition rate of every
+sensor in the evaluation. The gap to the dense baselines is
+structural: Kimera and ConceptGraphs need 0.7∼4.7 s per
+frame indoors and in-house, one to two orders of magnitude
+slower, because each frame must be fused into a mesh or
+point cloud before the semantic layer can update. Hydra, built
+for real-time operation, narrows this to 41.6∼68.5 ms, but
+cannot go below the cost of maintaining its ESDF and mesh
+layers. For HGG, the per-frame cost is dominated by front-end
+clustering, while creation and alignment scale with the number
+of object nodes in the current window, a quantity that varies
+far less across sensors and environments than the raw point
+count or the mapped volume.
+Memory behaves the same way and is reported in the
+supplementary material [75]: our system stays below 1 GB
+on every sequence and plateaus once the object population of
+the traversed area is instantiated, whereas the dense baselines
+grow with trajectory length, exceeding 50 GB on In-house-02.
+4) Object Accuracy against Object SLAM: Table V com-
+pares HGG against OA-SLAM and VOOM under the ORB-
+SLAM2 front-end both baselines require. The results confirm
+the representational gap identified in Section II-B: both model
+an object as a fixed parametric surface, a quadric or ellipsoid,
+which carries no distribution over its position or extent. Two
+consequences appear directly in the map. A centroid recovered
+by quadric fitting is weakly constrained, so position error
+is high, at 0.23∼1.53 m for OA-SLAM and 0.41∼0.76 m
+for VOOM against 0.06∼0.55 m for HGG. An ellipsoid also
+cannot represent an object whose shape is not ellipsoidal, so
+recall is low, giving F1 of 0.19∼0.40 and 0.08∼0.33 against
+0.83∼0.88. Subway isolates the failure: OA-SLAM attains pre-
+cision 1.00 at recall 0.10, an association conservative enough
+to confirm only objects observed from many viewpoints. The
+gap is not one of tuning or sensor quality but of the node
+primitive: a surface with no distribution attached can be neither
+compared distributionally nor weighted by its evidence.
+C. Module Evaluation
+1) Creation: Section III-B locates the width of the node’s
+belief in the NIW posterior, which two operations consume:
+the conjugate merge of (20) and the factor weight Ω(m,i)
+obj
+of
+(21). This ablation strips the belief from both, replacing the
+merge with a symmetric average and making the factor weight
+uniform, so each node is reduced to the Gaussian N(µ, Σ)
+with no posterior over it; the rest of the system is left in
+place. Table VI reports three settings from Table III, Subway,
+In-house-02, and MCD-NTU, with Subway and MCD-NTU
+repeated under ground-truth odometry, which the in-house
+platform does not provide.
+Position error and precision are what move: the NIW
+posterior belief cuts errors by 55%, 76%, and 14% across the
+three settings and raises precision by 22, 20, and 13 points.
+Both follow from one mechanism. Without a belief, a single
+glimpse at range enters the average with the weight of an
+object resolved over many views, pulling the merged mean
+toward the poorer estimate, while the between-means term of
+(20) inflates the extent instead of composing two partial views.
+Such a node either falls outside the matching radius or fails
+to consolidate with the observation that should have absorbed
+it, and is counted as a false positive: a ghost produced by
+fusion rather than by association. Recall is correspondingly
+unchanged on Subway and MCD-NTU, since whether an
+object is instantiated at all is decided by the Gaussian and
+the distributional gate, both retained in the ablated system.
+In-house-02 is the exception, where recall falls from 0.92 to
+0.62 alongside precision. Stripped of its belief, the node’s
+covariance is an uncalibrated shape. Where the labels are
+predicted and most first views are partial, that corrupts not
+only where an object is placed but whether it is recovered at
+all, so the loss shows in both measures rather than in precision
+alone. Ground-truth poses do not substitute for the belief: with
+drift removed, restoring it still cuts error from 0.61 m to 0.10 m
+on Subway and from 0.58 m to 0.37 m on MCD-NTU, so the
+belief governs how observations of one object combine rather
+than compensating for trajectory error. On Subway the belief
+matters more than the poses: HGG with VIO and the belief
+reaches 0.55 m, against 0.61 m with ground-truth poses and
+without it.
+2) Alignment: We evaluate whether the alignment of Sec-
+tion IV-B returns the correct node correspondences between
+two graphs. The ScanNet-SG benchmark measures this di-
+rectly, on independently segmented submaps with no tempo-
+ral relation, so correspondence estimation runs without the
+odometry initialization Tinit it receives in the incremental
+pipeline and without any prior on the transform. Evaluation
+is zero-shot on the Subscan test set, with no training on scene
+graph alignment data, whereas OpenSGA [53], the leading
+method on this benchmark, trains a matching network on top
+of pretrained features and reports a lightweight (OpenSGA-L)
+and a high-performance (OpenSGA-H) variant.
+Table VII reports the results. HGG reaches F1 0.568, match-
+ing OpenSGA-L and above every method that does not train
+on the benchmark, including VLM+Bert CosSim at 0.530,
+which carries richer semantic embeddings but no geometric
+structure. Its accuracy of 0.680 exceeds OpenSGA-L (0.642)
+and is on par with OpenSGA-H (0.681). The remaining F1
+gap to OpenSGA-H is recall, and it falls on the inter-class
+correspondences that the IoU-defined ground truth includes
+(27.4% of pairs). We relax the hard same-label constraint of
+Section IV-B1 to a soft VLM similarity cost here so that such
+pairs remain admissible, but the cost is designed for same-class
+correspondence and still ranks a same-label candidate above
+a cross-class one at comparable geometry. The distributional
+cost of (9) therefore transfers to a task and a sensor it was not
+designed for, and what limits it is the deterministic semantic
+channel rather than the geometry. The same cost is ablated
+against centroid radius matching and bounding-volume IoU
+in the supplementary material [75], where F1 on KITTI falls
+from 0.91 to 0.62 and 0.71, respectively.
+3) Correction:
+a) ATE Evaluation: Table VIII reports trajectory error,
+grouped so that each comparison holds the odometry input
+fixed. Indoors, HGG is best on Office and Subway and within
+0.04,m of the best on Apartment, improving on the Kimera
+pipelines by 65% on Subway. Outdoors, HGG is best on both
+
+
+15
+TABLE V: Object Accuracy Evaluation Against Object SLAM on Indoor Datasets
+Apartment
+Office
+Subway
+∆p
+Recall
+Precision
+F1-score
+∆p
+Recall
+Precision
+F1-score
+∆p
+Recall
+Precision
+F1-score
+OA-SLAM
+0.23
+0.17
+0.33
+0.23
+0.46
+0.33
+0.50
+0.40
+1.53
+0.10
+1.00
+0.19
+VOOM
+0.41
+0.18
+0.27
+0.21
+0.60
+0.30
+0.38
+0.33
+0.76
+0.05
+0.13
+0.08
+HGG
+0.06
+0.79
+0.94
+0.86
+0.11
+0.79
+0.86
+0.83
+0.55
+0.97
+0.80
+0.88
+TABLE VI: Evaluation on the effect of NIW posterior belief
+in our scene graph representation.
+Sequence
+Dataset
+Method
+∆p
+R
+Prec.
+F1
+HGG
+Subway
+w/o NIW
+1.21
+0.97
+0.58
+0.73
+with NIW
+0.55
+0.97
+0.80
+0.88
+In-house-
+02
+w/o NIW
+0.21
+0.62
+0.65
+0.63
+with NIW
+0.05
+0.92
+0.85
+0.88
+MCDNTU
+w/o NIW
+0.87
+0.83
+0.69
+0.74
+with NIW
+0.75
+0.84
+0.82
+0.82
+HGG+
+GT-odom
+Subway
+w/o NIW
+0.61
+0.94
+0.93
+0.94
+with NIW
+0.10
+0.98
+0.97
+0.97
+MCDNTU
+w/o NIW
+0.58
+0.83
+0.73
+0.77
+with NIW
+0.37
+0.83
+0.87
+0.84
+TABLE VII: Graph Alignment Evaluation (following [53]).
+Method
+Accuracy
+Precision
+Recall
+F1-score
+SG-Reg [52]
+0.056
+0.171
+0.078
+0.107
+ROMAN [51]
+0.430
+0.505
+0.268
+0.336
+VLM CosSim [53]
+0.461
+0.370
+0.906
+0.502
+VLM+Bert CosSim [53]
+0.518
+0.400
+0.898
+0.530
+OpenSGA-L [53]
+0.642
+0.502
+0.713
+0.568
+OpenSGA-H [53]
+0.681
+0.547
+0.684
+0.589
+HGG
+0.680
+0.540
+0.624
+0.568
+MCD campuses, improving on the next best system by 34%
+and 28%, and comparable to KISS-SLAM and SG-SLAM on
+KITTI. KITTI-Carla is the clearest case: HGG reduces the
+45.73,m error of its own front-end to 2.35 m. Map accuracy
+is therefore largely independent of front-end quality, which
+matters for platforms where a strong odometry pipeline is
+unavailable.
+b) Ablation Study on Correction : Correction is ablated
+by stage. The EM step of Section IV-C2 is the channel through
+which later observations within sliding window revise a node
+built from a partial view, and loop closure enforces global
+consistency; Table IX enables each in turn on MCD-NTU.
+The factor graph of Section IV-C1 runs in every configuration,
+and only the EM step and loop closure, with the pose graph
+optimization it feeds, are toggled. Map fidelity is measured
+against the survey-grade Leica RTC360 reference following
+the PALoc/MapEval protocol [86], [87]: the reference is
+cropped to points within 3 m of the estimate, so the metric
+reflects reconstruction quality rather than traversal coverage,
+and the two maps are then aligned. We report the mean
+bidirectional Chamfer distance and the map accuracy over
+every node, stuff classes included, since the geometry graph is
+built identically for a road or a fac¸ade as for a discrete object;
+vegetation is excluded, as foliage offers no stable surface for
+comparison across scan sessions.
+The two stages act on disjoint quantities. EM cuts the
+Chamfer distance from 1.11 m to 0.72 m and the accuracy
+TABLE VIII: ATE Evaluation (m).
+uHumans2
+Method
+Apartment
+Office
+Subway
+OA-SLAM [29]
+0.14
+0.39
+0.45
+VOOM [30]
+0.14
+0.42
+0.47
+Kimera-RPGO [3]
+0.07
+0.46
+1.68
+Kimera-PGMO [3]
+0.08
+0.21
+1.47
+HGG
+0.11
+0.17
+0.52
+Outdoor, KISS-ICP front-end
+Method
+KITTI
+KITTI-C
+MCD-NTU
+MCD-KTH
+KISS-ICP [88]
+8.85
+45.73
+2.19
+1.16
+SG-SLAM [23]
+3.54
+18.36
+1.04
+1.51
+KISS-SLAM [89]
+3.06
+7.76
+1.48
+0.67
+HGG
+4.58
+2.35
+0.68
+0.48
+TABLE IX: Effect of EM optimization and loop closure (LC)
+EM
+LC
+Chamfer (m) ↓
+Map Acc. (m) ↓
+F1 ↑
+ATE (m) ↓
+✓
+0.72
+0.49
+0.63
+2.16
+✓
+1.11
+0.97
+0.82
+0.68
+✓
+✓
+0.72
+0.49
+0.82
+0.68
+error from 0.97 m to 0.49 m, by 35% and 49%, and leaves
+ATE and F1 untouched, since it revises only θg
+i , under a fixed
+node count and topology, while the factor graph holds internal
+geometry fixed. Loop closure moves the complementary pair,
+ATE from 2.16 m to 0.68 m and F1 from 0.63 to 0.82, and
+leaves map fidelity unchanged. Drift is what separates them:
+without loop closure the trajectory diverges over a campus-
+scale revisit and displaces whole objects in the global frame,
+and a node displaced past the matching radius is charged as
+a miss or a false positive, whereas the geometry inside an
+object is refined in the object’s own frame over a sliding
+window and measured after alignment, so it is indifferent
+to that displacement. This is the decoupling of Section IV-C
+observed rather than assumed. These absolute figures also test
+Section III directly: the metric map here is extracted from the
+graph rather than built before it, and the geometry so extracted
+lies within 0.72 m Chamfer distance and 0.49 m accuracy of
+a survey-grade terrestrial scan, a residual on the scale of the
+0.68 m trajectory error of the same configuration (Table IX)
+rather than of the object geometry.
+D. Downstream Tasks
+We evaluate HGG in two settings: language-grounded object
+retrieval tests semantic and relational reasoning, while real-
+world robotic navigation tests whether the same representation
+can directly support action without separate dense metric map.
+1) Language-Grounded Object Retrieval:
+We evaluate
+language-grounded object retrieval on the three uHumans2
+sequences against ConceptGraphs, an open-vocabulary system
+
+
+16
+TABLE X: Language Grounded Object Retrieval Results.
+HGG (centroid edges) replaces the distributional edge weight
+of (8) with the Euclidean distance between centroids.
+Sequence
+Method
+R@1
+R@2
+R@3
+Apartment
+Conceptgraphs
+0.35
+0.41
+0.59
+HGG (centroid edges)
+0.47
+0.82
+0.94
+HGG
+0.65
+0.88
+0.94
+Office
+Conceptgraphs
+0.20
+0.47
+0.47
+HGG (centroid edges)
+0.47
+0.67
+0.93
+HGG
+0.47
+0.87
+0.93
+Subway
+Conceptgraphs
+0.07
+0.29
+0.36
+HGG (centroid edges)
+0.21
+0.79
+0.86
+HGG
+0.43
+0.93
+0.93
+built for this task. Fifteen queries per sequence span unique-
+instance, spatial-relational (“the chair next to the computer”),
+and instance-disambiguation categories, each authored against
+the ground-truth graph so that exactly one instance satisfies it,
+and a retrieval counts only if that instance is returned. Both
+systems use the same CLIP model and checkpoint, isolating
+the effect of the scene-graph representation. For relational
+and disambiguation queries, the graph gates the candidates
+to Eo neighbors of the anchor, ordered by wi,j in (8); the full
+protocol is given in the supplementary material [75].
+Table X reports recall at rank k. HGG reaches R@1 of
+0.65, 0.47, and 0.43 across the three scenes against 0.35,
+0.20, and 0.07 for ConceptGraphs, and by rank three returns
+0.93 to 0.94 of the targets against 0.36 to 0.59. With the
+encoder shared, the difference reflects the underlying map:
+missed object instances and misplaced spatial arrangements
+directly limit retrieval. Replacing wij of (8) with the centroid
+distance, keeping the encoder fixed, leaves R@3 unchanged
+as Eo but drops R@1 to 0.47, 0.50, and 0.21 (HGG* in
+Table X): scoring the relation against the objects’ extent
+rather than their centers is what orders it correctly. Office
+and Subway are the harder scenes, with many same-class
+objects in near-identical repeated arrangements, so relational
+and disambiguation queries admit several candidates at once;
+HGG still resolves half of their queries at rank one.
+2) Real-World Language-Grounded Navigation: Retrieval
+establishes that the graph identifies the target; we next test
+whether it is sufficient for action. We deploy HGG on a
+Boston Dynamics Spot equipped with Manifold Odin1 [84]
+and issue three sequential language-grounded tasks, including
+two relational commands, from an indoor corridor to an
+outdoor bench. A task is successful when Spot stops within
+1.0 m of the target, and all three tasks succeed. Traversable
+space is extracted directly from the geometry graphs without
+a dense metric map or retained point cloud, while the scene
+graph provides the semantics, distributional geometry, object
+extents, and evidence counts required for target identification,
+relational disambiguation, and goal placement. The experiment
+closes the loop with our representation: the scene graph does
+not need a geometric foundation; with the right primitive, it is
+one. Further experimental details and videos are provided in
+the supplementary material [75].
+VI. DISCUSSION
+We discuss two aspects left open by our instantiation of the
+probabilistic scene graph formulation: symbolic uncertainty
+and representation granularity.
+A. Symbolic Uncertainty
+The formulation in Definition 1 distinguishes uncertainty
+in the symbolic structure of the graph from uncertainty in
+the geometric parameters attached to its entities. We explic-
+itly models the geometric belief through the Normal-Inverse-
+Wishart posterior, while the symbolic factor is instantiated
+deterministically as described in Section III. Consequently,
+HGG represents uncertainty in the location and extent of an
+established entity, but not uncertainty in whether an entity
+exists, which observations should be associated with the same
+entity, or which semantic interpretation is correct. These uncer-
+tainties are fundamentally different from geometric uncertainty
+because they alter the graph structure itself rather than the
+parameters of an established node. A fully probabilistic scene
+graph would therefore need to maintain uncertainty over these
+symbolic variables and propagate it through creation, associa-
+tion, and correction, allowing competing graph hypotheses to
+be revised as evidence accumulates. Thus, the current system
+should be viewed as instantiating the probabilistic geometric
+component of the broader formulation while leaving symbolic
+uncertainty as an orthogonal extension in our future work.
+B. Hierarchy and Granularity
+The probabilistic scene graph formulation also does not
+prescribe the spatial granularity and hierarchy at which entities
+should be represented. This is important because granularity
+determines both the computational scope of graph inference
+and the type of information that an entity can express: coarse
+entities provide compact and stable support for global rea-
+soning [6], whereas fine entities preserve greater geometric
+detail at increased state and association complexity. The two
+levels in our work represent the same entity at different
+resolutions rather than independent maps: the object graph
+provides the abstraction required for efficient global reasoning,
+while the geometry graph supplies the spatial detail required
+for local reconstruction and refinement. This hierarchy is
+a design choice rather than a restriction of the underlying
+formulation, and illustrates how a probabilistic scene graph
+can decouple the granularity required for global semantic
+reasoning from that required for geometric reconstruction. The
+same construction extends upward as easily as downward,
+grouping objects into regions rather than dividing them into
+parts, as sketched in Section IV-A. What a further level would
+require is not more geometry, but a belief over symbolic factor
+which provide information on entities belong together. More
+adaptive choices of granularity and hierarchy could further
+extend this framework, but would require jointly reasoning
+about the representation scale and the graph structure itself.
+VII. CONCLUSION
+We introduced the probabilistic scene graph, a represen-
+tation whose output is a posterior over graphs rather than
+
+
+17
+a single graph, and what creation, alignment, and correction
+must preserve for a node to remain a belief. We instantiated
+the PSG, whose object nodes are full-covariance Gaussians
+on Sym+(3) carrying an evidence-calibrated Normal-Inverse-
+Wishart posterior, refined by a geometry graph and joined
+by distributional-distance edges. On it we built a purely
+graph-based coarse-to-fine alignment needing no dense map,
+and a nested EM–factor-graph optimization splitting global
+arrangement from local geometry as the Fisher information
+structure prescribes. Carrying its own geometry, the graph
+replaces the dense metric map rather than abstracting from
+it: across six datasets, Our system runs at sensor rate with
+near-constant memory at state-of-the-art object accuracy and
+zero-shot alignment. Extending the same requirements to the
+semantic, existence, and correspondence factors is what the
+definition already calls for, and dynamic objects emerge from
+it as those whose posterior never concentrates.
+REFERENCES
+[1] D. Rotondi, F. Argenziano, S. Koch, N. Hughes, M. B¨uchner, J. Wald,
+L. R. Schmid, D. Nardi, A. Valada, L. Paull, F. Tombari, L. Carlone, and
+K. O. Arras, “3d scene graphs: Open challenges and future directions,”
+arXiv preprint arXiv:2606.19383, 2026.
+[2] A. Rosinol, M. Abate, Y. Chang, and L. Carlone, “Kimera: an open-
+source library for real-time metric-semantic localization and mapping,”
+in 2020 IEEE International Conference on Robotics and Automation
+(ICRA).
+IEEE, 2020, pp. 1689–1696.
+[3] A. Rosinol, A. Violette, M. Abate, N. Hughes, Y. Chang, J. Shi,
+A. Gupta, and L. Carlone, “Kimera: From slam to spatial perception
+with 3d dynamic scene graphs,” The International Journal of Robotics
+Research, vol. 40, no. 12-14, pp. 1510–1546, 2021.
+[4] N. Hughes, Y. Chang, and L. Carlone, “Hydra: A real-time spatial
+perception system for 3D scene graph construction and optimization,”
+Robotics: Science and Systems XVIII, 2022.
+[5] N. Hughes, Y. Chang, S. Hu, R. Talak, R. Abdulhai, J. Strader,
+and L. Carlone, “Foundations of spatial perception for robotics:
+Hierarchical representations and real-time systems,” The International
+Journal
+of
+Robotics
+Research,
+2024.
+[Online].
+Available:
+https:
+//doi.org/10.1177/02783649241229725
+[6] Q. Gu, A. Kuwajerwala, S. Morin, K. M. Jatavallabhula, B. Sen,
+A. Agarwal, C. Rivera, W. Paul, K. Ellis, R. Chellappa, C. Gan, C. M.
+de Melo, J. B. Tenenbaum, A. Torralba, F. Shkurti, and L. Paull,
+“Conceptgraphs: Open-vocabulary 3d scene graphs for perception and
+planning,” in 2024 IEEE International Conference on Robotics and
+Automation (ICRA).
+IEEE, 2024, pp. 5021–5028.
+[7] A. Werby, C. Huang, M. B¨uchner, A. Valada, and W. Burgard, “Hier-
+archical open-vocabulary 3d scene graphs for language-grounded robot
+navigation,” Robotics: Science and Systems, 2024.
+[8] D. Maggio, Y. Chang, N. Hughes, M. Trang, D. Griffith, C. Dougherty,
+E. Cristofalo, L. Schmid, and L. Carlone, “Clio: Real-time task-driven
+open-set 3d scene graphs,” IEEE Robotics and Automation Letters,
+vol. 9, no. 10, pp. 8921–8928, 2024.
+[9] I. Armeni, Z.-Y. He, J. Gwak, A. R. Zamir, M. Fischer, J. Malik, and
+S. Savarese, “3d scene graph: A structure for unified semantics, 3d space,
+and camera,” in Proceedings of the IEEE/CVF international conference
+on computer vision, 2019, pp. 5664–5673.
+[10] U.-H. Kim, J.-M. Park, T.-J. Song, and J.-H. Kim, “3-d scene graph:
+A sparse and semantic representation of physical environments for
+intelligent agents,” IEEE transactions on cybernetics, vol. 50, no. 12,
+pp. 4921–4933, 2019.
+[11] A. Rosinol, A. Gupta, M. Abate, J. Shi, and L. Carlone, “3d dynamic
+scene graphs: Actionable spatial perception with places, objects, and
+humans,” arXiv preprint arXiv:2002.06289, 2020.
+[12] J. Wald, H. Dhamo, N. Navab, and F. Tombari, “Learning 3d semantic
+scene graphs from 3d indoor reconstructions,” in Proceedings of the
+IEEE/CVF Conference on Computer Vision and Pattern Recognition,
+2020, pp. 3961–3970.
+[13] S.-C. Wu, J. Wald, K. Tateno, N. Navab, and F. Tombari, “Scenegraph-
+fusion: Incremental 3d scene graph prediction from rgb-d sequences,”
+in Proceedings of the IEEE/CVF Conference on Computer Vision and
+Pattern Recognition, 2021, pp. 7515–7525.
+[14] D. Rotondi, F. Scaparro, H. Blum, and K. O. Arras, “Fungraph:
+Functionality aware 3d scene graphs for language-prompted scene
+interaction,” in 2025 IEEE/RSJ International Conference on Intelligent
+Robots and Systems (IROS).
+IEEE, 2025, pp. 4083–4090.
+[15] C. Kassab, H. Gil, M. Mattamala, A. Kim, and M. Fallon, “Lexi-sg:
+Monocular 3d scene graph mapping with room-guided feed-forward
+reconstruction,” arXiv preprint arXiv:2605.13741, 2026.
+[16] E. Greve, M. B¨uchner, N. V¨odisch, W. Burgard, and A. Valada, “Collab-
+orative dynamic 3d scene graphs for automated driving,” in 2024 IEEE
+International Conference on Robotics and Automation (ICRA).
+IEEE,
+2024, pp. 11 118–11 124.
+[17] H. Bavle, J. L. Sanchez-Lopez, M. Shaheer, J. Civera, and H. Voos, “Sit-
+uational graphs for robot navigation in structured indoor environments,”
+IEEE Robotics and Automation Letters, vol. 7, no. 4, pp. 9107–9114,
+2022.
+[18] ——, “S-graphs+: Real-time localization and mapping leveraging hier-
+archical representations,” IEEE Robotics and Automation Letters, vol. 8,
+no. 8, pp. 4927–4934, 2023.
+[19] M. Fernandez-Cortizas, H. Bavle, D. Perez-Saura, J. L. Sanchez-Lopez,
+P. Campoy, and H. Voos, “Multi s-graphs: An efficient distributed
+semantic-relational collaborative slam,” IEEE Robotics and Automation
+Letters, vol. 9, no. 6, pp. 6004–6011, 2024.
+[20] H. Bavle, J. L. Sanchez-Lopez, M. Shaheer, J. Civera, and H. Voos,
+“S-graphs 2.0–a hierarchical-semantic optimization and loop closure for
+slam,” IEEE Robotics and Automation Letters, 2025.
+[21] A. Tourani, S. Ejaz, H. Bavle, M. Fernandez-Cortizas, D. Morilla-
+Cabello, J. L. Sanchez-Lopez, and H. Voos, “vs-graphs: Tightly coupling
+visual slam and 3d scene graphs exploiting hierarchical scene under-
+standing,” arXiv preprint arXiv:2503.01783, 2025.
+[22] N. Wang, X. Chen, C. Shi, Z. Zheng, H. Yu, and H. Lu, “Sglc: Semantic
+graph-guided coarse-fine-refine full loop closing for lidar slam,” IEEE
+Robotics and Automation Letters, 2024.
+[23] N. Wang, H. Lu, Z. Zheng, H. Wang, Y.-H. Liu, and X. Chen,
+“Leveraging semantic graphs for efficient and robust lidar slam,” arXiv
+preprint arXiv:2503.11145, 2025.
+[24] R. F. Salas-Moreno, R. A. Newcombe, H. Strasdat, P. H. Kelly, and A. J.
+Davison, “Slam++: Simultaneous localisation and mapping at the level
+of objects,” in Proceedings of the IEEE conference on computer vision
+and pattern recognition, 2013, pp. 1352–1359.
+[25] S. Yang and S. Scherer, “Cubeslam: Monocular 3-d object slam,” IEEE
+Transactions on Robotics, vol. 35, no. 4, pp. 925–938, 2019.
+[26] L. Nicholson, M. Milford, and N. S¨underhauf, “Quadricslam: Dual
+quadrics from object detections as landmarks in object-oriented slam,”
+IEEE Robotics and Automation Letters, vol. 4, no. 1, pp. 1–8, 2018.
+[27] S. L. Bowman, N. Atanasov, K. Daniilidis, and G. J. Pappas, “Proba-
+bilistic data association for semantic slam,” in 2017 IEEE international
+conference on robotics and automation (ICRA). IEEE, 2017, pp. 1722–
+1729.
+[28] E. Sucar, K. Wada, and A. Davison, “Nodeslam: Neural object de-
+scriptors for multi-view shape reconstruction,” in 2020 International
+Conference on 3D Vision (3DV).
+IEEE, 2020, pp. 949–958.
+[29] M. Zins, G. Simon, and M.-O. Berger, “Oa-slam: Leveraging objects
+for camera relocalization in visual slam,” in 2022 IEEE international
+symposium on mixed and augmented reality (ISMAR).
+IEEE, 2022, pp.
+720–728.
+[30] Y. Wang, C. Jiang, and X. Chen, “Voom: Robust visual object odometry
+and mapping using hierarchical landmarks,” in 2024 IEEE International
+Conference on Robotics and Automation (ICRA).
+IEEE, 2024, pp.
+10 298–10 304.
+[31] A. Adkins, T. Chen, and J. Biswas, “Obvi-slam: Long-term object-visual
+slam,” IEEE Robotics and automation letters, vol. 9, no. 3, pp. 2909–
+2916, 2024.
+[32] Y. Wu, Y. Zhang, D. Zhu, Z. Deng, W. Sun, X. Chen, and J. Zhang, “An
+object slam framework for association, mapping, and high-level tasks,”
+IEEE Transactions on Robotics, vol. 39, no. 4, pp. 2912–2932, 2023.
+[33] B. Kerbl, G. Kopanas, T. Leimk¨uhler, and G. Drettakis, “3d gaussian
+splatting for real-time radiance field rendering.” ACM Transactions on
+Graphics, vol. 42, no. 4, pp. 139–1, 2023.
+[34] C. Yan, D. Qu, D. Xu, B. Zhao, Z. Wang, D. Wang, and X. Li, “Gs-
+slam: Dense visual slam with 3d gaussian splatting,” in Proceedings of
+the IEEE/CVF conference on computer vision and pattern recognition,
+2024, pp. 19 595–19 604.
+[35] H. Matsuki, R. Murai, P. H. Kelly, and A. J. Davison, “Gaussian splatting
+slam,” in Proceedings of the IEEE/CVF conference on computer vision
+and pattern recognition, 2024, pp. 18 039–18 048.
+[36] N. Keetha, J. Karhade, K. M. Jatavallabhula, G. Yang, S. Scherer,
+D. Ramanan, and J. Luiten, “Splatam: Splat track & map 3d gaussians
+
+
+18
+for dense rgb-d slam,” in Proceedings of the IEEE/CVF conference on
+computer vision and pattern recognition, 2024, pp. 21 357–21 366.
+[37] H. Huang, L. Li, H. Cheng, and S.-K. Yeung, “Photo-slam: Real-
+time simultaneous localization and photorealistic mapping for monocular
+stereo and rgb-d cameras,” in Proceedings of the IEEE/CVF Conference
+on Computer Vision and Pattern Recognition, 2024, pp. 21 584–21 593.
+[38] X. Lang, L. Li, C. Wu, C. Zhao, L. Liu, Y. Liu, J. Lv, and X. Zuo,
+“Gaussian-lic: Real-time photo-realistic slam with gaussian splatting and
+lidar-inertial-camera fusion,” in 2025 IEEE International Conference on
+Robotics and Automation (ICRA).
+IEEE, 2025, pp. 8500–8507.
+[39] L. C. Sun, N. P. Bhatt, J. C. Liu, Z. Fan, Z. Wang, T. E. Humphreys,
+and U. Topcu, “Mm3dgs slam: Multi-modal 3d gaussian splatting for
+slam using vision, depth, and inertial measurements,” in 2024 IEEE/RSJ
+International Conference on Intelligent Robots and Systems (IROS).
+IEEE, 2024, pp. 10 159–10 166.
+[40] M. Li, S. Liu, H. Zhou, G. Zhu, N. Cheng, T. Deng, and H. Wang, “Sgs-
+slam: Semantic gaussian splatting for neural dense slam,” in European
+Conference on Computer Vision.
+Springer, 2024, pp. 163–179.
+[41] Y. Ji, Y. Liu, G. Xie, B. Ma, Z. Xie, and H. Liu, “Neds-slam: A neural
+explicit dense semantic slam framework using 3d gaussian splatting,”
+IEEE Robotics and Automation Letters, vol. 9, no. 10, pp. 8778–8785,
+2024.
+[42] S. Zhu, R. Qin, G. Wang, J. Liu, and H. Wang, “Semgauss-slam: Dense
+semantic gaussian splatting slam,” in 2025 IEEE/RSJ International
+Conference on Intelligent Robots and Systems (IROS).
+IEEE, 2025,
+pp. 21 174–21 181.
+[43] S. Zhu, G. Wang, X. Kong, D. Kong, and H. Wang, “3d gaussian
+splatting in robotics: A survey,” arXiv preprint arXiv:2410.12262, 2024.
+[44] F. Tosi, Y. Zhang, Z. Gong, S. Mattoccia, M. R. Oswald, E. Sandstrom,
+and M. Poggi, “How nerfs and 3d gaussian splatting are reshaping slam:
+a survey,” IEEE Transactions on Robotics, 2026.
+[45] P. N. Xuan, T. N. Canh, H.-H. Nguyen, N. Y. Chong, and X. HoangVan,
+“A survey on collaborative slam with 3d gaussian splatting,” arXiv
+preprint arXiv:2510.23988, 2025.
+[46] M. Leordeanu and M. Hebert, “A spectral technique for correspondence
+problems using pairwise constraints,” in Tenth IEEE International Con-
+ference on Computer Vision (ICCV’05) Volume 1, vol. 2.
+IEEE, 2005,
+pp. 1482–1489.
+[47] M. Cho, J. Lee, and K. M. Lee, “Reweighted random walks for graph
+matching,” in European conference on Computer vision. Springer, 2010,
+pp. 492–505.
+[48] N. Shervashidze, P. Schweitzer, E. J. Van Leeuwen, K. Mehlhorn,
+and K. M. Borgwardt, “Weisfeiler-lehman graph kernels.” Journal of
+Machine Learning Research, vol. 12, no. 9, 2011.
+[49] S. D. Sarkar, O. Miksik, M. Pollefeys, D. Barath, and I. Armeni,
+“Sgaligner: 3d scene alignment with scene graphs,” in Proceedings of
+the IEEE/CVF International Conference on Computer Vision, 2023, pp.
+21 927–21 937.
+[50] Y. Xie, A. Pagani, and D. Stricker, “Sg-pgm: Partial graph matching
+network with semantic geometric fusion for 3d scene graph alignment
+and its downstream tasks,” in Proceedings of the IEEE/CVF Conference
+on Computer Vision and Pattern Recognition, 2024, pp. 28 401–28 411.
+[51] M. B. Peterson, Y. X. Jia, Y. Tian, A. Thomas, and J. P. How, “ROMAN:
+Open-Set Object Map Alignment for Robust View-Invariant Global
+Localization,” in Robotics: Science and Systems (RSS), 2025.
+[52] C. Liu, Z. Qiao, J. Shi, K. Wang, P. Liu, and S. Shen, “Sg-reg:
+Generalizable and efficient scene graph registration,” IEEE Transactions
+on Robotics, 2025.
+[53] G. Chen, S. B. Laina, S. Leutenegger, and J. Alonso-Mora, “Opensga:
+Efficient 3d scene graph alignment in the open world,” arXiv preprint
+arXiv:2605.10484, 2026.
+[54] A. Dai, M. Nießner, M. Zollh¨ofer, S. Izadi, and C. Theobalt, “Bundle-
+fusion: Real-time globally consistent 3d reconstruction using on-the-fly
+surface reintegration,” ACM Transactions on Graphics (ToG), vol. 36,
+no. 4, p. 1, 2017.
+[55] V. Reijgwart, A. Millane, H. Oleynikova, R. Siegwart, C. Cadena, and
+J. Nieto, “Voxgraph: Globally consistent, volumetric mapping using
+signed distance function submaps,” IEEE Robotics and Automation
+Letters, vol. 5, no. 1, pp. 227–234, 2019.
+[56] T. Whelan, R. F. Salas-Moreno, B. Glocker, A. J. Davison, and
+S. Leutenegger, “Elasticfusion: Real-time dense slam and light source
+estimation,” The International Journal of Robotics Research, vol. 35,
+no. 14, pp. 1697–1716, 2016.
+[57] L. Schmid, M. Abate, Y. Chang, and L. Carlone, “Khronos: A unified
+approach for spatio-temporal metric-semantic slam in dynamic envi-
+ronments,” in Proc. of Robotics: Science and Systems (RSS), Delft,
+Netherlands, July 2024.
+[58] J. A. Millan-Romera, M. Shaheer, M. Fernandez-Cortizas, M. R. Os-
+wald, H. Voos, and J. L. Sanchez-Lopez, “Generation of uncertainty-
+aware emergent concepts in factorized 3d scene graphs via graph neural
+networks,” arXiv preprint arXiv:2409.11972, 2024.
+[59] T. M. Cover, J. A. Thomas, and J. Kieffer, Elements of information
+theory.
+wiley New York, 1991, vol. 2.
+[60] K. P. Murphy, “Conjugate bayesian analysis of the gaussian distribution,”
+def, vol. 1, no. 2σ2, p. 16, 2007.
+[61] A. Gelman, J. B. Carlin, H. S. Stern, and D. B. Rubin, Bayesian data
+analysis.
+chapman and hall/cRc, 1995.
+[62] R. B. Rusu, “Semantic 3d object maps for everyday manipulation in
+human living environments,” KI-K¨unstliche Intelligenz, vol. 24, no. 4,
+pp. 345–348, 2010.
+[63] R. B. Rusu and S. Cousins, “3d is here: Point cloud library (pcl),” in
+2011 IEEE international conference on robotics and automation. IEEE,
+2011, pp. 1–4.
+[64] G. T. Toussaint, “The relative neighbourhood graph of a finite planar
+set,” Pattern recognition, vol. 12, no. 4, pp. 261–268, 1980.
+[65] M. Wang, X. Xu, Q. Yue, and Y. Wang, “A comprehensive survey and
+experimental comparison of graph-based approximate nearest neighbor
+search,” arXiv preprint arXiv:2101.12631, 2021.
+[66] A. C. Gyllensten and M. Sahlgren, “Navigating the semantic horizon
+using relative neighborhood graphs,” arXiv preprint arXiv:1501.02670,
+2015.
+[67] K. T. Abou-Moustafa, F. De La Torre, and F. P. Ferrie, “Designing a
+metric for the difference between gaussian densities,” in Brain, Body and
+Machine: Proceedings of an International Symposium on the Occasion
+of the 25th Anniversary of the McGill University Centre for Intelligent
+Machines.
+Springer, 2010, pp. 57–70.
+[68] A. Bhattacharyya, “On a measure of divergence between two statistical
+populations defined by their probability distribution,” Bulletin of the
+Calcutta Mathematical Society, vol. 35, pp. 99–110, 1943.
+[69] X. Pennec, P. Fillard, and N. Ayache, “A riemannian framework for
+tensor computing,” International Journal of computer vision, vol. 66,
+no. 1, pp. 41–66, 2006.
+[70] C. Villani, Optimal transport: old and new. Berlin, Germany: Springer,
+2008, vol. 338.
+[71] H. W. Kuhn, “The hungarian method for the assignment problem,” Naval
+research logistics quarterly, vol. 2, no. 1-2, pp. 83–97, 1955.
+[72] T.-M. Nguyen, Z. Cao, K. Li, T. Jin, S. Yuan, T. D. Barfoot, and L. Xie,
+“A third-order gaussian process trajectory representation framework with
+closed-form kinematics for continuous-time motion estimation,” arXiv
+preprint arXiv:2410.22931, 2024.
+[73] A. Segal, D. Haehnel, and S. Thrun, “Generalized-icp.” in Robotics:
+science and systems, vol. 2, no. 4.
+Seattle, WA, 2009, p. 435.
+[74] N. J. Higham, Functions of matrices: theory and computation.
+SIAM,
+2008.
+[75] Supplementary material. [Online]. Available:
+https://anonymous.4open.science/r/PSG-7888/PSGSup.pdf.
+[76] A. Milioto, I. Vizzo, J. Behley, and C. Stachniss, “RangeNet++: Fast and
+Accurate LiDAR Semantic Segmentation,” in IEEE/RSJ Intl. Conf. on
+Intelligent Robots and Systems (IROS), 2019.
+[77] J.-E. Deschaud, “Kitti-carla: a kitti-like dataset generated by carla
+simulator,” arXiv preprint arXiv:2109.00892, 2021.
+[78] X. Yan, J. Gao, C. Zheng, C. Zheng, R. Zhang, S. Cui, and Z. Li,
+“2dpass: 2d priors assisted semantic segmentation on lidar point clouds,”
+in European conference on computer vision.
+Springer, 2022, pp. 677–
+695.
+[79] G. Chen, S. B. Laina, and J. Alonso-Mora, “Scannet-sg: A large-scale
+dataset for 3d scene graph alignment,” 2026. [Online]. Available:
+https://data.4tu.nl/datasets/bebe8bd4-cf91-4f86-a28a-87cb870f6cea
+[80] B. Cheng, I. Misra, A. G. Schwing, A. Kirillov, and R. Girdhar,
+“Masked-attention mask transformer for universal image segmentation,”
+2022.
+[81] N. Ravi, V. Gabeur, Y.-T. Hu, R. Hu, C. Ryali, T. Ma, H. Khedr,
+R. R¨adle, C. Rolland, L. Gustafson, E. Mintun, J. Pan, K. V. Alwala,
+N. Carion, C.-Y. Wu, R. Girshick, P. Doll´ar, and C. Feichtenhofer,
+“Sam 2: Segment anything in images and videos,” arXiv preprint
+arXiv:2408.00714, 2024. [Online]. Available: https://arxiv.org/abs/2408.
+00714
+[82] A. Geiger, P. Lenz, C. Stiller, and R. Urtasun, “Vision meets robotics:
+The kitti dataset,” The international journal of robotics research, vol. 32,
+no. 11, pp. 1231–1237, 2013.
+[83] T.-M. Nguyen, S. Yuan, T. H. Nguyen, P. Yin, H. Cao, L. Xie,
+M. Wozniak, P. Jensfelt, M. Thiel, J. Ziegenbein, and N. Blunder,
+“Mcd: Diverse large-scale multi-campus dataset for robot perception,”
+
+
+19
+in Proceedings of the IEEE/CVF Conference on Computer Vision and
+Pattern Recognition, 2024, pp. 22 304–22 313.
+[84] M.
+Tech.
+Manifold
+odin
+1.
+[Online].
+Available:
+https:
+//www.manifoldtech.cn/products/Odin1
+[85] J. Behley, M. Garbade, A. Milioto, J. Quenzel, S. Behnke, C. Stachniss,
+and J. Gall, “Semantickitti: A dataset for semantic scene understanding
+of lidar sequences,” in Proceedings of the IEEE/CVF international
+conference on computer vision, 2019, pp. 9297–9307.
+[86] X. Hu, L. Zheng, J. Wu, R. Geng, Y. Yu, H. Wei, X. Tang, L. Wang,
+J. Jiao, and M. Liu, “Paloc: Advancing slam benchmarking with
+prior-assisted 6-dof trajectory generation and uncertainty estimation,”
+IEEE/ASME Transactions on Mechatronics, vol. 29, no. 6, pp. 4297–
+4308, 2024.
+[87] X. Hu, J. Wu, M. Jia, H. Yan, Y. Jiang, B. Jiang, W. Zhang, W. He,
+and P. Tan, “Mapeval: Towards unified, robust and efficient slam map
+evaluation framework,” IEEE Robotics and Automation Letters, vol. 10,
+no. 5, pp. 4228–4235, 2025.
+[88] I. Vizzo, T. Guadagnino, B. Mersch, L. Wiesmann, J. Behley, and
+C. Stachniss, “Kiss-icp: In defense of point-to-point icp–simple, accu-
+rate, and robust registration if done the right way,” IEEE Robotics and
+Automation Letters, vol. 8, no. 2, pp. 1029–1036, 2023.

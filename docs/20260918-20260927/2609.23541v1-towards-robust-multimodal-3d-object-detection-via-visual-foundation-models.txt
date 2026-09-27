@@ -1,0 +1,3316 @@
+Towards robust multimodal 3D object detection via visual
+foundation models
+Ziying Song1,†, Lin Liu1,†, Hongyu Pan2, Shaoqing Xu3,
+Lei Yang4, Mingzhe Guo1, and Caiyan Jia1,*
+1School of Computer Science and Technology, Beijing Jiaotong University, Beijing 100044, China
+2Horizon Robotics, Beijing 100000, China
+3University of Macau, Macao 999078, China
+4Nanyang Technological University, Singapore 349562, Singapore
+†These authors contributed equally.
+*Corresponding author: cyjia@bjtu.edu.cn
+Abstract
+Multimodal 3D object detection is fundamental to robust perception in autonomous driving be-
+cause it integrates complementary information from LiDAR and camera sensors. However, existing
+methods often fail to maintain robustness under out-of-distribution (OOD) corruptions caused by
+sensor noise, adverse weather, and environmental changes. To address this problem, we propose
+RoboDistill, a robust and generalizable multimodal 3D object detection framework that leverages
+visual foundation models (VFMs), such as the Segment Anything Model (SAM). First, we intro-
+duce SAM-AD, a domain-specific pretraining strategy that fine-tunes SAM on autonomous-driving
+imagery to extract feature representations with rich semantic information. Second, we design the
+AD Feature Pyramid Network (AD-FPN) to refine and upsample SAM features at multiple
+scales for seamless fusion with LiDAR features. Third, we develop the Depth-Guided Wavelet
+Attention (DGWA) module, which suppresses high-frequency sensor noise while preserving crit-
+ical contextual information. Finally, we introduce KD Fusion, in which the pretrained SAM-AD
+serves as a teacher that distills high-quality visual knowledge into a lightweight point-cloud network,
+thereby improving robustness under noisy conditions. Extensive experiments across 27 challenging
+OOD corruption settings show that RoboDistill generally delivers stronger or competitive detection
+performance and robustness relative to representative state-of-the-art methods. This work bridges
+the gap between VFMs and 3D object detection and advances robust multimodal perception for
+real-world autonomous-driving applications.
+Keywords: multimodal fusion, knowledge distillation, visual foundation models, 3D object detection,
+autonomous driving
+Funding: This work was supported by the National Natural Science Foundation of China under Grant
+No. 62536001 (Key Program) and Grant No. 62576026 (General Program).
+1
+Introduction
+In autonomous-driving scenarios, accurate and reliable perception is essential for tasks such as obstacle
+detection, object tracking, and trajectory planning [5, 6]. Unimodal systems based on either cameras or
+LiDAR often have limitations in complex environments. Camera-based systems provide rich semantic
+information but depend heavily on illumination and are vulnerable to adverse weather. In contrast,
+LiDAR-based systems provide precise geometric and depth information, but their measurements are
+sparse and semantically limited. By fusing the two modalities, multimodal methods can overcome the
+limitations of either modality and achieve robust perception. Multimodal 3D object detection has there-
+fore become a cornerstone of robust perception systems because it integrates complementary information
+across modalities [5, 7].
+Multimodal fusion has evolved substantially. Early methods such as MV3D [8] demonstrated the
+feasibility of multimodal integration, followed by PointPainting [9] for semantic enhancement, Trans-
+Fusion [10] for cross-modal interaction, BEVFusion [11] for unified representation, and CMT [12] for
+1
+arXiv:2609.23541v1  [cs.CV]  20 Sep 2026
+
+
+Figure 1: (a) We use Gaussian distributions to characterize distributional differences across datasets. The
+results reveal a clear gap between the OOD-corrupted and clean validation sets. Specifically, the x-axis represents
+the set of mean pixel intensities in a dataset, X = {xi}N
+i=1, where xi =
+1
+HW 3
+∑H
+h=1
+∑W
+w=1
+∑3
+c=1 Ihwc. Here, N
+is the number of samples, H and W denote the image height and width, and Ihwc is the pixel value. (b) Visual
+foundation models, such as SAM [1], are robust to various corruptions; however, existing multimodal 3D detectors
+for autonomous driving remain vulnerable to OOD noise. (c) RoboDistill integrates VFMs into a state-of-the-art
+multimodal 3D detection framework. Under the illustrated fog-and-snow corruption, RoboDistill achieves 86.71%
+moderate-level car AP, compared with 62.58% for LoGoNet [3], an improvement of 24.13 percentage points, while
+also performing better on the clean KITTI [4] dataset.
+implicit spatial alignment. Although these state-of-the-art methods [13, 14, 12, 11, 15, 16, 17, 18] are
+robust in some respects, they are generally developed under idealized conditions and do not fully capture
+the complexity of real-world scenarios. For example, KITTI [4] primarily contains clear-weather scenes,
+lacks diverse conditions such as snow, fog, and heavy rain, and does not account for sensor noise, which
+is critical in practice. KITTI-C [2] was therefore introduced to simulate various OOD corruption condi-
+tions. As shown in Figure 1, the OOD-corrupted and clean datasets exhibit a pronounced distribution
+gap. Consequently, state-of-the-art methods trained on clean data may overfit specific scenarios and fail
+to generalize to OOD environments such as nighttime driving, extreme weather, or severe sensor noise.
+This raises a central research question: How can a method remain robust and reliable under
+unseen, challenging conditions?
+The gap between OOD scenarios and clean training data can be reduced by increasing dataset di-
+versity to cover more real-world environments or by designing algorithms that are robust to sensor noise
+and environmental variation. However, constructing large-scale datasets spanning diverse conditions is
+diﬀicult and expensive. A natural alternative is domain adaptation (DA), which is commonly used to
+bridge source and target domains [19, 20, 21, 22]. Although DA can improve the robustness of 3D object
+detection by reducing dependence on large annotated datasets and adapting models to new domains, it
+has inherent limitations, including diﬀiculty handling large domain gaps, label-distribution shifts, and
+the risk of overfitting [6]. When the source and target domains differ substantially, DA often generalizes
+poorly and degrades performance in the target domain.
+Recent years have witnessed transformative advances in natural language processing and computer
+vision with the emergence of foundation models [1, 23, 24, 25, 26, 27]. By serving as feature extractors,
+predictors, or interpreters, these models have established new paradigms in deep learning [28, 29]. Visual
+foundation models (VFMs), in particular, exhibit strong generalization owing to pretraining on large
+and diverse datasets [1, 24, 25]. We emphasize that our use of SAM does not rely on its segmentation
+outputs themselves, but on its learned “object-region consistency” and “boundary-structure priors”.
+These priors are generally more stable under rain- or fog-induced blur, partial occlusion, and background
+perturbations, providing high-signal-to-noise semantic anchors that (1) mitigate semantic drift caused
+by image-side noise and (2) facilitate 2D–3D alignment while reducing cross-modal mutual-information
+loss, thereby improving OOD robustness. These advances motivate a new approach that uses VFMs to
+improve the robustness of multimodal 3D object detection. VFMs can serve as high-level semantic priors
+to facilitate cross-modal alignment and alleviate spatial misalignment and feature redundancy [30]. We
+therefore leverage these models to address the challenges faced by multimodal 3D object detectors in
+OOD-corrupted scenarios.
+Accordingly, we present a robust and generalizable framework—RoboDistill—that introduces VFMs
+into the multimodal 3D detection pipeline, enabling existing detectors to transfer effectively from clean,
+controlled settings to real-world autonomous-driving scenarios with complex corruptions. RoboDistill
+forms a systematic pipeline of “semantic anchoring →geometric denoising →controlled transfer”: SAM-
+AD provides stable semantic priors, AD-FPN aligns them to fusion-ready scales, DGWA suppresses noise
+2
+
+
+propagation on the 3D side, and KD Fusion transfers reliable semantic knowledge to point-cloud rep-
+resentations to improve robustness.
+First, because generic SAM is vulnerable to viewpoint changes,
+dynamic objects, and complex backgrounds in autonomous-driving scenes, we propose an autonomous-
+driving-specific domain-adaptive pretraining strategy that yields SAM-AD. It aligns VFM capabilities
+with the requirements of 3D detection and improves cross-modal feature alignment. Second, because
+the resolution and hierarchy of VFM features make them diﬀicult to integrate directly into a 3D de-
+tection pipeline, we design AD-FPN to eﬀiciently upsample and refine SAM features. This module
+seamlessly fuses high-level semantics with LiDAR features while preserving both spatial resolution and
+semantic expressiveness. Furthermore, to suppress corruption in OOD scenarios, we propose a Depth-
+Guided Wavelet Attention module (DGWA). It decomposes LiDAR depth features into high-
+frequency noise and low-frequency contextual components and uses attention to selectively suppress
+noise while retaining critical structural information, yielding more stable representations under fog,
+rain, and low illumination. Compared with spatial-domain filtering or normalization, frequency-domain
+decomposition disentangles “nonstationary noise” from “structured geometry” across multiple scales.
+Correlation analysis between high-frequency coeﬀicients and noise intensity, frequency-band ablations
+(low-frequency only/high-frequency only/full spectrum), and comparisons with spatial-domain denois-
+ing baselines jointly support this design. Finally, we propose KD Fusion, a multimodal knowledge-
+distillation module based on a teacher–student paradigm. SAM-AD serves as the teacher, providing
+high-quality image representations that are distilled into a lightweight point-cloud student network. The
+student thereby inherits large-scale pretrained knowledge and domain-generalization capability, improv-
+ing feature extraction and fusion under corruption and OOD conditions. To account for the 2D–3D
+domain gap, the distillation loss transfers guidance from the teacher to the student only during train-
+ing. We distill task-aligned predictive distributions to avoid bias from rigid feature-space alignment and
+introduce teacher-confidence gating (high entropy→weak distillation) to suppress unreliable soft labels
+in corrupted scenarios, thereby reducing negative transfer while retaining stable gains. In summary,
+pretraining on large and diverse datasets gives VFMs strong generalization, eﬀicient feature extraction,
+and robust semantic understanding even in challenging environments. By integrating VFMs into the
+multimodal 3D detection pipeline, RoboDistill addresses cross-modal alignment, noise suppression, and
+feature fusion, providing a robust and scalable solution for autonomous-driving applications.
+2
+Related Work
+2.1
+Multimodal 3D Object Detection
+Multimodal 3D object detection has attracted considerable attention because it exploits complementary
+information from different sensors, particularly on popular datasets such as KITTI [4] and nuScenes
+[31]. Images provide rich semantic cues such as color and texture, whereas LiDAR point clouds capture
+precise depth and geometry. Existing studies [32, 33, 34, 3, 35, 13, 15] emphasize deep cross-modal
+feature integration. For example, PointPainting [9] enriches LiDAR point-cloud representations with
+semantic features extracted by a pretrained 2D segmentation network. Similarly, PointAugmenting [36]
+and AutoAlignV2 [32] propose more eﬀicient cross-modal interaction strategies that use global image
+features to improve point-cloud processing. Although these methods improve accuracy, robustness to
+real-world corruption and environmental variation remains challenging. In recent years, bird’s-eye-view
+(BEV) representations have become the dominant paradigm for multimodal 3D object detection. BEV-
+based methods [11, 12, 37, 38, 17], such as BEVFusion [11], unify multimodal features in BEV space for
+eﬀicient fusion and improved spatial reasoning. Notably, GraphBEV [37] introduces graph-structured,
+depth-aware feature alignment to address inaccurate point-cloud projection. Although existing state-of-
+the-art multimodal methods perform well on clean, controlled datasets, they often fail to account for
+real-world complexities such as adverse weather, sensor noise, and domain shifts [7, 2]. For example,
+datasets such as KITTI and nuScenes lack diversity in weather and environmental conditions, leading to
+overfitting and reduced generalization in OOD scenarios.
+2.2
+Applications of Visual Foundation Models in Computer Vision
+Alongside the rapid development of large language models [39], numerous visual foundation models
+(VFMs) have emerged in computer vision [1, 24, 25, 40]. Through large-scale pretraining on diverse
+datasets, these VFMs generalize well to new visual scenarios and extract pixel-level features. However,
+most VFMs focus on 2D vision, and their extension to 3D perception remains underexplored, leaving
+3
+
+
+Figure 2: Overall framework of RoboDistill.
+substantial room to adapt or extend existing 2D VFMs to 3D tasks. The first VFM, SAM [1], is built
+on the Vision Transformer (ViT) [41] and trained on the SA-1B dataset containing 11 million samples,
+yielding strong scene-level generalization. FastSAM [24] provides a real-time CNN solution that greatly
+reduces computational cost while retaining performance. MobileSAM [25] distills SAM’s large image
+encoder (ViT-H) into a lightweight encoder compatible with SAM’s mask decoder. As general-purpose
+large models, these VFMs provide powerful tools for downstream applications.
+Despite progress in
+2D vision, VFM research in 3D remains nascent.
+SAM3D [42], a LiDAR-only method, projects 3D
+LiDAR data into 2D BEV space to exploit SAM’s generalization, but its limited modal interaction
+constrains performance. Compared with the previous RoboFusion method, RoboDistill uses SAM for
+multimodal knowledge distillation to transfer and learn model knowledge. In summary, existing state-of-
+the-art multimodal 3D object detectors remain challenged by OOD-corrupted scenarios and struggle to
+bridge the gap between “clean” training data and OOD corruption. The generalization and robustness
+of VFMs create new opportunities for visual tasks, motivating us to use these capabilities to address
+OOD-corruption generalization in multimodal 3D detection.
+3
+RoboDistill
+In this section, we present the RoboDistill framework, illustrated in Figure 2. Extending our pre-
+liminary work, RoboDistill introduces a new multimodal strategy that fully exploits the generalization
+capability of visual foundation models (VFMs). Unlike prior methods, RoboDistill combines VFMs
+with robust cross-modal alignment to explicitly address out-of-distribution (OOD) corruption in mul-
+timodal 3D object detection, offering a new solution for robust and scalable perception in real-world
+autonomous-driving scenarios. Our detection head follows that of Voxel R-CNN [43].
+3.1
+SAM-AD & AD-FPN
+As a representative visual foundation model, SAM [1] exhibits strong generalization through pretraining
+on the large-scale SA-1B dataset. The dataset contains more than 11 million samples and 1 billion high-
+quality masks, giving SAM strong robustness and adaptability across diverse visual scenarios. Current
+SAM-family models [1, 24, 25] primarily support 2D vision tasks. Directly extending VFMs such as
+SAM to 3D tasks is challenging because 2D and 3D tasks differ fundamentally in data representation
+and task requirements. To bridge this gap, we combine SAM with a multimodal 3D model, fusing robust
+2D representations with 3D point-cloud features to obtain more robust fused representations.
+SAM-AD Module.
+To better adapt SAM to autonomous-driving scenarios, we perform domain-
+adaptive pretraining to obtain SAM-AD, which is optimized for autonomous-driving tasks. Specifically,
+we collect a large number of autonomous-driving images from established datasets such as KITTI [4]
+and nuScenes [31], covering diverse driving scenes and environmental conditions, to construct a base AD
+4
+
+
+Figure 3: Illustration of the pretraining framework. We corrupt a clean image x with a noise perturbation η to
+obtain x + η. We then randomly mask several patches in the corrupted image to obtain Mask(x + η). The SAM-
+AD encoder and DMAE decoder are trained to reconstruct the corresponding clean image ˆx from Mask(x + η).
+image dataset. During pretraining, we follow the DMAE framework [44] and use masked image modeling
+to pretrain SAM and MobileSAM in a self-supervised manner. Specifically, as shown in Figure 3, let x
+be a clean image sampled from the AD dataset and let η denote the set of corrupted images obtained by
+applying the perturbations in [2] to x. Because autonomous-driving systems often encounter OOD dis-
+turbances such as complex weather, illumination changes, and imaging degradation in real deployments,
+we jointly model all corruption types defined in Robustness3D[2] during pretraining. For example, the
+nuScenes setting contains 27 distinct corruption types, each with severity levels 1–5, spanning distribu-
+tion shifts from mild to severe degradation. Instead of training a separate model for each corruption
+type, we adopt unified mixed-corruption pretraining for a shared large model, thereby learning more
+general and robust visual representations. For FastSAM, we pretrain its segmentation head on the AD
+dataset using YOLOv8. To prevent overfitting, we apply random scaling and cropping, with a mask ratio
+of 0.75. All models are trained on 8 NVIDIA A100 GPUs for 400 epochs. We evaluate reconstruction
+accuracy and downstream 3D object-detection metrics; the results demonstrate that SAM-AD is robust
+and generalizes well in OOD scenarios.
+AD-FPN Module.
+As a promptable segmentation model, SAM consists of an image encoder, a
+prompt encoder, and a mask decoder. The prompt encoder and mask decoder primarily serve semantic
+segmentation, whereas we use the image encoder to extract robust, high-quality image embeddings.
+SAM employs a ViT (Vision Transformer) [41]-based image encoder that produces high-dimensional,
+low-resolution embeddings with a stride of 16 (i.e., scale=1/16). These features, however, lack multiscale
+representation, hindering accurate localization and detection when objects vary in size.
+To address this issue, we design AD-FPN based on the FPN [45] principle to enhance the multiscale
+expressiveness of ViT embeddings. Specifically, AD-FPN takes a ViT embedding as input and constructs
+multiscale features Fs at strides s ∈{32, 16, 8, 4}. Each feature map Fs ∈R
+H
+s × W
+s ×Cs is progressively
+refined in a bottom-up manner. Unlike a conventional FPN, AD-FPN is tailored to ViT embeddings,
+improving spatial resolution and fine-grained representation while retaining semantic robustness. This
+enhancement enables more accurate detection of small, distant, or occluded objects and substantially
+alleviates common visual challenges in autonomous-driving scenes. AD-FPN also improves the robustness
+and adaptability of the multimodal perception pipeline under adverse conditions, such as low illumination
+or dense traﬀic, providing reliable and eﬀicient features for downstream 3D detection and perception.
+3.2
+Depth-Guided Wavelet Attention Module (DGWA)
+Although SAM-AD and SAM can extract robust image features, a substantial gap remains between the
+2D and 3D feature domains. In corrupted environments, images often amplify noise because cameras
+lack geometric priors, leading to negative feature transfer. We therefore propose the Depth-Guided
+Wavelet Attention module (DGWA), which improves feature robustness through two key operations:
+“depth-guided feature enhancement” and “wavelet-domain noise suppression”.
+Depth-Guided Feature Enhancement.
+This module introduces geometric priors into image
+features by fusing image and depth features.
+At the stride-4 fusion level, let the image feature be
+Fi ∈R
+H
+4 × W
+4 ×Ci and the depth feature be Fd ∈R
+H
+4 × W
+4 ×Ci. Here, Fd is obtained by projecting the
+point cloud into the image coordinate system and processing the resulting sparse LiDAR depth map
+5
+
+
+S ∈RH×W ×2 with a depth encoder. A convolutional fusion operation then produces the depth-guided
+feature ˆFi = Conv(Concat{Fi, Fd}), embedding spatial and geometric information into the representa-
+tion and substantially improving its resistance to noise.
+Wavelet-Domain Noise Suppression.
+We use the Haar wavelet as the default basis for DGWA
+because its decomposition is simple, computationally eﬀicient, and effective at separating low-frequency
+structural information from high-frequency noise, making it well suited to real-time feature enhancement
+for robust autonomous-driving perception. For the enhanced feature ˆFi, a Haar wavelet transform de-
+composes it into four subbands: one low-frequency subband ef LL
+i
+∈R
+H
+8 × W
+8 ×Ci and three high-frequency
+subbands ( ef LH
+i
+, ef HL
+i
+, ef HH
+i
+) ∈R
+H
+8 × W
+8 ×Ci. The low-frequency subband retains coarse contextual infor-
+mation, whereas the high-frequency subbands capture fine-grained edges and textures, facilitating iden-
+tification of noise signals. Concatenating these subbands yields the wavelet feature eFi ∈R
+H
+8 × W
+8 ×4Ci,
+which is weighted by the wavelet-attention mechanism Attω. This mechanism selectively suppresses noise
+while preserving useful information:
+Fatt = Attω( ˆFi, eFi) = σ
+ ˆFiW q( eFiW k)T
+√Ci
+!
+eFiW v.
+(1)
+Finally, the inverse discrete wavelet transform (IDWT) reconstructs the features, which are fused
+with the attention output to produce the final robust representation Fout:
+Fout = MLP(Concat(Fatt, ˆFi)).
+(2)
+This design enables Fout to suppress redundant noise while retaining critical information in both the
+spatial and frequency domains, thereby improving robustness and generalization in downstream tasks
+such as object detection and cross-modal feature fusion.
+3.3
+Multimodal Knowledge-Distillation Fusion (KD Fusion)
+Although SAM-AD and SAM can extract robust image features, bridging the 2D–3D domain gap in
+multimodal fusion remains a major challenge. Under data heterogeneity, directly aligning 2D and 3D
+modalities often fails to preserve mutual information, resulting in suboptimal representations. Moreover,
+SAM-processed image features are more robust and transferable because of SAM’s strong generalization.
+We therefore designate the image branch as the teacher model and the point-cloud branch as the stu-
+dent model, enabling cross-modal knowledge transfer that improves the student’s learning capability.
+As shown in Figure 4, the proposed multimodal knowledge-distillation fusion module (KD Fu-
+sion) exploits the complementarity of the teacher–student structure to improve cross-domain robustness.
+During distillation, the teacher provides soft targets and robust priors; during multimodal inference, the
+image and point-cloud branches jointly participate in feature fusion. The module comprises two core
+components: cross-modal knowledge transfer and Transformer fusion.
+Cross-Modal Knowledge Transfer.
+The SAM-AD teacher extracts rich semantic information from
+the input image I ∈RH×W ×3 and uses the refined image feature Fout to generate classification logits
+T ∈RN×C. Meanwhile, the student extracts features from the point-cloud data P ∈RN×D and generates
+logits S ∈RN×C. For optimization, we first complete domain-adaptive pretraining of SAM-AD and then
+optimize a joint objective of “supervised learning (CE) + distillation learning (KL)”: the CE term
+maintains a lower bound on task accuracy, whereas the KL term provides cross-modal class relationships
+and robust priors, balancing lightweight design with performance retention.
+To reduce the modal gap while preserving task accuracy, we design a knowledge-distillation loss
+that encourages the student’s predictive distribution to approach the teacher’s.
+Given the substan-
+tial domain gap between 2D semantic space and 3D point-cloud space, we distill in the task-aligned
+logit/probability space, rather than directly enforcing intermediate-feature alignment, to reduce the
+risk of negative transfer caused by cross-domain mismatch.
+The loss is a weighted combination of
+the Kullback–Leibler (KL) divergence between the teacher and student predictive distributions and the
+cross-entropy loss of the predictions:
+LKD = α · w(T) τ 2 KL
+ softmax
+  T
+τ
+  softmax
+  S
+τ
+
+|
+{z
+}
+distill from teacher
++(1 −α) · LCE(S, Y ),
+(3)
+Here, τ is the temperature coeﬀicient that smooths the distillation distribution to transfer interclass
+similarities, and α balances the distillation and supervised terms. We fix α = 0.5 and τ = 4 in all
+experiments to improve training stability and reproducibility.
+6
+
+
+Figure 4: Architecture of KD Fusion. The image branch uses SAM-AD as the teacher model, whereas the
+point cloud branch serves as the student model. KD Fusion transfers knowledge from the teacher to the student
+and uses a Transformer architecture for multimodal feature alignment and fusion.
+To avoid negative transfer under severe corruption or OOD conditions, we introduce a teacher-
+confidence weight w(T) that adaptively controls distillation strength. When the teacher prediction is
+unreliable (high entropy/low confidence), distillation is weakened or disabled to prevent erroneous soft
+labels from misleading the student. A simple implementation uses normalized-entropy gating: w(T) =
+max
+
+0, 1 −H(softmax(T ))
+log C
+
+, where H(·) denotes information entropy.
+With KD Fusion, the student learns more robust and compact 3D representations under the guidance
+of the SAM-AD teacher, enabling it to handle noise and uncertainty in point-cloud data more effectively.
+Qualitatively, SAM-AD provides guidance through two main components, “semantic priors + inter-
+class structure”: (i) semantic priors derived from large-scale pretraining and AD-domain adaptation help
+maintain stable class-discriminative cues under fog, rain, or low illumination; and (ii) interclass structure
+is transferred through a temperature-smoothed soft distribution, constraining the student against over-
+confidence and decision-boundary drift under corruption. Together with confidence gating, the teacher
+imposes constraints only within its “reliable regions”, effectively reducing the risk of negative transfer
+when domain gaps and corruption coexist.
+Transformer-based fusion.
+To eﬀiciently fuse image and point-cloud features, KD Fusion employs
+a Transformer-based fusion operator that combines cross-attention with learnable object queries. This
+design enables the point-cloud network (student) to inherit robust representations from the image net-
+work (teacher) through cross-modal knowledge distillation. The fusion operator comprises three key
+stages: task-specific self-attention refinement, cross-modal alignment via cross-attention, and residual
+feed-forward refinement.
+• Self-attention for task-specific refinement.
+The fusion module uses learnable object queries
+to guide feature refinement. These queries serve as embeddings associated with the target task, such
+as object detection. First, self-attention models dependencies among the queries and strengthens
+their focus on task-relevant features:
+Attention(Q, K, V ) = Softmax
+QKT
+√
+d
+
+V,
+(4)
+where Q, K, and V are the query, key, and value matrices, respectively, generated from the image
+features Fout. This process allows the object queries to adaptively learn task-specific representa-
+tions.
+• Cross-attention for multimodal alignment.
+After self-attention refinement, the object
+queries further interact with the image and point-cloud features. Cross-attention aligns semanti-
+cally rich image features with spatially detailed point-cloud features, thereby integrating comple-
+mentary information across modalities:
+CrossAttention(Q, K, V ) = Softmax
+QKT
+√
+d
+
+V,
+(5)
+where Q denotes the query vectors derived from the image features Fout, while K and V are
+the key and value matrices, respectively, generated from the point-cloud features. Through this
+7
+
+
+Table 1: Comparison of RoboDistill (L/B/T) with representative state-of-the-art methods, including recent
+methods published since 2025, on the KITTI validation and test sets in terms of car-class AP3D (R40).
+Method
+AP3D(%) (validation set)
+AP3D(%) (test set)
+mAP
+Easy
+Mod.
+Hard
+mAP
+Easy
+Mod.
+Hard
+Voxel R-CNN [43]
+86.84
+92.38
+85.29
+82.86
+83.19
+90.90
+81.62
+77.06
+VFF [46]
+86.91
+92.31
+85.51
+82.92
+83.62
+89.50
+82.09
+79.29
+CAT-Det [47]
+83.58
+90.12
+81.46
+79.15
+82.62
+89.87
+81.32
+76.68
+LoGoNet [3]
+87.13
+92.04
+85.04
+84.31
+85.87
+91.80
+85.06
+80.74
+Focals Conv-F [34]
+-
+-
+-
+-
+83.47
+90.55
+82.28
+77.59
+SV-RCNN [48]
+85.46
+92.32
+83.24
+80.81
+-
+-
+-
+-
+SID [49]
+87.87
+92.87
+86.73
+84.01
+-
+-
+-
+-
+CLEAN [50]
+80.36
+88.80
+77.17
+75.12
+-
+-
+-
+-
+Fade3D [51]
+83.47
+90.92
+82.00
+77.49
+-
+-
+-
+-
+RAE3D [52]
+83.16
+91.68
+80.31
+77.49
+-
+-
+-
+-
+RoboDistill(L)
+89.03
+93.55
+88.11
+85.44
+86.13
+92.52
+84.65
+81.21
+RoboDistill(B)
+88.60
+93.40
+87.99
+84.42
+85.90
+92.33
+84.37
+81.00
+RoboDistill(T)
+88.42
+93.33
+87.81
+84.11
+85.59
+92.11
+84.12
+80.55
+Table 2: Comparison of RoboDistill (L/B/T) with representative multimodal state-of-the-art methods on the
+nuScenes validation and test sets in terms of NDS and mAP. RoboDistill is evaluated on an NVIDIA A100
+GPU at an input resolution of 448×800 using FP16 precision, following the evaluation settings of DeepInteraction
+and TransFusion.
+Method
+LiDAR
+Camera
+validation set
+test set
+Model size
+FPS
+NDS
+mAP
+NDS
+mAP
+FUTR3D[38]
+VoxelNet
+ResNet-101
+68.3
+64.5
+-
+-
+-
+-
+AutoAlignV2[32]
+VoxelNet
+CSPNet
+71.2
+67.1
+72.4
+68.4
+-
+-
+BEVFusion-mit[11]
+VoxelNet
+Swin-T
+71.4
+68.5
+72.9
+70.2
+-
+-
+DeepInteraction[33]
+VoxelNet
+ResNet-50
+72.6
+69.9
+73.4
+70.8
+57.82M
+4.9
+CMT[12]
+VoxelNet
+ResNet-50
+72.9
+70.3
+74.1
+72.0
+-
+-
+SparseFusion[35]
+VoxelNet
+ResNet-50
+72.8
+70.4
+73.8
+72.0
+-
+-
+TransFusion[10]
+VoxelNet
+ResNet-50
+71.3
+67.5
+71.6
+68.9
+36.96M
+6.2
+TiGDistill-BEV[53]
+-
+ResNet-101
+52.0
+41.2
+61.9
+53.2
+-
+-
+PARTNER[54]
+VoxelNet
+Swin-T
+72.2
+69.5
+-
+-
+-
+-
+RoboDistill(L)
+VoxelNet
+SAM
+72.7
+70.5
+73.4
+71.3
+100.31M
+3.0
+RoboDistill(B)
+VoxelNet
+FastSAM
+72.5
+70.2
+72.8
+71.1
+84.42M
+3.4
+RoboDistill(T)
+VoxelNet
+MobileSAM
+72.3
+70.1
+72.5
+70.8
+15.23M
+5.8
+mechanism, the student model (point-cloud network) can effectively inherit semantic knowledge
+from the teacher model (image network).
+• Residual feed-forward refinement.
+To stabilize the fusion process, residual connections and
+layer normalization are applied in every layer. A feed-forward network (FFN) then further improves
+the nonlinear expressiveness of the fused features, thereby enhancing robustness in downstream
+tasks.
+The Transformer-based fusion operator jointly integrates semantic, spatial, and geometric informa-
+tion from the image and point-cloud modalities. By aligning heterogeneous modalities through cross-
+attention, it facilitates eﬀicient multimodal feature interaction and substantially improves robustness to
+noisy or incomplete inputs through knowledge distillation.
+4
+Experiments
+4.1
+Datasets
+KITTI dataset. The KITTI dataset provides synchronized LiDAR point clouds and front-view camera
+images, comprising 3,712 training samples, 3,769 validation samples, and 7,518 test samples. The stan-
+dard evaluation metric for object detection is mean average precision (mAP), computed over 40 recall
+positions (R40).
+nuScenes dataset.
+The nuScenes dataset is a large-scale 3D detection benchmark comprising 700
+training scenes, 150 validation scenes, and 150 test scenes. Its data are captured by six multi-view cameras
+and a 32-channel LiDAR sensor, with 360-degree annotations for 10 object classes. The primary metrics
+for evaluating detection performance are mean average precision (mAP) and the nuScenes detection score
+(NDS).
+KITTI-C and nuScenes-C datasets. For robustness evaluation, Robustness3D [2] defines 27 common
+corruptions for LiDAR and camera data to assess the corruption resistance of existing 3D detectors. It
+8
+
+
+Table 3: Robustness comparison across 27 OOD corruptions on the KITTI-C and nuScenes-C validation
+sets. The KITTI-C metric is car-class R40 AP at moderate diﬀiculty, whereas the nuScenes-C metric is mAP. All
+results are averaged over the oﬀicial severity levels 1–5.
+Corruptions
+KITTI-C
+nuScenes-C
+RoboFusion
+RoboDistill
+BEVFormer
+CenterPoint
+RoboFusion
+RoboDistill
+L
+B
+T
+Camera only
+LiDAR only
+L
+B
+T
+None(APclean)
+88.04
+88.11
+87.99
+87.81
+41.65
+59.28
+69.91
+53.27
+65.08
+70.52
+70.21
+70.09
+Snow
+85.29
+85.50
+84.91
+84.72
+5.73
+55.90
+67.12
+51.00
+64.99
+69.00
+68.67
+68.01
+Rain
+86.48
+86.81
+86.51
+86.22
+24.97
+56.08
+67.58
+50.87
+64.03
+68.77
+68.65
+68.50
+Fog
+85.53
+85.82
+84.00
+84.17
+32.76
+43.78
+67.01
+51.11
+63.91
+68.00
+67.81
+67.61
+Weather
+Sunlight
+85.50
+85.87
+85.65
+85.45
+41.68
+54.20
+67.24
+52.19
+65.00
+68.55
+67.99
+67.84
+Density
+85.71
+85.33
+85.12
+84.78
+-
+58.60
+69.48
+-
+63.83
+70.21
+69.92
+69.74
+Cutout
+83.17
+84.20
+81.30
+81.21
+-
+56.28
+69.18
+-
+62.99
+70.22
+69.87
+69.52
+Crosstalk
+84.12
+85.87
+85.45
+84.97
+-
+56.64
+68.68
+-
+63.12
+69.20
+68.87
+68.76
+FOV loss
+-
+-
+-
+-
+-
+20.84
+39.48
+-
+47.33
+47.34
+46.99
+46.59
+Gaussian (L)
+76.56
+81.12
+80.81
+79.98
+-
+45.79
+57.77
+-
+59.81
+59.90
+59.81
+59.44
+Uniform (L)
+85.05
+86.77
+86.04
+85.93
+-
+56.12
+64.57
+-
+64.22
+67.00
+66.85
+66.02
+Impulse (L)
+85.26
+87.32
+87.00
+86.46
+-
+57.67
+65.64
+-
+65.02
+67.20
+66.94
+66.22
+Gaussian (C)
+82.16
+84.08
+83.93
+83.64
+15.04
+-
+66.73
+49.98
+-
+67.90
+67.55
+67.29
+Uniform (C)
+83.30
+85.87
+85.45
+84.99
+23.00
+-
+65.77
+48.88
+-
+67.99
+67.34
+66.89
+Sensor
+Impulse (C)
+83.51
+85.81
+85.26
+84.99
+13.99
+-
+64.82
+47.90
+-
+67.21
+66.99
+66.81
+Compensation
+41.88
+48.34
+47.00
+46.93
+-
+11.02
+41.88
+-
+50.23
+48.34
+47.00
+46.93
+Moving object
+49.30
+53.22
+52.14
+51.90
+20.22
+44.30
+54.32
+47.44
+57.09
+58.94
+57.95
+57.35
+Motion
+Motion blur
+84.17
+86.56
+85.77
+85.11
+19.79
+-
+67.21
+52.23
+-
+68.91
+68.37
+68.31
+Object
+Local density
+83.21
+85.96
+85.45
+84.91
+-
+57.55
+66.74
+-
+64.34
+67.46
+67.21
+67.10
+Local cutout
+77.22
+78.78
+77.93
+77.56
+-
+48.36
+66.82
+-
+63.23
+68.34
+67.98
+67.56
+Local Gaussian
+79.02
+81.32
+80.22
+79.86
+-
+51.13
+65.08
+-
+64.02
+68.00
+67.87
+67.61
+Local uniform
+84.69
+86.87
+86.12
+85.77
+-
+57.87
+66.71
+-
+64.38
+68.01
+67.88
+67.55
+Local impulse
+85.26
+87.56
+87.12
+86.81
+-
+58.49
+66.53
+-
+64.42
+68.02
+67.90
+67.79
+Shear
+55.42
+61.32
+60.21
+59.23
+24.71
+49.57
+62.33
+48.23
+64.03
+64.10
+64.02
+63.84
+Scale
+74.23
+76.21
+75.92
+74.32
+17.64
+51.13
+65.47
+52.01
+64.01
+64.99
+64.82
+64.39
+Rotation
+79.81
+81.23
+80.79
+80.56
+33.97
+54.68
+65.37
+51.87
+64.19
+66.90
+66.51
+66.24
+Alignment
+Spatial
+55.29
+75.43
+73.67
+72.72
+-
+-
+58.49
+-
+-
+68.21
+67.48
+67.52
+Temporal
+-
+-
+-
+-
+-
+-
+40.93
+-
+-
+59.87
+59.46
+58.92
+Table 4:
+Reconstruction-loss matrix for RoboDistill (L) under different pretraining noise distributions and
+evaluation corruptions; lower values are better.
+Pretraining noise
+Gaussian (L)
+Uniform (L)
+Impulse (L)
+Gaussian (C)
+Uniform (C)
+Impulse (C)
+Density
+Crosstalk
+Gaussian (L)
+72.01
+63.77
+62.85
+55.08
+54.33
+55.10
+54.22
+53.79
+Gaussian (C)
+54.21
+63.21
+62.88
+72.98
+62.70
+62.88
+64.43
+63.91
+Salt-and-pepper noise
+53.76
+60.34
+61.06
+62.05
+61.65
+65.63
+62.88
+62.68
+Poisson noise
+53.09
+59.30
+58.90
+59.11
+58.56
+62.54
+62.65
+64.87
+constructs corruption benchmarks 1, including KITTI-C and nuScenes-C, by synthesizing corruptions
+on public datasets. Specifically, we use both KITTI-C and nuScenes-C. Robustness3D controls each
+corruption using oﬀicially defined severity levels, with corruption intensity selected from levels 1–5
+rather than directly calibrated in physical units such as snowfall or visibility. Accordingly, all robustness
+experiments strictly follow the oﬀicial protocol and report performance averaged over severity levels 1–5.
+Notably, Robustness3D [2] adds noise only to the validation sets, while the training and test sets remain
+in their original clean state.
+4.2
+Experimental Settings
+Network architecture. Our RoboDistill framework comprises three variants: RoboDistill(L), RoboDis-
+till(B), and RoboDistill(T), built on SAM-B [1], FastSAM [24], and MobileSAM [25], respectively. The
+model design balances computational eﬀiciency and feature extraction capacity for autonomous-driving
+tasks. Notably, the convolutional operations in FastSAM enable RoboDistill(B) to generate multiscale
+features, eliminating the need for the AD-FPN module. We configure RoboDistill separately according
+to the evaluation metrics and characteristics of the KITTI and nuScenes datasets. For KITTI, we use
+Focals Conv [34] as the baseline. The input voxel size is set to (0.05m, 0.05m, 0.1m), the vehicle anchor
+dimensions to [3.9, 1.6, 1.56], and the anchor rotations to [0, 1.57], matching the resolution and typical
+vehicle dimensions of KITTI. The data augmentation strategy follows Focals Conv-F [34]. For nuScenes,
+we use TransFusion [10] as the baseline. The detection ranges along the X, Y, and Z axes are set to
+[-54m, 54m], [-54m, 54m], and [-5m, 3m], respectively, to accommodate the broader and more complex
+scenes in nuScenes. The input voxel size is set to (0.075m, 0.075m, 0.2m), with at most 10 point-cloud
+points per voxel.
+Training and testing details. The RoboDistill framework is trained with the Adam optimizer, and
+its image encoders are initialized with the pretrained weights of SAM, FastSAM, and MobileSAM,
+respectively. Training is conducted on 8 NVIDIA A100 GPUs to enable eﬀicient training on the KITTI
+and nuScenes datasets. Inference time is also measured on an NVIDIA A100 GPU. Specifically, for
+1https://github.com/thu-ml/3D_Corruptions_AD
+9
+
+
+Table 5: Effects of different SAM usage strategies on car-class R40 AP on the KITTI and KITTI-C validation
+sets.
+Solution
+AP3D(%)
+APW eather(%)
+mAP
+Easy
+Mod.
+Hard
+Snow
+Rain
+Fog
+Sunlight
+Offline
+80.41
+88.45
+77.12
+75.09
+-
+-
+-
+-
+Freeze
+86.45
+91.90
+84.83
+82.81
+45.22
+47.81
+63.21
+79.15
+Fine-tune
+88.00
+92.76
+86.99
+84.87
+58.00
+56.76
+69.32
+83.23
+Table 6:
+Ablation results for SAM pretraining and the choice of wavelet basis in DGWA, together with a
+sensitivity analysis of the KD Fusion hyperparameters, on the KITTI-C validation set (car class, moderate
+diﬀiculty, R40 AP) and the nuScenes-C validation set (mAP).
+Group
+Setting
+KITTI-C validation
+nuScenes-C validation
+Snow Rain
+Fog Sunlight Density Cutout Crosstalk Snow Rain
+Fog Sunlight Density Cutout Crosstalk
+Pretraining
+SAM
+58.00 56.76 69.32
+83.23
+84.55
+83.61
+84.40
+65.11 66.21 55.92
+57.90
+67.02
+65.44
+66.71
+SAM-AD
+85.50 86.81 85.82
+85.87
+85.33
+84.20
+85.87
+69.00 68.77 68.00
+68.55
+70.21
+70.22
+69.20
+Wavelets
+Daubechies-2 83.20 83.42 82.52
+81.92
+82.85
+81.20
+83.69
+65.50 64.38 64.93
+65.13
+68.06
+67.35
+66.81
+Symlets-4
+82.98 83.78 84.00
+83.66
+81.43
+81.32
+81.95
+66.28 64.28 66.48
+63.30
+67.60
+68.26
+67.55
+Coiflets-1
+81.86 84.25 83.67
+85.17
+79.65
+82.24
+81.90
+67.91 63.08 66.62
+65.06
+66.72
+68.95
+66.01
+Haar
+85.50 86.81 85.82
+85.87
+85.33
+84.20
+85.87
+69.00 68.77 68.00
+68.55
+70.21
+70.22
+69.20
+Hyperparameters
+α=0.1, τ=4
+83.78 84.94 85.36
+84.64
+85.11
+83.09
+85.41
+67.94 66.85 67.23
+67.56
+69.23
+68.89
+68.67
+α=0.3, τ=4
+83.54 86.11 85.55
+84.10
+84.72
+83.64
+85.60
+68.51 67.24 66.58
+67.34
+69.47
+69.40
+68.42
+α=0.5, τ=4 85.50 86.81 85.82
+85.87
+85.33
+84.20
+85.87
+69.00 68.77 68.00
+68.55
+70.21
+70.22
+69.20
+α=0.7, τ=4
+85.11 86.70 84.94
+83.98
+84.06
+82.73
+84.18
+68.40 66.80 66.72
+67.18
+69.30
+68.43
+67.34
+α=0.5, τ=1
+85.36 85.35 84.60
+85.39
+83.98
+83.73
+85.29
+67.01 68.29 67.34
+67.60
+69.67
+68.97
+67.25
+α=0.5, τ=2
+84.87 86.65 83.91
+84.97
+84.91
+82.32
+84.40
+67.82 67.32 67.72
+66.87
+68.86
+68.49
+68.09
+α=0.5, τ=8
+84.45 84.93 84.73
+84.49
+84.94
+82.59
+85.44
+68.62 68.54 67.00
+68.40
+69.27
+69.88
+68.58
+KITTI, RoboDistill uses a Focals Conv-based backbone [34] and is trained for 80 epochs; for nuScenes,
+it uses TransFusion [10] as the backbone and is trained for 20 epochs. During inference, we apply non-
+maximum suppression (NMS) in the region proposal network (RPN) with an IoU threshold of 0.7 to
+select the top 100 proposals, which are then passed to the detection head.
+After refinement by the
+detection head, NMS with an IoU threshold of 0.1 is applied again to remove redundant predictions,
+ensuring accurate and eﬀicient detection.
+4.3
+Evaluation Results
+Results on KITTI. Table 1 compares RoboDistill with existing methods on the KITTI validation
+and test sets. All three variants, L, B, and T, outperform the baseline across all evaluation diﬀiculty
+levels. Compared with LoGoNet [3], the L variant improves AP3D at the hard diﬀiculty level by 1.13
+and 0.47 percentage points on the validation and test sets, reaching 85.44% and 81.21%, respectively.
+These results show that RoboDistill narrows the feature gap between images and point clouds while
+maintaining stable generalization.
+Results on nuScenes. The nuScenes evaluation results are reported in Table 2. The L variant achieves
+72.7% NDS and 70.5% mAP on the validation set, and 73.4% NDS and 71.3% mAP on the test set.
+Compared with BEVFusion-mit, which uses a Transformer image branch, the L variant improves NDS
+and mAP by 1.3 and 2.0 percentage points on the validation set and by 0.5 and 1.1 percentage points on
+the test set, respectively. Its validation-set mAP also surpasses those of SparseFusion [35] and CMT [12].
+These results show that introducing a VFM, such as SAM, enhances feature representations and improves
+generalization and stability in complex scenes.
+Results on KITTI-C. Table 3 compares the robustness of RoboDistill and RoboFusion on the KITTI-
+C validation set. Under weather corruptions (snow, rain, fog, and sunlight), RoboDistill(L) improves
+AP by 0.21, 0.33, 0.29, and 0.37 percentage points, respectively.
+Under sensor corruptions, except
+for Density, where it is 0.38 percentage points lower, it gains 1.03–4.56 percentage points on Cutout,
+Crosstalk, and Gaussian, uniform, and impulse noise. Under Compensation, Moving object, and Motion
+blur corruptions, the L variant reaches 48.34%, 53.22%, and 86.56%, improving over RoboFusion by 6.46,
+3.92, and 2.39 percentage points, respectively. It also maintains overall gains under object and spatial-
+alignment corruptions, further validating the effectiveness of KD Fusion for cross-modal alignment and
+fusion.
+Results on nuScenes-C. On the nuScenes-C validation set, Table 3 shows that RoboDistill(L) main-
+tains stable robustness. Under weather corruptions, its mAP reaches 69.00%, 68.77%, and 68.00% for
+snow, rain, and fog, improving over RoboFusion by 1.88, 1.19, and 0.99 percentage points, respectively.
+RoboDistill(L) also achieves the best performance or substantial gains overall under sensor, motion, ob-
+ject, and alignment corruptions, demonstrating strong noise resistance and generalization. We further
+10
+
+
+Table 7: Ablation study of the contributions of different modules on the KITTI-C validation set (car class,
+moderate diﬀiculty, R40 AP) and the nuScenes-C validation set (mAP). DVCS denotes the dynamically
+varying corruption setting, a dynamic sensor-corruption evaluation protocol in which the corruption type
+(e.g., fog, rain, snow, occlusion, or sensor noise) and its severity evolve over time within each driving sequence
+to emulate rapidly changing real-world sensing conditions.
+Method
+SAM-AD
+AD-FPN
+DGWA
+KD
+KITTI-C validation
+nuScenes-C validation
+FPS
+Snow
+Rain
+Fog
+Sunlight
+DVCS
+Snow
+Rain
+Fog
+Sunlight
+DVCS
+a)
+34.77
+41.30
+44.55
+80.97
+50.91
+63.30
+65.35
+53.67
+55.14
+59.97
+10.8
+b)
+✓
+80.68
+81.68
+81.67
+83.48
+82.56
+64.99
+67.12
+64.10
+63.37
+65.21
+4.0
+c)
+✓
+✓
+82.32
+83.60
+82.39
+83.98
+83.41
+66.88
+68.04
+64.02
+65.87
+66.82
+3.6
+d)
+✓
+✓
+✓
+83.99
+85.63
+84.01
+84.81
+84.91
+67.23
+68.55
+65.31
+67.01
+67.22
+3.4
+e)
+✓
+✓
+✓
+✓
+85.50
+86.81
+85.82
+85.87
+86.10
+69.00
+68.77
+68.00
+68.55
+68.82
+3.0
+conduct camera-only and LiDAR-only unimodal ablations to characterize the performance limits when
+one modality fails. The camera-only model obtains mAP values of 51.00%, 50.87%, and 51.11% under
+snow, rain, and fog, respectively, substantially below the 64.99%, 64.03%, and 63.91% of the LiDAR-only
+model and the 69.00%, 68.77%, and 68.00% of the full model. This finding indicates that the camera
+branch is more sensitive to weather and imaging degradation. In contrast, the LiDAR-only model is
+more stable in most scenarios, but its performance under Compensation still drops from 65.08% on clean
+data to 50.23%. These results show that a single modality also has performance limits and that the
+fusion strategy can still be improved under certain corruptions.
+4.4
+Ablation Studies
+Reconstruction-loss comparison across noise distributions. Table 4 compares the reconstruction
+losses of RoboDistill(L) under multiple noise distributions. Under Gaussian (C), salt-and-pepper noise,
+and Poisson noise, the Gaussian (L) setting consistently achieves the lowest losses of 54.21, 53.76,
+and 53.09, respectively, demonstrating strong cross-distribution generalization. Overall, this experiment
+verifies the robustness of RoboDistill(L) to multiple types of OOD noise.
+Effects of different ways of using SAM. Table 5 compares three ways of using SAM: Offline (offline
+features), Freeze (online but frozen), and Fine-tune (end-to-end fine-tuning). Offline performs worst,
+with an AP3D mAP of 80.41% and Easy, Moderate, and Hard scores of 88.45%, 77.12%, and 75.09%,
+respectively. Freeze raises mAP to 86.45% and reaches 45.22%, 47.81%, and 63.21% under snow, rain,
+and fog corruptions on KITTI-C, respectively. Fine-tune performs best, reaching an mAP of 88.00%,
+with Easy, Moderate, and Hard scores of 92.76%, 86.99%, and 84.87%, respectively; it reaches 58.00%
+and 83.23% under snow and sunlight corruptions. These results show that end-to-end optimization of
+SAM substantially improves generalization and robustness.
+Effect of SAM pretraining.
+Table 6 compares SAM and SAM-AD on KITTI-C under weather
+and sensor corruptions. Compared with the original SAM, SAM-AD pretrained on autonomous-driving
+data delivers substantial improvements across all corruptions, reaching 85.50%/86.81%/85.82% under
+snow/rain/fog weather corruptions and 85.33%/84.20%/85.87% under Density/Cutout/Crosstalk sensor
+corruptions. These results show that autonomous-driving-oriented pretraining substantially improves
+the robustness and generalization of SAM.
+Performance of different wavelets. Table 6 compares the effects of different wavelet bases in DGWA.
+Compared with Daubechies-2, Symlets-4, and Coiflets-1, our Haar wavelet achieves the best results on
+both KITTI-C and nuScenes-C, reaching 85.50/86.81/85.82 under Snow/Rain/Fog on KITTI-C. This
+result indicates that the selected wavelet basis more effectively suppresses noise while preserving critical
+structural information.
+Sensitivity to different hyperparameters.
+Table 6 reports a sensitivity analysis of the weight
+coeﬀicient α and temperature coeﬀicient τ in KD Fusion. Overall performance varies only slightly across
+settings, indicating that the method is insensitive to these hyperparameters. The setting α=0.5, τ=4
+achieves the best and most stable results.
+Analysis of the RoboDistill modules.
+Table 7 presents ablation results for the key modules of
+SAM-AD-based RoboDistill(L), including AD-FPN, DGWA, and KD Fusion. The results show that
+SAM-AD substantially improves the Focals Conv [34] baseline from (34.77%, 41.30%, 44.55%, 80.97%)
+to (80.68%, 81.68%, 81.67%, 83.48%). Adding AD-FPN, DGWA, and KD Fusion further yields consistent
+performance improvements, validating the importance of each module. Specifically, AD-FPN enhances
+multiscale feature representations, DGWA dynamically adjusts weights to optimize multimodal fusion,
+and KD Fusion transfers knowledge across modalities. Together, these modules improve the robustness
+and generalization of RoboDistill under OOD corruptions.
+11
+
+
+Figure 5: Visualization results for RoboDistill on KITTI-C. Red boxes denote false positives, green boxes denote
+true positives, and black boxes denote ground-truth annotations. Blue dashed ovals highlight the regions showing
+the most pronounced improvements.
+4.5
+Visualization
+Figure 5 presents comparative visualization results on the KITTI-C dataset for RoboDistill(L) and
+LoGoNet. Overall, compared with a state-of-the-art method such as LoGoNet [3], our method produces
+more accurate predictions, particularly for small and distant objects. By leveraging the generalization and
+robustness of visual foundation models, our method substantially improves the robustness of multimodal
+3D object detection and effectively mitigates the effects of OOD corruptions in autonomous driving.
+5
+Conclusion
+This paper proposes a robust and generalizable multimodal 3D object detection framework—
+RoboDistill—to address out-of-distribution (OOD) corruptions in autonomous-driving scenarios.
+By leveraging the strong generalization capability of visual foundation models (VFMs), such as SAM,
+RoboDistill effectively mitigates performance degradation caused by sensor noise, adverse weather, and
+environmental changes. To adapt VFMs to autonomous-driving tasks, we propose the domain-adaptive
+pretraining strategy SAM-AD and design the AD-FPN module to upsample and refine image features
+across multiple scales for seamless fusion with LiDAR features.
+The introduced Depth-Guided
+Wavelet Attention (DGWA) module effectively suppresses sensor noise, while the multimodal
+fusion knowledge distillation (KD Fusion) module further improves feature alignment and robust-
+ness by transferring high-quality knowledge from VFMs to the point-cloud network. Compared with
+the previous version, RoboFusion, RoboDistill introduces substantial improvements in both architec-
+tural design and the knowledge-distillation mechanism and extends model generalization to 27 OOD
+corruption scenarios. Experiments on the KITTI-C and nuScenes-C benchmarks show that RoboDistill
+achieves stronger or competitive performance under most complex corruptions, demonstrating robust
+and scalable performance.
+Overall, RoboDistill effectively bridges the gap between clean-benchmark
+12
+
+
+performance and real-world robustness, providing a reliable solution for multimodal 3D object detection
+in complex scenarios.
+Limitations and future work. First, RoboDistill relies heavily on the representation capability of
+visual foundation models. Although this substantially improves the generalization of the baseline model,
+it also increases model complexity.
+Second, because SAM and FastSAM incur substantial computa-
+tional overhead, RoboDistill(L) and RoboDistill(B) have relatively low inference speeds; in contrast,
+RoboDistill(T) uses the more lightweight MobileSAM and achieves an inference speed closer to those
+of mainstream methods such as TransFusion. In future work, we will explore using SAM only during
+training to guide a lightweight student model, thereby further improving real-time performance. We will
+also investigate more complex and realistic corruption scenarios to further improve the robustness and
+practicality of the RoboDistill framework.
+References
+[1] Kirillov A, Mintun E, Ravi N, et al. Segment anything. In: Proceedings of the IEEE/CVF International
+Conference on Computer Vision, 2023. 4015–4026
+[2] Dong Y, Kang C, Zhang J, et al. Benchmarking robustness of 3D object detection to common corruptions. In:
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2023. 1022–1032
+[3] Li X, Ma T, Hou Y, et al. LoGoNet: Towards accurate 3D object detection with local-to-global cross-modal
+fusion. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2023.
+17524–17534
+[4] Geiger A, Lenz P, Urtasun R. Are we ready for autonomous driving? the kitti vision benchmark suite. In:
+Proceedings of IEEE conference on computer vision and pattern recognition, 2012. 3354–3361
+[5] Wang L, Zhang X, Song Z, et al. Multi-modal 3d object detection in autonomous driving: A survey and
+taxonomy. IEEE Transactions on Intelligent Vehicles, 2023
+[6] Oza P, Sindagi V A, Sharmini V V, et al. Unsupervised domain adaptation of object detectors: A survey.
+IEEE Transactions on Pattern Analysis and Machine Intelligence, 2023
+[7] Song Z, Liu L, Jia F, et al. Robustness-aware 3d object detection in autonomous driving: A review and
+outlook. IEEE Transactions on Intelligent Transportation Systems, 2024, 25: 15407–15436
+[8] Chen X, Ma H, Wan J, et al. Multi-view 3d object detection network for autonomous driving. In: Proceedings
+of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2017
+[9] Vora S, Lang A H, Helou B, et al. Pointpainting: Sequential fusion for 3D object detection. In: Proceedings
+of the IEEE/CVF conference on computer vision and pattern recognition, 2020. 4604–4612
+[10] Bai X, Hu Z, Zhu X, et al.
+TransFusion: Robust LiDAR-camera fusion for 3D object detection with
+transformers. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition,
+2022. 1090–1099
+[11] Liu Z, Tang H, Amini A, et al. BEVFusion: Multi-task multi-sensor fusion with unified bird’s-eye view
+representation. In: Proceedings of 2023 IEEE international conference on robotics and automation (ICRA).
+IEEE, 2023. 2774–2781
+[12] Yan J, Liu Y, Sun J, et al. Cross modal transformer: Towards fast and robust 3d object detection. In:
+Proceedings of the IEEE/CVF international conference on computer vision, 2023. 18268–18278
+[13] Song Z, Wei H, Bai L, et al. GraphAlign: Enhancing accurate feature alignment by graph matching for
+multi-modal 3D object detection. In: Proceedings of the IEEE/CVF International Conference on Computer
+Vision, 2023. 3358–3369
+[14] Song Z, Zhang G, Liu L, et al. Robofusion: Towards robust multi-modal 3d object detection via sam. In:
+Proceedings of Larson K, editor, Proceedings of the Thirty-Third International Joint Conference on Artificial
+Intelligence, IJCAI-24. International Joint Conferences on Artificial Intelligence Organization, 2024. 1272–
+1280. Main Track
+[15] Song Z, Jia C, Yang L, et al. Graphalign++: An accurate feature alignment by graph matching for multi-
+modal 3d object detection. IEEE Transactions on Circuits and Systems for Video Technology, 2024, 34:
+2619–2632
+[16] Xu S, Li F, Song Z, et al. Multi-sem fusion: Multimodal semantic fusion for 3-d object detection. IEEE
+Transactions on Geoscience and Remote Sensing, 2024, 62: 1–14
+[17] Yin J, Shen J, Chen R, et al.
+Is-fusion: Instance-scene collaborative fusion for multimodal 3d object
+detection. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition, 2024.
+14905–14915
+13
+
+
+[18] Song Z, Jia F, Pan H, et al. Contrastalign: Toward robust bev feature alignment via contrastive learning
+for multi-modal 3d object detection. arXiv preprint arXiv:2405.16873, 2024
+[19] Wang Y, Yin J, Li W, et al. SSDA3D: Semi-supervised domain adaptation for 3D object detection from
+point cloud. In: Proceedings of the AAAI Conference on Artificial Intelligence, 2023. 2707–2715
+[20] Tsai D, Berrio J S, Shan M, et al. Viewer-centred surface completion for unsupervised domain adaptation in
+3D object detection. In: Proceedings of 2023 IEEE International Conference on Robotics and Automation
+(ICRA), 2023. 9346–9353
+[21] Yang J, Shi S, Wang Z, et al. St3d: Self-training for unsupervised domain adaptation on 3d object detection.
+In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 2021.
+10368-10378
+[22] Xu Q, Zhou Y, Wang W, et al. Spg: Unsupervised domain adaptation for 3d object detection via semantic
+point generation. In: Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV),
+2021. 15446-15456
+[23] OpenAI. Gpt-4 technical report. https://cdn.openai.com/papers/gpt-4.pdf, 2023
+[24] Zhao X, Ding W, An Y, et al. Fast segment anything, 2023
+[25] Zhang C, Han D, Qiao Y, et al. Faster segment anything: Towards lightweight SAM for mobile applications.
+arXiv preprint arXiv:2306.14289, 2023
+[26] Ma J, He Y, Li F, et al. Segment anything in medical images. Nature Communications, 2024, 15: 654
+[27] Chen T, Zhu L, Deng C, et al. Sam-adapter: Adapting segment anything in underperformed scenes. In:
+Proceedings of the IEEE/CVF International Conference on Computer Vision, 2023. 3367–3375
+[28] Moor M, Banerjee O, Abad Z S H, et al. Foundation models for generalist medical artificial intelligence.
+Nature, 2023, 616: 259–265
+[29] Fei N, Lu Z, Gao Y, et al. Towards artificial general intelligence via a multimodal foundation model. Nature
+Communications, 2022, 13: 3094
+[30] Liu Y, Kong L, Cen J, et al. Segment any point cloud sequences by distilling vision foundation models.
+Advances in Neural Information Processing Systems, 2024, 36
+[31] Caesar H, Bankiti V, Lang A H, et al.
+nuScenes: A multimodal dataset for autonomous driving.
+In:
+Proceedings of the IEEE/CVF conference on computer vision and pattern recognition, 2020. 11621–11631
+[32] Chen Z, Li Z, Zhang S, et al. Deformable feature aggregation for dynamic multi-modal 3d object detection.
+In: Proceedings of European conference on computer vision. Springer, 2022. 628–644
+[33] Yang Z, Chen J, Miao Z, et al. DeepInteraction: 3D object detection via modality interaction. Advances in
+Neural Information Processing Systems, 2022, 35: 1992–2005
+[34] Chen Y, Li Y, Zhang X, et al. Focal sparse convolutional networks for 3D object detection. In: Proceedings
+of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2022. 5428–5437
+[35] Xie Y, Xu C, Rakotosaona M J, et al. Sparsefusion: Fusing multi-modal sparse representations for multi-
+sensor 3d object detection. In: Proceedings of the IEEE/CVF International Conference on Computer Vision,
+2023. 17591–17602
+[36] Wang C, Ma C, Zhu M, et al. Pointaugmenting: Cross-modal augmentation for 3d object detection. In:
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2021. 11794–11803
+[37] Song Z, Yang L, Xu S, et al. Graphbev: Towards robust bev feature alignment for multi-modal 3d object
+detection. In: Proceedings of European Conference on Computer Vision. Springer, 2025. 347–366
+[38] Chen X, Zhang T, Wang Y, et al.
+FUTR3D: A unified sensor fusion framework for 3D detection.
+In:
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2023. 172–181
+[39] Chung H W, Hou L, Longpre S, et al. Scaling instruction-finetuned language models. Journal of Machine
+Learning Research, 2024, 25: 1–53
+[40] Zou X, Dou Z Y, Yang J, et al. Generalized decoding for pixel, image, and language. In: Proceedings of the
+IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2023. 15116–15127
+[41] Dosovitskiy A, Beyer L, Kolesnikov A, et al.
+An image is worth 16x16 words: Transformers for image
+recognition at scale. CoRR, 2020, abs/2010.11929
+[42] Zhang D, Liang D, Yang H, et al. Sam3d: Zero-shot 3d object detection via segment anything model. Science
+China Information Sciences, 2023
+[43] Deng J, Shi S, Li P, et al. Voxel R-CNN: Towards high performance voxel-based 3D object detection. In:
+Proceedings of the AAAI Conference on Artificial Intelligence, 2021. 1201–1209
+[44] Wu Q, Ye H, Gu Y, et al. Denoising masked autoencoders help robust classification. In: Proceedings of The
+Eleventh International Conference on Learning Representations, 2023
+14
+
+
+[45] Lin T Y, Dollár P, Girshick R, et al. Feature pyramid networks for object detection. In: Proceedings of the
+IEEE conference on computer vision and pattern recognition, 2017. 2117–2125
+[46] Li Y, Qi X, Chen Y, et al. Voxel field fusion for 3D object detection. In: Proceedings of the IEEE/CVF
+Conference on Computer Vision and Pattern Recognition, 2022. 1120–1129
+[47] Zhang Y, Chen J, Huang D. CAT-Det: Contrastively augmented transformer for multi-modal 3D object
+detection. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition,
+2022. 908–917
+[48] Ryoo S, Jeon J, Lee S. Sv-rcnn: Robust structural-encoded voxel features for 3d object detection on sparse
+point clouds. IEEE Robotics and Automation Letters, 2025
+[49] Wang C, Qin Y, Kang Z, et al. Boosting 3d object detection via self-distilling introspective data. IEEE
+Transactions on Intelligent Transportation Systems, 2025
+[50] Zhang H, Liu L, Hui F, et al. Clean: Category knowledge-driven compression framework for eﬀicient 3d
+object detection. IEEE Transactions on Pattern Analysis and Machine Intelligence, 2025
+[51] Ye W, Xia Q, Wu H, et al. Fade3d: Fast and deployable 3d object detection for autonomous driving. IEEE
+Transactions on Intelligent Transportation Systems, 2025
+[52] Lian L, Cao Z, Qin Y, et al. Rae3d: Multiscale aggregation-enhanced 3d object detection for rail transit
+obstacle perception. IEEE Transactions on Industrial Informatics, 2025
+[53] Xu S, Li F, Huang P, et al. Tigdistill-bev: Multi-view bev 3d object detection via target inner-geometry
+learning distillation. IEEE Transactions on Circuits and Systems for Video Technology, 2025
+[54] Nie M, Wang C, Xu H, et al. Partner: Level up the polar representation for 3d object detection. International
+Journal of Computer Vision, 2026, 134: 98
+15
+
+
+中文版本
+基于视觉大模型的鲁棒多模态3D 检测方法
+宋子盈1,†
+刘林1,†
+潘虹宇2
+徐少清3
+杨磊4
+郭明哲1
+贾彩燕1,*
+1 北京交通大学计算机学院, 北京100044
+2 地平线机器人, 北京100000
+3 澳门大学, 澳门999078
+4 南洋理工大学, 新加坡349562
+† 相同贡献.
+* 通讯作者: cyjia@bjtu.edu.cn
+摘要: 多模态3D 目标检测是实现自动驾驶系统鲁棒感知的关键任务, 因为它能够融合来自激光雷达和摄
+像头传感器的互补信息. 然而, 现有方法在分布外(OOD) 噪声场景下(如传感器噪声、恶劣天气及环境
+变化) 往往难以保持鲁棒性. 为解决这些问题, 我们提出了一种鲁棒且具备良好泛化能力的多模态3D 检
+测框架—RoboDistill, 该框架充分利用视觉基础模型, 例如Segment Anything Model (SAM), 以
+提升多模态3D 目标检测性能. 首先, 我们提出了SAM-AD, 一种面向自动驾驶场景的领域自适应预训
+练策略, 通过对SAM 进行特定领域微调, 充分挖掘其特征层面的语义信息. 其次, 我们设计了AD 特征
+金字塔网络(AD-FPN), 对SAM 提取的特征进行多尺度细化与上采样, 实现与激光雷达特征的无缝融
+合. 然后, 为应对传感器噪声的干扰, 我们提出了深度引导小波注意力模块(DGWA), 该模块能够有效
+抑制高频噪声, 同时保留关键上下文信息. 最后, 我们引入多模态融合知识蒸馏(KD Fusion) 机制, 其
+中预训练的SAM-AD 作为教师网络, 将高质量的视觉知识蒸馏到轻量级点云网络中, 从而在噪声环境下
+显著提升鲁棒性. 大量实验结果表明, RoboDistill 在27 种具有挑战性的分布外扰动下总体表现出更强
+或具有竞争力的性能与鲁棒性. 本研究有效弥合了视觉基础模型与3D 目标检测之间的鸿沟, 为自动驾驶
+中的多模态感知提供了新的解决方案.
+关键词: 多模态融合, 知识蒸馏, 视觉基础模型, 3D 目标检测, 自动驾驶
+基金项目: 国家自然科学基金, 批准号: 62536001(重点项目), 批准号: 62576026(面上项目)
+图1:
+(网络版彩图) (a) 我们用高斯分布刻画不同数据集的分布差异.
+结果表明, OOD 噪声验证集与
+干净验证集之间存在显著分布鸿沟.
+具体地, 横轴为数据集中图像平均像素值集合X = {xi}N
+i=1, 其中
+xi =
+1
+HW 3
+∑H
+h=1
+∑W
+w=1
+∑3
+c=1 Ihwc, N 为样本数, H, W 为图像尺寸, Ihwc 为像素值.
+(b) VFMs(如SAM [1])
+在多类噪声下具备较强鲁棒性, 但现有多模态3D 检测方法在AD 场景中仍易受OOD 干扰. (c) 因此, 我们提出
+RoboDistill, 将VFMs 引入SOTA 多模态3D 检测框架. 在图示的雾和雪扰动下, RoboDistill 的汽车类别中等难度
+AP 为86.71%, 而LoGoNet [3] 为62.58%, 即提高24.13 个百分点; 在干净KITTI [4] 上亦保持更优表现.
+1
+引言
+在自动驾驶场景中, 准确可靠的感知对于障碍物检测、目标跟踪和轨迹规划等任务至关重要[5, 6]. 单模
+态(摄像头或激光雷达) 系统在复杂环境下往往存在局限性. 基于摄像头的系统虽然提供丰富的语义信
+息, 但高度依赖光照条件并易受天气影响. 相比之下, 基于激光雷达的系统能够提供精准的几何和深度信
+息, 但数据稀疏且缺乏语义丰富性. 通过融合这两种模态, 多模态方法有望克服单一模态的局限性, 实现
+鲁棒的感知性能. 迄今为止, 多模态3D 目标检测已成为鲁棒感知系统的基石, 因为它能够整合不同模态
+的互补信息[5, 7].
+16
+
+
+多模态融合范式经历了显著发展, 从早期方法如MV3D [8] 展示了多模态集成的可行性, 到后续方法
+如PointPainting [9] 用于语义增强, TransFusion [10] 用于跨模态交互, BEVFusion [11] 实现统一表示,
+以及CMT [12] 利用隐式空间对齐. 尽管这些SOTA 方法[13, 14, 12, 11, 15, 16, 17, 18] 在某些方面实现
+了鲁棒性, 它们仍多在理想化条件下运行, 难以充分覆盖真实场景的复杂性. 例如, KITTI [4] 数据集主
+要包含晴天场景, 缺乏雪、雾或大雨等多样天气条件, 且未考虑传感器噪声, 而这对于实际应用至关重要.
+因此, KITTI-C [2] 被提出以模拟多种OOD 噪声条件. 如图1 所示, OOD 噪声数据集与干净数据集之间
+存在明显的数据分布差异. 因此, 在干净数据集上训练的SOTA 方法可能过拟合特定场景, 难以推广到夜
+间驾驶、极端天气或高传感器噪声等OOD 环境, 这引出了一个关键研究问题: 如何在未知挑战性条件下
+保持方法的鲁棒性和可靠性?
+缩小OOD 场景与干净训练数据集之间的差距可以通过提升数据集多样性以覆盖更多真实环境, 或
+设计对传感器噪声和环境变化鲁棒的算法. 然而, 构建覆盖各种环境条件的大规模数据集既困难又
+昂贵. 一个自然的途径是利用领域自适应(DA) 技术, 该技术通常用于缩小源域与目标域之间的差距
+[19, 20, 21, 22]. 尽管DA 技术可以通过减少对大量标注数据的依赖并将模型适配到新域来提升3D 目标
+检测的鲁棒性, 它们仍存在固有局限性: 如处理显著域间差异困难, 标签分布变化带来的挑战, 以及过拟
+合风险[6]. 当源域与目标域差异较大时, DA 技术往往难以有效泛化, 导致目标域性能下降.
+近年来, 自然语言处理与计算机视觉领域因基础模型的出现而发生变革性进展[1, 23, 24, 25, 26, 27],
+这些模型通过作为特征提取器、预测器或解释器, 在深度学习中建立了新范式[28, 29]. 对于视觉基础模
+型而言, 它们展示了卓越的泛化能力, 归因于在大规模多样化数据集上的预训练[1, 24, 25]. 我们强调, 采
+用SAM 并非依赖其分割输出本身, 而是利用其学习到的“目标区域一致性” 与“边界结构先验”. 这些先
+验在雨雾模糊、局部遮挡和背景扰动下往往更稳定, 可提供高信噪比的语义锚点, 从而(1) 缓解图像侧噪
+声导致的语义漂移, (2) 促进2D–3D 对齐并减少跨模态互信息损失, 最终提升OOD 鲁棒性. 这些进展启
+发了利用VFMs 来增强多模态3D 目标检测鲁棒性的新方法, VFMs 可作为高层语义先验, 促进跨模态
+对齐, 缓解空间错位和特征冗余问题[30]. 因此, 我们提出利用这些模型来应对OOD 噪声场景下多模态
+3D 目标检测系统面临的挑战.
+因此, 本文提出鲁棒且具备良好泛化能力的框架—RoboDistill, 将视觉基础模型引入3D 多模态检
+测流程, 旨在使现有检测器由干净、可控环境有效迁移至复杂噪声条件下的真实自动驾驶场景. 整体
+上, RoboDistill 形成“语义锚定→几何净化→受控迁移” 的系统链路: SAM-AD 提供稳定语义先验,
+AD-FPN 将其对齐到可融合尺度, DGWA 在3D 侧抑制噪声传播, KD Fusion 将可靠语义知识迁移到点
+云表征以提升鲁棒性. 首先, 考虑到通用SAM 在自动驾驶场景中易受视角变化、动态目标与复杂背景
+等因素影响, 本文提出面向自动驾驶的域自适应预训练策略, 得到专用的SAM-AD, 以对齐VFM 能力
+与3D 检测需求并增强跨模态特征对齐. 其次, 针对VFM 特征在分辨率与层次结构上难以直接融入3D
+检测管线的问题, 本文设计AD-FPN 对SAM 特征进行高效上采样与细化, 实现高层语义与激光雷达
+特征的无缝融合, 同时兼顾空间分辨率与语义表达. 进一步地, 为抑制OOD 场景下的噪声干扰, 本文提
+出深度引导小波注意力模块(DGWA): 对激光雷达深度特征进行小波分解, 将表示拆分为高频噪声与
+低频上下文分量, 并通过注意力机制选择性抑噪、保留关键结构信息, 从而在雾、雨、弱光等恶劣条件下
+获得更稳定的特征表征. 相较空间域滤波/归一化, 频域分解可将“非平稳噪声” 与“结构化几何” 在多尺
+度上解耦; 高频系数与噪声强度的相关性分析、频段消融(仅低频/仅高频/全频) 以及空间域去噪基线对
+比共同支撑了该设计选择. 最后, 本文提出KD Fusion 多模态融合知识蒸馏模块, 采用教师–学生范式,
+将SAM-AD 作为教师提供高质量图像表征并蒸馏至轻量级点云学生网络, 使其继承大规模预训练知识
+与领域泛化能力, 提升噪声与OOD 条件下的特征提取与融合鲁棒性. 针对2D–3D 域差异, 蒸馏损失仅
+在训练阶段用于从教师向学生传递指导, 且我们在任务对齐的预测分布上蒸馏以避免特征空间强对齐带
+来的偏差; 同时引入教师置信度门控(高熵→弱蒸馏) 以抑制噪声场景下的不可靠软标签, 从而降低负迁
+移风险并保持稳定收益. 总之, VFMs 通过在大规模多样化数据集上的预训练, 展现出优异的泛化能力,
+即使在挑战性环境下也能实现高效特征提取和鲁棒语义理解. 将VFMs 集成到多模态3D 检测流程中,
+RoboDistill 解决了跨模态对齐、噪声抑制和特征融合等关键问题, 为自动驾驶应用提供了鲁棒且可扩展
+的解决方案.
+2
+相关工作
+2.1
+多模态3D 目标检测
+多模态3D 目标检测因能够利用来自不同传感器的互补信息而受到广泛关注, 尤其是在KITTI [4]
+和nuScenes [31] 等流行数据集上, 其中图像富含颜色和纹理等语义特征, 而LiDAR 点云在捕获精
+确深度和几何结构方面表现优异. 现有研究[32, 33, 34, 3, 35, 13, 15] 强调跨模态特征的深度整合.
+例如, PointPainting [9] 利用预训练二维分割网络提取的语义特征增强LiDAR 点云表示.
+类似地,
+PointAugmenting [36] 和AutoAlignV2 [32] 提出更高效的跨模态交互策略, 利用全局图像特征提升点云
+处理性能. 这类方法虽提高了准确性, 但在真实噪声和环境变化下的鲁棒性仍是挑战. 近年来, BEV 表示
+已成为多模态3D 目标检测的主流范式. 基于BEV 的方法[11, 12, 37, 38, 17], 如BEVFusion [11], 将多
+17
+
+
+图2: (网络版彩图) RoboDistill 的总体框架.
+模态特征统一到BEV 空间, 实现高效融合并提升空间推理能力. 值得注意的是, GraphBEV [37] 引入图
+结构的深度感知特征对齐, 以解决点云投影的不准确问题. 尽管现有SOTA 多模态方法在干净、受控的
+数据集上表现出色, 但它们往往未能充分考虑真实世界场景中的复杂性, 如恶劣天气、传感器噪声和域偏
+移[7, 2]. 例如, KITTI 和nuScenes 等数据集在天气条件和环境因素上缺乏多样性, 导致在OOD 场景下
+过拟合, 泛化能力下降.
+2.2
+视觉基础模型在计算机视觉中的应用
+随着大型语言模型的快速发展[39], 计算机视觉领域涌现出众多视觉基础模型(Visual Foundation
+Models, VFMs) [1, 24, 25, 40]. 这些VFMs 通过在多样化数据集上的大规模预训练, 能够在新的视觉场
+景中展现出优异的泛化能力, 实现像素级特征提取. 然而, 大多数VFMs 主要聚焦于二维视觉领域, 而将
+VFMs 扩展到3D 感知任务的研究仍然有限, 这为探索如何将现有二维VFMs 适配或扩展到3D 任务提
+供了研究空间. 首个VFM SAM [1] 基于Vision Transformer (ViT) [41] 构建, 并在包含1100 万样本的
+SA-1B 数据集上训练, 具备较强的场景泛化能力. FastSAM [24] 提供实时CNN 方案, 大幅降低计算成本,
+同时保持性能; MobileSAM [25] 将SAM 中的大型图像编码器(ViT-H) 蒸馏为轻量级编码器, 兼容SAM
+的掩码解码器. 这些VFMs 作为通用大模型, 为构建下游应用提供了强大工具. 尽管二维领域取得进展,
+VFMs 在3D 领域的探索仍处于起步阶段. SAM3D [42] 作为纯LiDAR 方法, 将3DLiDAR 数据投影到
+二维BEV 空间以利用SAM 的泛化能力, 但模态交互有限导致性能欠佳. 与先前工作RoboFusion 相比,
+我们的RoboDistill 利用SAM 进行多模态知识蒸馏, 实现模型的知识迁移和学习. 综上所述, 现有SOTA
+多模态3D 目标检测方法在OOD 噪声场景中仍面临挑战, 难以弥合“干净” 训练数据集与OOD 噪声之
+间的差距; 而VFMs 所带来的泛化性与鲁棒性为视觉任务提供了新的机遇. 这启发我们利用VFMs 的泛
+化能力与鲁棒性, 解决多模态3D 检测中的OOD 噪声泛化问题.
+3
+RoboDistill
+在本节中, 我们提出了RoboDistill 框架, 如图2所示, 该方法在前期工作的基础上进行了扩展, 构建了
+一种全新的多模态策略, 以充分利用视觉基础模型(Visual Foundation Models, VFMs) 的泛化能力. 与
+以往方法不同, RoboDistill 通过结合VFMs 与鲁棒的跨模态对齐技术, 显式地应对3D 多模态目标检
+测中固有的分布外(Out-of-Distribution, OOD) 噪声挑战, 为真实自动驾驶场景中的鲁棒性与可扩展性
+提供了新的解决方案. 值得注意的是, 我们的detection head 采用了Voxel RCNN [43] 一致的检测头.
+3.1
+SAM-AD & AD-FPN
+SAM [1] 作为一种代表性视觉基础模型, 凭借在大规模SA-1B 数据集上的预训练展现出卓越的泛化能力.
+该数据集包含超过1100 万张样本和10 亿个高质量掩码, 使SAM 在多种视觉场景中表现出强大的鲁棒
+性与适应性. 目前, SAM 系列模型[1, 24, 25] 主要支持二维视觉任务. 然而, 直接将如SAM 这类VFMs
+扩展至3D 任务面临显著挑战, 这主要源于二维与3D 任务在数据表示形式与任务需求上的根本差异. 为
+18
+
+
+图3: (网络版彩图) 预训练框架示意图. 我们首先通过噪声扰动η 对干净图像x 进行扰动, 得到带噪图像x + η. 随
+后, 在带噪图像上随机遮挡若干图像块, 生成掩码噪声图像Mask(x + η). 最后, 利用SAM-AD 编码器和DMAE 解
+码器从Mask(x + η) 重建对应的干净图像ˆx.
+弥合这一差距, 本文将SAM 与多模态3D 模型相结合, 将二维鲁棒特征表示与3D 点云特征融合, 从而
+实现更加鲁棒的融合特征表示.
+SAM-AD 模块.
+为使SAM 更好地适应自动驾驶场景, 我们进行了领域自适应预训练, 得到针对自动
+驾驶任务优化的SAM-AD 模型. 具体而言, 我们从经典的KITTI [4] 与nuScenes [31] 等数据集中收集了
+大量自动驾驶图像, 涵盖多种驾驶场景与环境条件, 构建了基础AD 图像数据集. 在预训练过程中, 我们
+遵循DMAE 框架[44], 采用遮掩图像建模(Masked Image Modeling) 对SAM 与MobileSAM 进行自监
+督预训练. 具体地, 如图3所示, 设x 为从AD 数据集中采样的干净图像, η 为基于[2] 在x 上施加扰动
+后得到的噪声图像集合. 考虑到自动驾驶系统在真实部署中常面临复杂天气、光照变化以及成像退化等
+OOD 干扰, 我们在预训练阶段采用了Robustness3D[2] 中定义的全部噪声类型进行统一建模. 例如, 在
+nuScenes 设置下, 共包含27 种不同噪声类型, 且每种噪声均设置1–5 级扰动强度, 以覆盖从轻度退化到
+重度退化的多种场景分布偏移. 与针对单一噪声类型分别训练独立模型的方式不同, 我们采用统一的多噪
+声混合预训练策略, 训练一个共享的大模型, 从而学习更加通用且鲁棒的视觉表征. 对于FastSAM, 我们
+使用YOLOv8 在AD 数据集上对其分割头进行预训练. 为防止过拟合, 我们采用随机缩放与裁剪的数据
+增强策略, 掩码比例设为0.75. 所有模型均在8 块NVIDIA A100 GPU 上训练400 个epoch. 模型性能
+通过重建精度与下游3D 目标检测指标进行评估, 结果表明SAM-AD 在OOD 场景下具有良好的鲁棒性
+与泛化能力.
+AD-FPN 模块.
+作为一种可提示(promptable) 的分割模型, SAM 由三部分组成: 图像编码器(image
+encoder)、提示编码器(prompt encoder) 和掩码解码器(mask decoder). 其中提示编码器与掩码解码器
+主要用于语义分割任务, 而本文重点利用图像编码器提取鲁棒且高质量的图像特征嵌入. SAM 采用基于
+ViT(Vision Transformer) [41] 的图像编码器, 其生成的高维低分辨率嵌入特征步幅为16(即scale=1/16).
+然而, 这类特征缺乏多尺度表示能力, 不利于在多目标尺寸场景中进行精确定位与检测.
+为解决这一问题, 我们设计了基于FPN [45] 思想的AD-FPN 模块, 用于增强ViT 嵌入的多尺度表
+达能力. 具体而言, AD-FPN 以ViT 嵌入为输入, 构建一系列多尺度特征Fs, 其步幅s ∈{32, 16, 8, 4}.
+每个特征图Fs ∈R
+H
+s × W
+s ×Cs 通过自底向上的方式逐步细化. 与传统FPN 不同, AD-FPN 针对ViT 嵌
+入进行了特定优化, 在保留其语义鲁棒性的同时提升空间分辨率与细粒度特征表示能力. 这一改进使模
+型能够更准确地检测小型、远距离或被遮挡的目标, 显著缓解了自动驾驶场景中常见的视觉挑战. 此外,
+AD-FPN 的引入有效提升了多模态感知管线在恶劣条件(如低光照或高密度交通) 下的鲁棒性与适应性,
+为下游3D 检测与感知任务提供了可靠且高效的特征支撑.
+3.2
+深度引导小波注意力模块(DGWA)
+尽管SAM-AD 与SAM 模块能够提取具有鲁棒性的图像特征, 但二维与3D 特征域之间仍存在显著差
+距. 在受损环境中, 由于摄像头缺乏几何先验, 其采集的图像往往会放大噪声, 从而导致特征的负迁移效
+应. 为此, 本文提出了深度引导小波注意力模块(DGWA), 通过“深度引导特征增强” 和“小波域噪声
+抑制” 两种关键操作来提升特征的鲁棒性.
+深度引导特征增强.
+该模块通过融合图像特征与深度特征, 将几何先验引入图像特征中. 具体而言,
+图像特征表示为Fi ∈R
+H
+4 × W
+4 ×Ci, 深度特征表示为Fd ∈R
+H
+4 × W
+4 ×Ci. 其中, Fd 由稀疏LiDAR 深度图
+S ∈RH×W ×2 经深度编码器(Depth Encoder) 处理获得, 该过程通过将点云投影至图像坐标系实现. 随
+后, 通过卷积融合操作生成深度引导特征ˆFi = Conv(Concat{Fi, Fd}), 使特征中嵌入空间与几何信息, 从
+而显著增强其抗噪能力.
+小波域噪声抑制.
+我们默认采用Haar 小波作为DGWA 的基础小波基, 原因在于其分解形式简洁、计
+19
+
+
+算开销低, 且能够有效分离低频结构信息与高频噪声成分, 更适合自动驾驶鲁棒感知中的实时特征增强任
+务. 对于增强后的特征ˆFi, 采用Haar 小波变换将其分解为四个子带: 一个低频子带ef LL
+i
+∈R
+H
+8 × W
+8 ×Ci 和
+三个高频子带( ef LH
+i
+, ef HL
+i
+, ef HH
+i
+) ∈R
+H
+8 × W
+8 ×Ci. 低频子带保留了粗粒度的上下文信息, 而高频子带则捕获
+细粒度的边缘与纹理特征, 从而便于识别噪声信号. 将这些子带拼接后得到小波特征eFi ∈R
+H
+8 × W
+8 ×4Ci,
+并通过小波注意力机制Attω 进行特征加权. 该注意力机制在保留有效信息的同时, 有选择地抑制噪声,
+其计算过程如下:
+Fatt = Attω( ˆFi, eFi) = σ
+ ˆFiW q( eFiW k)T
+√Ci
+!
+eFiW v.
+(1)
+最后, 通过逆小波变换(IDWT) 对特征进行重构, 并与注意力输出进行融合, 以生成最终的鲁棒特征
+表示Fout:
+Fout = MLP(Concat(Fatt, ˆFi)).
+(2)
+该设计使得Fout 能够在空间域与频率域中同时抑制冗余噪声并保留关键信息, 从而提升下游任务(如
+目标检测与跨模态特征融合) 的鲁棒性与泛化能力.
+3.3
+多模态知识蒸馏融合(KD Fusion)
+尽管SAM-AD 与SAM 模块能够提取鲁棒的图像特征, 但在多模态融合中弥合二维与3D 域之间的差距
+仍然是一个重大挑战. 在存在数据异质性的场景下, 直接对齐二维与3D 模态往往难以保持互信息, 导致
+特征表达次优. 此外, 经过SAM 处理的图像特征受益于其强大的泛化学习能力, 具有更高的鲁棒性与可
+迁移性. 为此, 本文将图像分支设定为教师模型(teacher), 点云分支设定为学生模型(student), 从而
+实现跨模态知识迁移以提升学生模型的学习能力. 本文提出的多模态融合知识蒸馏模块(KD Fusion),
+如图4 所示, 通过教师-学生结构的互补性提升跨域鲁棒性. 在蒸馏过程中, 教师模型提供软目标(soft
+targets) 与鲁棒先验; 在多模态推理过程中, 图像分支与点云分支共同参与特征融合. 该模块主要包括两
+个核心部分: 跨模态知识迁移与Transformer 融合.
+跨模态知识迁移.
+教师模型SAM-AD 从输入图像I ∈RH×W ×3 中提取丰富的语义信息, 并利用经过精
+炼的图像特征Fout 生成分类logits T ∈RN×C. 与此同时, 学生模型针对点云数据P ∈RN×D 进行特征
+提取, 生成logits S ∈RN×C. 在优化层面, 我们首先完成SAM-AD 的领域自适应预训练, 随后采用“监
+督学习(CE) + 蒸馏学习(KL)” 的联合目标进行优化: CE 项保证任务精度下界, KL 项提供跨模态的
+类别关系与鲁棒先验, 从而在轻量化与性能保持之间取得平衡.
+为缩小模态差距, 本文设计了一种知识蒸馏损失, 约束学生预测分布逼近教师预测分布, 同时保持任务
+精度. 考虑到二维语义空间与三维点云空间存在显著域差异, 我们选择在任务对齐的logit/概率空间进
+行蒸馏(而非直接强制对齐中间特征), 以降低跨域不匹配带来的负迁移风险. 该损失函数由教师-学生预
+测分布之间的Kullback–Leibler(KL) 散度与预测结果的交叉熵损失加权组合而成:
+LKD = α · w(T) τ 2 KL
+ softmax
+  T
+τ
+  softmax
+  S
+τ
+
+|
+{z
+}
+distill from teacher
++(1 −α) · LCE(S, Y ),
+(3)
+其中, τ 表示温度系数, 用于平滑蒸馏分布以传递类间相似性; α 用于平衡蒸馏项与监督项, 在所有实验中
+我们固定采用α = 0.5 与τ = 4, 以提升训练稳定性与可复现性.
+此外, 为避免在严重噪声或OOD 条件下发生负迁移(negative transfer), 我们引入教师置信度权重
+w(T) 对蒸馏强度进行自适应调节: 当教师预测不可靠(高熵/低置信) 时减弱或关闭蒸馏, 从而抑制错
+误软标签对学生的误导. 一种简单实现为基于归一化熵的门控, w(T) = max
+
+0, 1 −H(softmax(T ))
+log C
+
+, 其中
+H(·) 为信息熵.
+通过引入KD Fusion, 学生模型能够在教师模型SAM-AD 的指导下学习到更加鲁棒且紧凑的3D 表
+示, 从而有效应对点云数据中的噪声与不确定性.
+从定性角度看, SAM-AD 提供的指导主要体现为“语义先验+ 类间结构” 两方面: (i) 语义先验来自
+大规模预训练与AD 域自适应, 有助于在雾/雨/弱光等条件下维持稳定的类别判别线索; (ii) 类间结构通
+过温度平滑后的软分布传递, 能约束学生在噪声扰动下避免过度自信或决策边界漂移. 配合上述置信度
+门控, 教师仅在其“可靠区域” 施加约束, 从而在跨域差异与噪声干扰并存时有效降低负迁移风险.
+Transformer 融合.
+为了实现图像与点云特征的高效融合, 本文在KD Fusion 模块中引入基于
+Transformer 的融合算子, 该算子结合了跨注意力机制与可学习的目标查询(object queries), 使点云网络
+(学生) 能够通过跨模态知识蒸馏继承图像网络(教师) 的鲁棒表示. 该融合算子主要包括三个关键过程:
+任务特定的自注意力优化、跨模态对齐注意力以及残差前馈精炼.
+20
+
+
+图4: (网络版彩图) KD Fusion 架构示意图. 图像分支采用SAM-AD 作为教师模型, 点云分支作为学生模型.
+KD Fusion 将教师模型的知识迁移至学生模型, 并采用Transformer 架构实现多模态特征对齐与融合.
+• 自注意力优化(Self-attention for task-specific refinement).
+融合模块利用可学习的目标查
+询(object queries) 引导特征优化, 这些查询作为与目标任务(如目标检测) 相关的嵌入向量. 首先,
+自注意力机制通过建模查询之间的依赖关系来增强其对任务相关特征的关注能力, 其计算形式为:
+Attention(Q, K, V ) = Softmax
+QKT
+√
+d
+
+V,
+(4)
+其中, Q, K, V 分别为由图像特征Fout 生成的查询、键和值矩阵. 该过程使目标查询能够自适应地
+学习任务特定的表征.
+• 跨模态对齐注意力(Cross-attention for multimodal alignment).
+在经过自注意力优化后,
+目标查询进一步与图像与点云特征进行交互. 跨注意力机制将语义丰富的图像特征与空间细节充足
+的点云特征对齐, 实现模态间的互补信息融合. 该过程可表示为:
+CrossAttention(Q, K, V ) = Softmax
+QKT
+√
+d
+
+V,
+(5)
+其中, Q 表示来自图像特征Fout 的查询向量, K, V 分别为由点云特征生成的键和值矩阵. 通过该
+机制, 学生模型(点云网络) 能够有效继承教师模型(图像网络) 的语义知识.
+• 残差前馈精炼(Residual Feed-Forward Refinement).
+为了稳定融合过程, 本文在每一层均引
+入残差连接与层归一化操作. 随后, 通过前馈神经网络(FFN) 进一步提升融合特征的非线性表达能
+力, 从而增强下游任务的鲁棒性.
+基于Transformer 的融合算子能够同时整合来自图像与点云模态的语义、空间与几何信息. 通过跨注
+意力机制实现异构模态对齐, 该方法不仅促进了多模态特征的高效交互, 还通过知识蒸馏机制显著增强了
+模型在噪声或不完整输入条件下的鲁棒性.
+4
+实验
+4.1
+数据集
+KITTI 数据集. KITTI 数据集提供了同步采集的LiDAR 点云和前视相机图像, 包含3,712 个训练样本、
+3,769 个验证样本和7,518 个测试样本. 目标检测的标准评估指标为平均精度均值(mAP), 采用40 个召
+回位置(R40) 计算.
+nuScenes 数据集. nuScenes 数据集是一个大规模3D 检测基准, 包含700 个训练场景、150 个验证场景
+和150 个测试场景. 数据通过六个多视角相机和32 通道LiDAR 传感器采集, 提供10 类目标的360 度
+标注. 评估检测性能的主要指标为平均精度均值(mAP) 和nuScenes 检测得分(NDS).
+KITTI-C 和nuScenes-C 数据集. 在数据鲁棒性方面, 文献[2] 为LiDAR 和相机设计了27 种常
+见扰动, 用于评测现有3D 检测器的抗扰动能力. 文献[2] 构建了抗扰动基准1, 包括KITTI-C 和
+nuScenes-C, 通过在公共数据集上合成扰动实现. 具体而言, 本工作采用了KITTI-C 和nuScenes-C.
+1https://github.com/thu-ml/3D_Corruptions_AD
+21
+
+
+表1: RoboDistill(L/B/T) 与代表性最新方法在KITTI 验证集与测试集上的car 类AP3D(R40) 对比.
+Method
+AP3D(%) (validation set)
+AP3D(%) (test set)
+mAP
+Easy
+Mod.
+Hard
+mAP
+Easy
+Mod.
+Hard
+Voxel R-CNN [43]
+86.84
+92.38
+85.29
+82.86
+83.19
+90.90
+81.62
+77.06
+VFF [46]
+86.91
+92.31
+85.51
+82.92
+83.62
+89.50
+82.09
+79.29
+CAT-Det [47]
+83.58
+90.12
+81.46
+79.15
+82.62
+89.87
+81.32
+76.68
+LoGoNet [3]
+87.13
+92.04
+85.04
+84.31
+85.87
+91.80
+85.06
+80.74
+Focals Conv-F [34]
+-
+-
+-
+-
+83.47
+90.55
+82.28
+77.59
+SV-RCNN [48]
+85.46
+92.32
+83.24
+80.81
+-
+-
+-
+-
+SID [49]
+87.87
+92.87
+86.73
+84.01
+-
+-
+-
+-
+CLEAN [50]
+80.36
+88.80
+77.17
+75.12
+-
+-
+-
+-
+Fade3D [51]
+83.47
+90.92
+82.00
+77.49
+-
+-
+-
+-
+RAE3D [52]
+83.16
+91.68
+80.31
+77.49
+-
+-
+-
+-
+RoboDistill(L)
+89.03
+93.55
+88.11
+85.44
+86.13
+92.52
+84.65
+81.21
+RoboDistill(B)
+88.60
+93.40
+87.99
+84.42
+85.90
+92.33
+84.37
+81.00
+RoboDistill(T)
+88.42
+93.33
+87.81
+84.11
+85.59
+92.11
+84.12
+80.55
+表2:
+RoboDistill(L/B/T) 与代表性多模态SOTA 在nuScenes 验证集与测试集上的对比:NDS/mAP. 我们
+在NVIDIA A100 GPU 上进行评估, 输入分辨率设为448 × 800, 并采用FP16 精度设置.
+该评测配置与
+DeepInteraction 和TransFusion 保持一致.
+Method
+LiDAR
+Camera
+validation set
+test set
+Model size
+FPS
+NDS
+mAP
+NDS
+mAP
+FUTR3D[38]
+VoxelNet
+ResNet-101
+68.3
+64.5
+-
+-
+-
+-
+AutoAlignV2[32]
+VoxelNet
+CSPNet
+71.2
+67.1
+72.4
+68.4
+-
+-
+BEVFusion-mit[11]
+VoxelNet
+Swin-T
+71.4
+68.5
+72.9
+70.2
+-
+-
+DeepInteraction[33]
+VoxelNet
+ResNet-50
+72.6
+69.9
+73.4
+70.8
+57.82M
+4.9
+CMT[12]
+VoxelNet
+ResNet-50
+72.9
+70.3
+74.1
+72.0
+-
+-
+SparseFusion[35]
+VoxelNet
+ResNet-50
+72.8
+70.4
+73.8
+72.0
+-
+-
+TransFusion[10]
+VoxelNet
+ResNet-50
+71.3
+67.5
+71.6
+68.9
+36.96M
+6.2
+TiGDistill-BEV[53]
+-
+ResNet-101
+52.0
+41.2
+61.9
+53.2
+-
+-
+PARTNER[54]
+VoxelNet
+Swin-T
+72.2
+69.5
+-
+-
+-
+-
+RoboDistill(L)
+VoxelNet
+SAM
+72.7
+70.5
+73.4
+71.3
+100.31M
+3.0
+RoboDistill(B)
+VoxelNet
+FastSAM
+72.5
+70.2
+72.8
+71.1
+84.42M
+3.4
+RoboDistill(T)
+VoxelNet
+MobileSAM
+72.3
+70.1
+72.5
+70.8
+15.23M
+5.8
+需要说明的是, Robustness3D 对各类扰动采用官方定义的severity levels 进行控制, 扰动强度从1–5
+级中选择, 而非以降雪量、能见度等物理单位直接标定. 因此, 本文所有鲁棒性实验均严格遵循其官方设
+置, 并报告在severity level 1–5 下的平均性能. 值得注意的是, 文献[2] 仅对验证集添加了噪声, 训练集和
+测试集保持原始干净状态.
+4.2
+实验设置
+网络架构. 我们的RoboDistill 框架包含三个变体: RoboDistill(L)、RoboDistill(B) 和RoboDistill(T),
+分别基于SAM-B [1]、FastSAM [24] 和MobileSAM [25] 构建. 模型设计兼顾计算效率与特征提取能
+力, 适配自动驾驶任务. 值得注意的是, FastSAM 中的卷积操作使得RoboDistill(B) 能够生成多尺度特
+征, 从而无需AD-FPN 模块. 根据KITTI 和nuScenes 数据集的不同评估指标及特性, 我们分别设置
+了RoboDistill 的实验参数. 对于KITTI 数据集, 我们以Focals Conv [34] 为基线进行验证. 输入体素
+大小设置为(0.05m, 0.05m, 0.1m), 车辆的anchor 尺寸设置为[3.9, 1.6, 1.56], anchor 旋转角度为[0,
+1.57], 以适应KITTI 数据集的分辨率和车辆典型尺寸. 数据增强策略与Focals Conv-F [34] 保持一致.
+对于nuScenes 数据集, 我们以TransFusion [10] 为基线进行验证. 检测范围在X、Y、Z 方向分别设置为
+[-54m, 54m]、[-54m, 54m] 和[-5m, 3m], 以适应nuScenes 更广的场景覆盖和复杂性. 输入体素大小设置
+为(0.075m, 0.075m, 0.2m), 每个体素内点云数量上限为10.
+训练与测试细节. RoboDistill 框架采用Adam 优化器训练, 并分别使用SAM、FastSAM 和MobileSAM
+的预训练权重初始化图像编码器. 训练过程在8 块NVIDIA A100 GPU 上进行, 以确保在KITTI 和
+nuScenes 数据集上的高效训练. 同时, 评估推理时间也在NVIDIA A100 GPU 上测量. 具体而言, 对于
+KITTI 数据集, RoboDistill 使用基于Focals Conv 的骨干网络[34], 训练80 个epoch; 对于nuScenes 数
+据集, 使用TransFusion [10] 作为骨干网络, 训练20 个epoch. 在模型推理阶段, 我们在区域候选网络
+(RPN) 中采用非极大值抑制(NMS), IoU 阈值为0.7, 以选择前100 个候选区域, 并将其送入检测头. 经
+过检测头精炼后, 再次使用IoU 阈值为0.1 的NMS 去除冗余预测, 以保证检测结果的精确性和效率.
+4.3
+评估结果
+KITTI 数据集结果. 表1 给出了RoboDistill 与现有方法在KITTI 验证集和测试集上的对比结果. L、
+B 和T 三种变体在各评估层级均优于基线. 与LoGoNet [3] 相比, L 变体在“hard” 难度下的AP3D 在
+22
+
+
+表3: 在KITTI-C 与nuScenes-C 验证集上27 种OOD 扰动下的鲁棒性对比. KITTI-C 指标为car 类moderate
+难度的R40 AP, nuScenes-C 指标为mAP. 所有结果均为官方severity level 1–5 下的平均值.
+Corruptions
+KITTI-C
+nuScenes-C
+RoboFusion
+RoboDistill
+BEVFormer
+CenterPoint
+RoboFusion
+RoboDistill
+L
+B
+T
+Camera only
+LiDAR only
+L
+B
+T
+None(APclean)
+88.04
+88.11
+87.99
+87.81
+41.65
+59.28
+69.91
+53.27
+65.08
+70.52
+70.21
+70.09
+Snow
+85.29
+85.50
+84.91
+84.72
+5.73
+55.90
+67.12
+51.00
+64.99
+69.00
+68.67
+68.01
+Rain
+86.48
+86.81
+86.51
+86.22
+24.97
+56.08
+67.58
+50.87
+64.03
+68.77
+68.65
+68.50
+Fog
+85.53
+85.82
+84.00
+84.17
+32.76
+43.78
+67.01
+51.11
+63.91
+68.00
+67.81
+67.61
+Weather
+Sunlight
+85.50
+85.87
+85.65
+85.45
+41.68
+54.20
+67.24
+52.19
+65.00
+68.55
+67.99
+67.84
+Density
+85.71
+85.33
+85.12
+84.78
+-
+58.60
+69.48
+-
+63.83
+70.21
+69.92
+69.74
+Cutout
+83.17
+84.20
+81.30
+81.21
+-
+56.28
+69.18
+-
+62.99
+70.22
+69.87
+69.52
+Crosstalk
+84.12
+85.87
+85.45
+84.97
+-
+56.64
+68.68
+-
+63.12
+69.20
+68.87
+68.76
+FOV loss
+-
+-
+-
+-
+-
+20.84
+39.48
+-
+47.33
+47.34
+46.99
+46.59
+Gaussian (L)
+76.56
+81.12
+80.81
+79.98
+-
+45.79
+57.77
+-
+59.81
+59.90
+59.81
+59.44
+Uniform (L)
+85.05
+86.77
+86.04
+85.93
+-
+56.12
+64.57
+-
+64.22
+67.00
+66.85
+66.02
+Impulse (L)
+85.26
+87.32
+87.00
+86.46
+-
+57.67
+65.64
+-
+65.02
+67.20
+66.94
+66.22
+Gaussian (C)
+82.16
+84.08
+83.93
+83.64
+15.04
+-
+66.73
+49.98
+-
+67.90
+67.55
+67.29
+Uniform (C)
+83.30
+85.87
+85.45
+84.99
+23.00
+-
+65.77
+48.88
+-
+67.99
+67.34
+66.89
+Sensor
+Impulse (C)
+83.51
+85.81
+85.26
+84.99
+13.99
+-
+64.82
+47.90
+-
+67.21
+66.99
+66.81
+Compensation
+41.88
+48.34
+47.00
+46.93
+-
+11.02
+41.88
+-
+50.23
+48.34
+47.00
+46.93
+Moving object
+49.30
+53.22
+52.14
+51.90
+20.22
+44.30
+54.32
+47.44
+57.09
+58.94
+57.95
+57.35
+Motion
+Motion blur
+84.17
+86.56
+85.77
+85.11
+19.79
+-
+67.21
+52.23
+-
+68.91
+68.37
+68.31
+Object
+Local density
+83.21
+85.96
+85.45
+84.91
+-
+57.55
+66.74
+-
+64.34
+67.46
+67.21
+67.10
+Local cutout
+77.22
+78.78
+77.93
+77.56
+-
+48.36
+66.82
+-
+63.23
+68.34
+67.98
+67.56
+Local Gaussian
+79.02
+81.32
+80.22
+79.86
+-
+51.13
+65.08
+-
+64.02
+68.00
+67.87
+67.61
+Local uniform
+84.69
+86.87
+86.12
+85.77
+-
+57.87
+66.71
+-
+64.38
+68.01
+67.88
+67.55
+Local impulse
+85.26
+87.56
+87.12
+86.81
+-
+58.49
+66.53
+-
+64.42
+68.02
+67.90
+67.79
+Shear
+55.42
+61.32
+60.21
+59.23
+24.71
+49.57
+62.33
+48.23
+64.03
+64.10
+64.02
+63.84
+Scale
+74.23
+76.21
+75.92
+74.32
+17.64
+51.13
+65.47
+52.01
+64.01
+64.99
+64.82
+64.39
+Rotation
+79.81
+81.23
+80.79
+80.56
+33.97
+54.68
+65.37
+51.87
+64.19
+66.90
+66.51
+66.24
+Alignment
+Spatial
+55.29
+75.43
+73.67
+72.72
+-
+-
+58.49
+-
+-
+68.21
+67.48
+67.52
+Temporal
+-
+-
+-
+-
+-
+-
+40.93
+-
+-
+59.87
+59.46
+58.92
+表4: RoboDistill(L) 在不同预训练噪声分布与评测扰动下的重建损失矩阵, 数值越低越好.
+Pretraining noise
+Gaussian (L)
+Uniform (L)
+Impulse (L)
+Gaussian (C)
+Uniform (C)
+Impulse (C)
+Density
+Crosstalk
+Gaussian (L)
+72.01
+63.77
+62.85
+55.08
+54.33
+55.10
+54.22
+53.79
+Gaussian (C)
+54.21
+63.21
+62.88
+72.98
+62.70
+62.88
+64.43
+63.91
+Salt-and-pepper noise
+53.76
+60.34
+61.06
+62.05
+61.65
+65.63
+62.88
+62.68
+Poisson noise
+53.09
+59.30
+58.90
+59.11
+58.56
+62.54
+62.65
+64.87
+验证集和测试集上分别提升1.13 和0.47 个百分点, 达到85.44% 和81.21%. 结果表明, RoboDistill 能缩
+小图像与点云的特征差距, 并保持稳定的泛化表现.
+nuScenes 数据集结果. nuScenes 的评估结果见表2. L 变体在验证集取得72.7% NDS 和70.5% mAP,
+在测试集取得73.4% NDS 和71.3% mAP. 与使用Transformer 图像分支的BEVFusion-mit 相比, L 变
+体在验证集上的NDS 和mAP 分别提升1.3 和2.0 个百分点, 在测试集上分别提升0.5 和1.1 个百分点.
+其验证集mAP 也优于SparseFusion [35] 与CMT [12]. 结果表明, 引入VFM(如SAM) 能增强特征表
+征, 提升复杂场景下的泛化与稳定性.
+KITTI-C 数据集结果. 我们在表3 比较了RoboDistill 与RoboFusion 在KITTI-C 验证集上的鲁棒性.
+在天气扰动(雪、雨、雾、强光) 下, RoboDistill(L) 的AP 分别提升0.21、0.33、0.29 和0.37 个百分
+点. 在传感器扰动下, 除Density 低0.38 个百分点外, Cutout、Crosstalk 及高斯、均匀和脉冲噪声上的
+增益为1.03–4.56 个百分点. 在Compensation、Moving object 和Motion blur 扰动下, L 变体分别达到
+48.34%、53.22% 和86.56%, 比RoboFusion 提升6.46、3.92 和2.39 个百分点. 在目标及空间对齐扰动
+下也整体保持增益, 进一步验证了KD Fusion 在跨模态对齐与融合中的有效性.
+nuScenes-C 数据集结果. 在nuScenes-C 验证集上, 表3 显示RoboDistill(L) 具有稳定鲁棒性. 在天气
+扰动下, 雪、雨和雾场景的mAP 分别达到69.00%、68.77% 和68.00%, 相比RoboFusion 分别提升1.88、
+1.19 和0.99 个百分点. 在传感器、运动、目标及对齐扰动下, RoboDistill(L) 也整体取得最优或显著增
+益, 体现出较强的抗噪能力与泛化性能. 我们进一步开展了camera-only 与LiDAR-only 单模态消融分
+析, 以讨论模型在单模态失效时的性能边界. 结果表明, camera-only 在雪、雨和雾扰动下的mAP 分别
+为51.00%、50.87% 和51.11%, 明显低于LiDAR-only 的64.99%、64.03% 和63.91%, 也低于完整模型
+的69.00%、68.77% 和68.00%, 说明相机分支对天气与成像退化更为敏感. 相比之下, LiDAR-only 在多
+数场景下更稳定, 但在Compensation 扰动下仍由干净数据上的65.08% 降至50.23%. 该结果表明单一
+模态同样存在性能边界, 且个别扰动下的融合策略仍有改进空间.
+4.4
+消融结果
+在不同噪声分布下的重建损失对比实验. 我们在表4 比较了RoboDistill(L) 在多种噪声分布下的重建
+损失. 结果表明, 在Gaussian (C)、salt-and-pepper noise 和Poisson noise 下, Gaussian (L) 设置均取
+得最低损失, 分别为54.21、53.76 和53.09, 体现出较强的跨分布泛化能力. 总体而言, 该实验验证了
+RoboDistill(L) 对多类OOD 噪声具有较好的鲁棒性.
+不同SAM 使用方式的影响. 我们在表5 比较了SAM 的三种使用方式: Offline(离线特征)、Freeze(在线
+23
+
+
+表5: 不同SAM 使用策略对KITTI 与KITTI-C 验证集汽车类别R40 AP 的影响.
+Solution
+AP3D(%)
+APW eather(%)
+mAP
+Easy
+Mod.
+Hard
+Snow
+Rain
+Fog
+Sunlight
+Offline
+80.41
+88.45
+77.12
+75.09
+-
+-
+-
+-
+Freeze
+86.45
+91.90
+84.83
+82.81
+45.22
+47.81
+63.21
+79.15
+Fine-tune
+88.00
+92.76
+86.99
+84.87
+58.00
+56.76
+69.32
+83.23
+表6: 预训练、DGWA 小波基选择与KD Fusion 超参数敏感性分析在KITTI-C 验证集汽车类别(中等难度)R40
+AP 与nuScenes-C 验证集mAP 上的汇总.
+Group
+Setting
+KITTI-C validation
+nuScenes-C validation
+Snow Rain
+Fog Sunlight Density Cutout Crosstalk Snow Rain
+Fog Sunlight Density Cutout Crosstalk
+Pretraining
+SAM
+58.00 56.76 69.32
+83.23
+84.55
+83.61
+84.40
+65.11 66.21 55.92
+57.90
+67.02
+65.44
+66.71
+SAM-AD
+85.50 86.81 85.82
+85.87
+85.33
+84.20
+85.87
+69.00 68.77 68.00
+68.55
+70.21
+70.22
+69.20
+Wavelets
+Daubechies-2 83.20 83.42 82.52
+81.92
+82.85
+81.20
+83.69
+65.50 64.38 64.93
+65.13
+68.06
+67.35
+66.81
+Symlets-4
+82.98 83.78 84.00
+83.66
+81.43
+81.32
+81.95
+66.28 64.28 66.48
+63.30
+67.60
+68.26
+67.55
+Coiflets-1
+81.86 84.25 83.67
+85.17
+79.65
+82.24
+81.90
+67.91 63.08 66.62
+65.06
+66.72
+68.95
+66.01
+Haar
+85.50 86.81 85.82
+85.87
+85.33
+84.20
+85.87
+69.00 68.77 68.00
+68.55
+70.21
+70.22
+69.20
+Hyperparameters
+α=0.1, τ=4
+83.78 84.94 85.36
+84.64
+85.11
+83.09
+85.41
+67.94 66.85 67.23
+67.56
+69.23
+68.89
+68.67
+α=0.3, τ=4
+83.54 86.11 85.55
+84.10
+84.72
+83.64
+85.60
+68.51 67.24 66.58
+67.34
+69.47
+69.40
+68.42
+α=0.5, τ=4 85.50 86.81 85.82
+85.87
+85.33
+84.20
+85.87
+69.00 68.77 68.00
+68.55
+70.21
+70.22
+69.20
+α=0.7, τ=4
+85.11 86.70 84.94
+83.98
+84.06
+82.73
+84.18
+68.40 66.80 66.72
+67.18
+69.30
+68.43
+67.34
+α=0.5, τ=1
+85.36 85.35 84.60
+85.39
+83.98
+83.73
+85.29
+67.01 68.29 67.34
+67.60
+69.67
+68.97
+67.25
+α=0.5, τ=2
+84.87 86.65 83.91
+84.97
+84.91
+82.32
+84.40
+67.82 67.32 67.72
+66.87
+68.86
+68.49
+68.09
+α=0.5, τ=8
+84.45 84.93 84.73
+84.49
+84.94
+82.59
+85.44
+68.62 68.54 67.00
+68.40
+69.27
+69.88
+68.58
+但冻结) 与Fine-tune(端到端微调). Offline 性能最低, AP3D mAP 为80.41%, Easy、Moderate 和Hard
+分别为88.45%、77.12% 和75.09%. Freeze 将mAP 提升至86.45%, 并在KITTI-C 的雪、雨和雾扰动
+下分别达到45.22%、47.81% 和63.21%. Fine-tune 最优, mAP 达88.00%, Easy、Moderate 和Hard 分
+别为92.76%、86.99% 和84.87%; 雪和强光扰动下分别达到58.00% 和83.23%. 结果表明, 端到端优化
+SAM 能显著增强泛化与鲁棒性.
+SAM 预训练的影响.
+我们在表6 对比了KITTI-C 上SAM 与SAM-AD 在天气与传感器扰动下
+的表现.
+相比原始SAM, 基于自动驾驶数据预训练的SAM-AD 在各类扰动下均显著提升, 天气
+扰动中雪/雨/雾分别达到85.50%/86.81%/85.82%, 传感器扰动中Density/Cutout/Crosstalk 分别为
+85.33%/84.20%/85.87%. 结果表明, 面向自动驾驶的预训练可显著增强SAM 的鲁棒性与泛化能力.
+不同小波的性能. 我们在表6 对比了DGWA 中不同小波基的影响. 相比Daubechies-2、Symlets-4 与
+Coiflets-1, 我们的Haar 在KITTI-C 与nuScenes-C 上均取得最优结果, 在KITTI-C 的Snow/Rain/Fog
+下分别达到85.50/86.81/85.82, 表明所选小波基可更有效抑制噪声并保留关键结构信息.
+不同超参数的敏感性实验. 我们在表6 给出了KD Fusion 中权重系数α 与温度系数τ 的敏感性分析. 不
+同设置下整体性能波动较小, 表明方法对超参数不敏感. 其中, α=0.5, τ=4 取得最优且最稳定的结果.
+RoboDistill 各模块作用分析. 我们在表7 展示了基于SAM-AD 的RoboDistill(L) 关键模块消融结果,
+包括AD-FPN、DGWA 与KD Fusion. 实验表明, SAM-AD 能显著提升基线Focals Conv [34] 的性能,
+从(34.77%, 41.30%, 44.55%, 80.97%) 提升至(80.68%, 81.68%, 81.67%, 83.48%). 进一步引入AD-FPN、
+DGWA 与KD Fusion 后, 模型性能持续提升, 验证了各模块的重要作用. 其中, AD-FPN 增强多尺度特
+征表达, DGWA 动态调节权重以优化模态融合, KD Fusion 实现跨模态知识迁移. 综上, 这些模块共同提
+升了RoboDistill 在分布外噪声场景下的鲁棒性与泛化能力.
+4.5
+可视化
+我们在图5 给出了KITTI-C 数据集的对比可视化结果, 比较了我们的RoboDistill(L) 与LoGoNet 的表
+现. 总体而言, 相比当前最先进的方法(例如LoGoNet [3]), 我们的方法能够给出更准确的预测, 尤其是在
+对小目标和远距离目标的检测上表现更为突出. 通过利用视觉基础模型的泛化能力与鲁棒性, 我们的方
+法显著提升了多模态三维目标检测的鲁棒性, 并有效缓解了自动驾驶中的分布外(OOD) 噪声场景带来
+的影响.
+5
+结论
+本文提出了一种鲁棒且具备良好泛化能力的多模态3D 目标检测框架—RoboDistill, 旨在应对自动驾驶
+场景中的分布外(OOD) 噪声问题. 通过引入视觉基础模型(Visual Foundation Models, VFMs, 如SAM)
+的强泛化能力, RoboDistill 有效缓解了传感器噪声、恶劣天气及环境变化带来的性能退化. 为适应自动
+驾驶任务, 我们提出了领域自适应预训练策略SAM-AD, 并设计了AD-FPN 模块对图像特征进行多尺
+度上采样与细化, 以实现与激光雷达特征的无缝融合. 同时, 引入的深度引导小波注意力模块(DGWA)
+有效抑制传感器噪声, 而多模态融合知识蒸馏(KD Fusion) 模块通过将VFMs 的高质量知识迁移至
+点云网络, 进一步增强了特征对齐与鲁棒性. 与前一版本RoboFusion 相比, RoboDistill 在结构设计与知
+24
+
+
+表7: 不同模块在KITTI-C 验证集汽车类别(中等难度)R40 AP 以及nuScenes-C 验证集mAP 中的作用.
+DVCS 表示动态变化扰动设置, 即一种动态传感器扰动评测协议: 在每段驾驶序列中, 扰动类型(如雾、雨、雪、遮
+挡或传感器噪声) 及其强度随时间演化, 以模拟真实世界中快速变化的感知条件.
+Method
+SAM-AD
+AD-FPN
+DGWA
+KD
+KITTI-C validation
+nuScenes-C validation
+FPS
+Snow
+Rain
+Fog
+Sunlight
+DVCS
+Snow
+Rain
+Fog
+Sunlight
+DVCS
+a)
+34.77
+41.30
+44.55
+80.97
+50.91
+63.30
+65.35
+53.67
+55.14
+59.97
+10.8
+b)
+✓
+80.68
+81.68
+81.67
+83.48
+82.56
+64.99
+67.12
+64.10
+63.37
+65.21
+4.0
+c)
+✓
+✓
+82.32
+83.60
+82.39
+83.98
+83.41
+66.88
+68.04
+64.02
+65.87
+66.82
+3.6
+d)
+✓
+✓
+✓
+83.99
+85.63
+84.01
+84.81
+84.91
+67.23
+68.55
+65.31
+67.01
+67.22
+3.4
+e)
+✓
+✓
+✓
+✓
+85.50
+86.81
+85.82
+85.87
+86.10
+69.00
+68.77
+68.00
+68.55
+68.82
+3.0
+图5: (网络版彩图) RoboDistill 在KITTI-C 数据集上的可视化结果. 红色边界框表示误检, 绿色边界框表示正确
+检出, 黑色边界框表示真实标注. 蓝色虚线椭圆标出预测结果中提升最为显著的区域.
+识蒸馏机制上均进行了显著改进, 并将模型的泛化能力扩展至27 种分布外噪声场景. 基于KITTI-C 与
+nuScenes-C 基准的实验结果表明, RoboDistill 在多数复杂扰动下取得了更优或具有竞争力的性能, 展现
+出良好的鲁棒性与可扩展性. 总体而言, RoboDistill 有效弥合了干净基准性能与真实环境鲁棒性之间的
+差距, 为复杂场景下的多模态3D 目标检测提供了可靠解决方案.
+局限性与未来工作. 首先, RoboDistill 在很大程度上依赖于视觉基础模型的表征能力, 虽然这显著提
+升了基线模型的泛化性, 但也带来了较高的模型复杂度. 其次, 由于SAM 与FastSAM 的计算开销较
+大, RoboDistill(L) 与RoboDistill(B) 的推理速度相对较慢; 相比之下, RoboDistill(T) 采用更轻量的
+MobileSAM, 其推理速度更接近当前主流方法(如TransFusion). 未来工作中, 我们将探索仅在训练阶段
+引入SAM, 用以指导轻量级学生模型的学习, 从而进一步提升模型的实时性. 此外, 我们将进一步探索更
+多复杂且贴近真实世界的噪声场景, 以持续增强RoboDistill 框架的鲁棒性与实用性.
+参考文献
+[1] Kirillov A, Mintun E, Ravi N, et al. Segment anything. In: Proceedings of the IEEE/CVF International
+Conference on Computer Vision, 2023. 4015–4026
+[2] Dong Y, Kang C, Zhang J, et al. Benchmarking robustness of 3D object detection to common corruptions. In:
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2023. 1022–1032
+25
+
+
+[3] Li X, Ma T, Hou Y, et al. LoGoNet: Towards accurate 3D object detection with local-to-global cross-modal
+fusion. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2023.
+17524–17534
+[4] Geiger A, Lenz P, Urtasun R. Are we ready for autonomous driving? the kitti vision benchmark suite. In:
+Proceedings of IEEE conference on computer vision and pattern recognition, 2012. 3354–3361
+[5] Wang L, Zhang X, Song Z, et al. Multi-modal 3d object detection in autonomous driving: A survey and
+taxonomy. IEEE Transactions on Intelligent Vehicles, 2023
+[6] Oza P, Sindagi V A, Sharmini V V, et al. Unsupervised domain adaptation of object detectors: A survey.
+IEEE Transactions on Pattern Analysis and Machine Intelligence, 2023
+[7] Song Z, Liu L, Jia F, et al. Robustness-aware 3d object detection in autonomous driving: A review and
+outlook. IEEE Transactions on Intelligent Transportation Systems, 2024, 25: 15407–15436
+[8] Chen X, Ma H, Wan J, et al. Multi-view 3d object detection network for autonomous driving. In: Proceedings
+of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2017
+[9] Vora S, Lang A H, Helou B, et al. Pointpainting: Sequential fusion for 3D object detection. In: Proceedings
+of the IEEE/CVF conference on computer vision and pattern recognition, 2020. 4604–4612
+[10] Bai X, Hu Z, Zhu X, et al.
+TransFusion: Robust LiDAR-camera fusion for 3D object detection with
+transformers. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition,
+2022. 1090–1099
+[11] Liu Z, Tang H, Amini A, et al. BEVFusion: Multi-task multi-sensor fusion with unified bird’s-eye view
+representation. In: Proceedings of 2023 IEEE international conference on robotics and automation (ICRA).
+IEEE, 2023. 2774–2781
+[12] Yan J, Liu Y, Sun J, et al. Cross modal transformer: Towards fast and robust 3d object detection. In:
+Proceedings of the IEEE/CVF international conference on computer vision, 2023. 18268–18278
+[13] Song Z, Wei H, Bai L, et al. GraphAlign: Enhancing accurate feature alignment by graph matching for
+multi-modal 3D object detection. In: Proceedings of the IEEE/CVF International Conference on Computer
+Vision, 2023. 3358–3369
+[14] Song Z, Zhang G, Liu L, et al. Robofusion: Towards robust multi-modal 3d object detection via sam. In:
+Proceedings of Larson K, editor, Proceedings of the Thirty-Third International Joint Conference on Artificial
+Intelligence, IJCAI-24. International Joint Conferences on Artificial Intelligence Organization, 2024. 1272–
+1280. Main Track
+[15] Song Z, Jia C, Yang L, et al. Graphalign++: An accurate feature alignment by graph matching for multi-
+modal 3d object detection. IEEE Transactions on Circuits and Systems for Video Technology, 2024, 34:
+2619–2632
+[16] Xu S, Li F, Song Z, et al. Multi-sem fusion: Multimodal semantic fusion for 3-d object detection. IEEE
+Transactions on Geoscience and Remote Sensing, 2024, 62: 1–14
+[17] Yin J, Shen J, Chen R, et al.
+Is-fusion: Instance-scene collaborative fusion for multimodal 3d object
+detection. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition, 2024.
+14905–14915
+[18] Song Z, Jia F, Pan H, et al. Contrastalign: Toward robust bev feature alignment via contrastive learning
+for multi-modal 3d object detection. arXiv preprint arXiv:2405.16873, 2024
+[19] Wang Y, Yin J, Li W, et al. SSDA3D: Semi-supervised domain adaptation for 3D object detection from
+point cloud. In: Proceedings of the AAAI Conference on Artificial Intelligence, 2023. 2707–2715
+[20] Tsai D, Berrio J S, Shan M, et al. Viewer-centred surface completion for unsupervised domain adaptation in
+3D object detection. In: Proceedings of 2023 IEEE International Conference on Robotics and Automation
+(ICRA), 2023. 9346–9353
+[21] Yang J, Shi S, Wang Z, et al. St3d: Self-training for unsupervised domain adaptation on 3d object detection.
+In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 2021.
+10368-10378
+[22] Xu Q, Zhou Y, Wang W, et al. Spg: Unsupervised domain adaptation for 3d object detection via semantic
+point generation. In: Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV),
+2021. 15446-15456
+[23] OpenAI. Gpt-4 technical report. https://cdn.openai.com/papers/gpt-4.pdf, 2023
+[24] Zhao X, Ding W, An Y, et al. Fast segment anything, 2023
+[25] Zhang C, Han D, Qiao Y, et al. Faster segment anything: Towards lightweight SAM for mobile applications.
+arXiv preprint arXiv:2306.14289, 2023
+[26] Ma J, He Y, Li F, et al. Segment anything in medical images. Nature Communications, 2024, 15: 654
+26
+
+
+[27] Chen T, Zhu L, Deng C, et al. Sam-adapter: Adapting segment anything in underperformed scenes. In:
+Proceedings of the IEEE/CVF International Conference on Computer Vision, 2023. 3367–3375
+[28] Moor M, Banerjee O, Abad Z S H, et al. Foundation models for generalist medical artificial intelligence.
+Nature, 2023, 616: 259–265
+[29] Fei N, Lu Z, Gao Y, et al. Towards artificial general intelligence via a multimodal foundation model. Nature
+Communications, 2022, 13: 3094
+[30] Liu Y, Kong L, Cen J, et al. Segment any point cloud sequences by distilling vision foundation models.
+Advances in Neural Information Processing Systems, 2024, 36
+[31] Caesar H, Bankiti V, Lang A H, et al.
+nuScenes: A multimodal dataset for autonomous driving.
+In:
+Proceedings of the IEEE/CVF conference on computer vision and pattern recognition, 2020. 11621–11631
+[32] Chen Z, Li Z, Zhang S, et al. Deformable feature aggregation for dynamic multi-modal 3d object detection.
+In: Proceedings of European conference on computer vision. Springer, 2022. 628–644
+[33] Yang Z, Chen J, Miao Z, et al. DeepInteraction: 3D object detection via modality interaction. Advances in
+Neural Information Processing Systems, 2022, 35: 1992–2005
+[34] Chen Y, Li Y, Zhang X, et al. Focal sparse convolutional networks for 3D object detection. In: Proceedings
+of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2022. 5428–5437
+[35] Xie Y, Xu C, Rakotosaona M J, et al. Sparsefusion: Fusing multi-modal sparse representations for multi-
+sensor 3d object detection. In: Proceedings of the IEEE/CVF International Conference on Computer Vision,
+2023. 17591–17602
+[36] Wang C, Ma C, Zhu M, et al. Pointaugmenting: Cross-modal augmentation for 3d object detection. In:
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2021. 11794–11803
+[37] Song Z, Yang L, Xu S, et al. Graphbev: Towards robust bev feature alignment for multi-modal 3d object
+detection. In: Proceedings of European Conference on Computer Vision. Springer, 2025. 347–366
+[38] Chen X, Zhang T, Wang Y, et al.
+FUTR3D: A unified sensor fusion framework for 3D detection.
+In:
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2023. 172–181
+[39] Chung H W, Hou L, Longpre S, et al. Scaling instruction-finetuned language models. Journal of Machine
+Learning Research, 2024, 25: 1–53
+[40] Zou X, Dou Z Y, Yang J, et al. Generalized decoding for pixel, image, and language. In: Proceedings of the
+IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2023. 15116–15127
+[41] Dosovitskiy A, Beyer L, Kolesnikov A, et al.
+An image is worth 16x16 words: Transformers for image
+recognition at scale. CoRR, 2020, abs/2010.11929
+[42] Zhang D, Liang D, Yang H, et al. Sam3d: Zero-shot 3d object detection via segment anything model. Science
+China Information Sciences, 2023
+[43] Deng J, Shi S, Li P, et al. Voxel R-CNN: Towards high performance voxel-based 3D object detection. In:
+Proceedings of the AAAI Conference on Artificial Intelligence, 2021. 1201–1209
+[44] Wu Q, Ye H, Gu Y, et al. Denoising masked autoencoders help robust classification. In: Proceedings of The
+Eleventh International Conference on Learning Representations, 2023
+[45] Lin T Y, Dollár P, Girshick R, et al. Feature pyramid networks for object detection. In: Proceedings of the
+IEEE conference on computer vision and pattern recognition, 2017. 2117–2125
+[46] Li Y, Qi X, Chen Y, et al. Voxel field fusion for 3D object detection. In: Proceedings of the IEEE/CVF
+Conference on Computer Vision and Pattern Recognition, 2022. 1120–1129
+[47] Zhang Y, Chen J, Huang D. CAT-Det: Contrastively augmented transformer for multi-modal 3D object
+detection. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition,
+2022. 908–917
+[48] Ryoo S, Jeon J, Lee S. Sv-rcnn: Robust structural-encoded voxel features for 3d object detection on sparse
+point clouds. IEEE Robotics and Automation Letters, 2025
+[49] Wang C, Qin Y, Kang Z, et al. Boosting 3d object detection via self-distilling introspective data. IEEE
+Transactions on Intelligent Transportation Systems, 2025
+[50] Zhang H, Liu L, Hui F, et al. Clean: Category knowledge-driven compression framework for eﬀicient 3d
+object detection. IEEE Transactions on Pattern Analysis and Machine Intelligence, 2025
+[51] Ye W, Xia Q, Wu H, et al. Fade3d: Fast and deployable 3d object detection for autonomous driving. IEEE
+Transactions on Intelligent Transportation Systems, 2025
+[52] Lian L, Cao Z, Qin Y, et al. Rae3d: Multiscale aggregation-enhanced 3d object detection for rail transit
+obstacle perception. IEEE Transactions on Industrial Informatics, 2025
+[53] Xu S, Li F, Huang P, et al. Tigdistill-bev: Multi-view bev 3d object detection via target inner-geometry
+learning distillation. IEEE Transactions on Circuits and Systems for Video Technology, 2025
+[54] Nie M, Wang C, Xu H, et al. Partner: Level up the polar representation for 3d object detection. International
+Journal of Computer Vision, 2026, 134: 98
+27

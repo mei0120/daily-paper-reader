@@ -1,6 +1,12 @@
 {
-  "generated_at": "2026-03-06T19:11:18.471356+00:00",
-  "updated_date": "20260306",
+  "generated_at": "2026-09-27T04:45:48.986983+00:00",
+  "updated_date": "20260918-20260927",
   "carryover_days": 9,
-  "items": []
+  "tag_states": {
+    "ovd-fusion": {
+      "updated_date": "20260918-20260927",
+      "carryover_days": 9,
+      "items": []
+    }
+  }
 }

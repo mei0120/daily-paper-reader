@@ -1,0 +1,659 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-27T04:45:48.985384+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 6,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 10,
+    "quick_skim_target": 11,
+    "quick_selected": 10
+  },
+  "deep_dive": [
+    {
+      "id": "2609.27462v1",
+      "source": "arxiv",
+      "title": "Hybrid Gaussians for Robust Open-Vocabulary 3D Segmentation with Multi-View Object Association and Boundary Refinement",
+      "abstract": "Open-vocabulary 3D segmentation localizes objects from free-form text queries, but remains challenging in real image sequences: incomplete or noisy 2D supervision destabilizes multi-view identity assignment, while full-scene semantic learning weakens object-level discriminability. We introduce Hybrid Gaussians, a unified 3D representation jointly modeling object association and language-aligned semantics. Its Multi-View Object Association mechanism combines Observation Fusion and Semantic Contrastive Learning to improve identity consistency and semantic discrimination. Boundary Reconstruction Optimization further refines local boundary structure to improve contour quality. Experiments on LERF and 3D-OVS demonstrate strong quantitative and qualitative performance. Our method achieves 59.1\\% mIoU on LERF, yielding a 13.4\\% relative gain over the baseline. Project page: https://nora202.github.io/hybridgaussians.",
+      "authors": [
+        "Xueqi Qiu",
+        "Yueming Sun",
+        "Tianyu Zhang",
+        "Yuxuan Xia",
+        "Yang Long"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-23T07:27:54+00:00",
+      "link": "https://arxiv.org/pdf/2609.27462v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "open-vocabulary 3D segmentation with multi-view fusion and language-aligned semantics",
+      "llm_evidence_cn": "融合多视角与语言对齐语义的开放词汇三维分割",
+      "llm_evidence": "融合多视角与语言对齐语义的开放词汇三维分割",
+      "canonical_evidence": "融合多视角与语言对齐语义的开放词汇三维分割",
+      "llm_tldr_en": "Hybrid Gaussians is a unified 3D representation for open-vocabulary 3D segmentation that jointly models multi-view object association and language-aligned semantics with boundary refinement.",
+      "llm_tldr_cn": "针对开放词汇三维分割需从自由文本定位物体、但真实序列中不完整或含噪二维监督会破坏多视角身份分配并削弱物体级判别力的问题，本文提出混合高斯统一三维表示。其多视角物体关联机制结合观测融合与语义对比学习提升身份一致性与语义判别，边界重建优化进一步改善轮廓质量。在LERF与3D-OVS数据集上取得更鲁棒、更精确的开放词汇三维分割结果。其贡献在于联合多视角关联与语言对齐语义可显著提升分割鲁棒性。",
+      "llm_tldr": "针对开放词汇三维分割需从自由文本定位物体、但真实序列中不完整或含噪二维监督会破坏多视角身份分配并削弱物体级判别力的问题，本文提出混合高斯统一三维表示。其多视角物体关联机制结合观测融合与语义对比学习提升身份一致性与语义判别，边界重建优化进一步改善轮廓质量。在LERF与3D-OVS数据集上取得更鲁棒、更精确的开放词汇三维分割结果。其贡献在于联合多视角关联与语言对齐语义可显著提升分割鲁棒性。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open vocabulary 3D semantic fusion methods that align vision language embeddings with point clouds or radiance fields",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.21400v1",
+      "source": "arxiv",
+      "title": "A Scene Language Model for Open-Vocabulary Scene Mapping",
+      "abstract": "Open-vocabulary 3D scene mapping aims to build a persistent representation of the objects in an environment. Existing systems typically rely on engineered mapping pipelines to associate observations, merge information across views, and maintain a consistent scene representation over time. Many additionally store feature-rich object representations, such as embeddings or image crops, increasing the size and complexity of the persistent memory. We introduce SceneLM, a Scene-Language Model that directly maintains a textual scene map. The full scene is represented as a structured text list of objects, which serves as the model's only persistent memory. For each input image, the model reads the current scene state and updates the map by adding, editing, and removing objects. To learn this behavior, we introduce supervision tasks for iterative scene map maintenance together with an automatic annotation pipeline that generates training data from images without human labels. We evaluate SceneLM on both a language-grounded retrieval benchmark and a localization benchmark. Across both benchmarks, the model produces a scene map that achieves competitive performance with complete mapping systems built from dedicated perception and geometric modules while producing a scene representation that is 6-12x more compact. We further show that SceneLM can be run online on an edge device through experiments on a quadruped. These results show that a persistent open-vocabulary 3D scene map can be maintained directly by a single vision-language model using only a lightweight text representation. Training and inference code is available on https://goldengait.github.io/scenelm/.",
+      "authors": [
+        "Adam Lilja",
+        "Fabio Hübel",
+        "Siming He",
+        "Junsheng Fu",
+        "Claire Tomlin",
+        "Lars Hammarstrand",
+        "Jitendra Malik",
+        "Jonas Frey",
+        "Marco Pavone"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-09-18T07:16:18+00:00",
+      "link": "https://arxiv.org/pdf/2609.21400v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Scene-language model maintaining an open-vocabulary 3D scene map as structured text",
+      "llm_evidence_cn": "以结构化文本维护开放词汇三维场景地图的场景语言模型",
+      "llm_evidence": "以结构化文本维护开放词汇三维场景地图的场景语言模型",
+      "canonical_evidence": "以结构化文本维护开放词汇三维场景地图的场景语言模型",
+      "llm_tldr_en": "SceneLM replaces engineered open-vocabulary 3D mapping pipelines with a scene-language model that keeps a textual scene map as its only persistent memory, reading each image and updating objects by add, edit and remove operations.",
+      "llm_tldr_cn": "开放词汇三维场景建图需要持续表示环境中的物体，但现有系统依赖人工设计的关联与跨视角融合流水线，并存储嵌入或图像裁剪等富特征，导致持久记忆庞大复杂。本文提出SceneLM场景语言模型，直接用结构化文本对象列表作为唯一持久记忆，每输入一帧图像即读取当前场景状态并通过增、改、删操作更新地图。该方法在开放词汇场景建图上验证了简洁记忆的有效性，为多视角信息融合提供了新范式。",
+      "llm_tldr": "开放词汇三维场景建图需要持续表示环境中的物体，但现有系统依赖人工设计的关联与跨视角融合流水线，并存储嵌入或图像裁剪等富特征，导致持久记忆庞大复杂。本文提出SceneLM场景语言模型，直接用结构化文本对象列表作为唯一持久记忆，每输入一帧图像即读取当前场景状态并通过增、改、删操作更新地图。该方法在开放词汇场景建图上验证了简洁记忆的有效性，为多视角信息融合提供了新范式。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open-vocabulary 3D semantic mapping for scene understanding",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.28222v1",
+      "source": "arxiv",
+      "title": "From Alignment to Fusion in 3D Vision-Language",
+      "abstract": "Unified 3D vision-language systems must combine complementary geometry, scale, and appearance cues while supporting tasks from instance segmentation to language-guided reasoning. Existing methods often process point clouds, voxel grids, and multi-view images independently; directly combining these heterogeneous representations may leave substantial feature discrepancy unresolved, while subsequent unconstrained adaptation may distort their internal geometry. We propose an align-then-fuse framework that first applies triple pairwise cosine alignment to establish segment-level correspondence across the three representations and then retrieves task-conditioned features with a prompt-guided query decoder. Before fusion, representation-specific query features are transformed by learnable mappings constrained to the special orthogonal group. These mappings preserve inner products and Euclidean distances within each representation, permitting controlled representation-specific re-parameterisation without arbitrarily distorting its internal geometry. The transformed features are subsequently combined through Adaptive Fusion under downstream task supervision. Experiments cover eight datasets for instance segmentation, visual grounding, question answering, and dense captioning. Compared with PQ3D, the model improves average precision by 3.2 points on ScanNet200 and grounding accuracy by 2.9, 10.6, 4.6, and 4.1 points on ScanRefer, Nr3D, Sr3D, and Multi3DRefer, respectively, while also improving performance on ScanQA, SQA3D, and Scan2Cap. Ablations further support the complementary roles of alignment and orthogonal re-parameterisation and the effectiveness of Adaptive Fusion.",
+      "authors": [
+        "Xueqi Qiu",
+        "Xingyu Miao",
+        "Jingjing Deng",
+        "Haoran Duan",
+        "Yang Long",
+        "Ling Shao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-23T14:52:14+00:00",
+      "link": "https://arxiv.org/pdf/2609.28222v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "align-then-fuse across point clouds, voxels and multi-view images for 3D vision-language tasks",
+      "llm_evidence_cn": "对点云、体素与多视角图像先对齐后融合以服务三维视觉语言任务",
+      "llm_evidence": "对点云、体素与多视角图像先对齐后融合以服务三维视觉语言任务",
+      "canonical_evidence": "对点云、体素与多视角图像先对齐后融合以服务三维视觉语言任务",
+      "llm_tldr_en": "An align-then-fuse framework applies triple pairwise cosine alignment across point clouds, voxels and multi-view images, then uses a prompt-guided query decoder to fuse task-conditioned features for 3D vision-language tasks.",
+      "llm_tldr_cn": "针对现有方法独立处理点云、体素与多视角图像、直接组合异构表示会遗留特征差异并扭曲内部几何的问题，本文提出面向三维视觉语言的先对齐后融合框架。方法先对三种表示施加三路成对余弦对齐以建立片段级对应关系，再通过提示引导的查询解码器检索任务条件特征完成融合。该框架支持从实例分割到语言引导推理的多种任务，为开放词汇三维语义理解中的跨模态对齐与融合提供了统一思路。",
+      "llm_tldr": "针对现有方法独立处理点云、体素与多视角图像、直接组合异构表示会遗留特征差异并扭曲内部几何的问题，本文提出面向三维视觉语言的先对齐后融合框架。方法先对三种表示施加三路成对余弦对齐以建立片段级对应关系，再通过提示引导的查询解码器检索任务条件特征完成融合。该框架支持从实例分割到语言引导推理的多种任务，为开放词汇三维语义理解中的跨模态对齐与融合提供了统一思路。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open vocabulary 3D semantic fusion methods that align vision language embeddings with point clouds or radiance fields",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.29157v1",
+      "source": "arxiv",
+      "title": "OREN-X: Octree Residual Network for Real-Time Multi-Modal Mapping",
+      "abstract": "To achieve general-purpose autonomy over long horizons, a robot needs to maintain spatial environment information that supports a variety of tasks: geometry for planning and control, radiance for rendering and relocalization, and vision-language features for open-vocabulary grounding. Existing methods represent and estimate each modality separately, multiplying memory and compute cost while forgoing potential synergy among the representations. We develop OREN-X, an online mapping method that uses an octree in 3D space as a shared data structure for indexing and storing a multi-modal field, capturing geometric, radiance, and vision-language information. OREN-X provides efficient unified storage and retrieval of these data in explicit/implicit and full/compressed form. Our unified representation yields cross-modality synergy: SDF estimates are sharpened by occupancy and radiance, while GPU-based ray-octree traversal and octree query enable real-time rendering. We also use online dictionary learning to compress the vision-language features, shrinking them 3.7x below full per-vertex storage while raising the query accuracy. On Replica, OREN-X maps in real time (80+ fps for SDF and 30+ fps for all four modalities), improves near-surface SDF accuracy by 33% over single-modality baselines, and improves mean open-vocabulary 3D mIoU by 71% and mean accuracy by 61% over the best prior method.",
+      "authors": [
+        "Zhirui Dai",
+        "Qihao Qian",
+        "Dinh Minh Nguyen",
+        "Quan-Dung Pham",
+        "Kiana Bronder",
+        "Carlos Nieto-Granda",
+        "Yiyu Chen",
+        "Quan Nguyen",
+        "Nikolay Atanasov"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-09-24T07:33:28+00:00",
+      "link": "https://arxiv.org/pdf/2609.29157v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "unified octree field storing vision-language features for open-vocabulary grounding",
+      "llm_evidence_cn": "统一八叉树场存储视觉语言特征用于开放词汇定位",
+      "llm_evidence": "统一八叉树场存储视觉语言特征用于开放词汇定位",
+      "canonical_evidence": "统一八叉树场存储视觉语言特征用于开放词汇定位",
+      "llm_tldr_en": "OREN-X uses a 3D octree as a shared structure to index and store geometry, radiance and vision-language features in one multi-modal field, enabling efficient online open-vocabulary grounding and mapping.",
+      "llm_tldr_cn": "论文针对机器人长期自主中需要几何、辐射与视觉语言特征，但分模态表示会成倍增加内存与算力、且无法利用表征协同的问题。作者提出 OREN-X 在线建图方法，以三维八叉树作为共享数据结构统一索引和存储包含几何、辐射与视觉语言信息的多模态场，支持显式与隐式、完整与压缩的高效存储与检索。实验表明该方法在实时多模态建图中兼顾效率与统一性，为开放词汇三维语义映射与多视角融合提供高度相关的基础框架。",
+      "llm_tldr": "论文针对机器人长期自主中需要几何、辐射与视觉语言特征，但分模态表示会成倍增加内存与算力、且无法利用表征协同的问题。作者提出 OREN-X 在线建图方法，以三维八叉树作为共享数据结构统一索引和存储包含几何、辐射与视觉语言信息的多模态场，支持显式与隐式、完整与压缩的高效存储与检索。实验表明该方法在实时多模态建图中兼顾效率与统一性，为开放词汇三维语义映射与多视角融合提供高度相关的基础框架。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open vocabulary 3D semantic fusion methods that align vision language embeddings with point clouds or radiance fields",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.21522v1",
+      "source": "arxiv",
+      "title": "Refine Then Fusion: Training-Free 3D Point Cloud Adaptation with Priority Refinement and Multi-Modal Knowledge Fusion",
+      "abstract": "Recent pre-trained foundation models provide rich multi-modal priors for downstream 3D vision tasks. However, the effectiveness of these representations in few-shot scenarios is limited by two fundamental challenges: High-dimensional features often contain substantial channel redundancy and task-irrelevant noise, while the reliability of different modalities varies across samples. Consequently, direct aggregation of heterogeneous representations overlooks sample-dependent modality reliability and may obscure the discriminative cues essential. To address these limitations, we propose Refine Then Fusion(RTF), a training-free framework for few-shot 3D recognition. RTF first identifies discriminative feature channels by jointly modeling inter-class similarity and intra-class stability, thereby decoupling domain-specific knowledge refinement from the cached representations of pre-trained models. It then introduces a reliability-aware fusion mechanism that estimates sample-wise modality reliability from the distribution shifts induced by feature refinement, enabling adaptive aggregation of multi-modal representations. Furthermore, RTF constructs a memory cache that integrates instance-level support features with class-level prototypes to infer query labels. Extensive experiments on five benchmarks demonstrate that RTF consistently outperforms single-modal baselines, partial-fusion variants, and existing lightweight adaptation methods, achieving state-of-the-art few-shot 3D recognition performance without gradient optimization, additional training data, auxiliary training, or parameter updates.",
+      "authors": [
+        "Hang Cheng",
+        "Yan Chen",
+        "Mingyu Fan",
+        "Long Zeng"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-18T09:11:55+00:00",
+      "link": "https://arxiv.org/pdf/2609.21522v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "training-free multi-modal knowledge fusion into 3D point cloud representations",
+      "llm_evidence_cn": "免训练地将多模态知识融合进三维点云表示",
+      "llm_evidence": "免训练地将多模态知识融合进三维点云表示",
+      "canonical_evidence": "免训练地将多模态知识融合进三维点云表示",
+      "llm_tldr_en": "Refine Then Fusion (RTF) is a training-free framework for few-shot 3D recognition that first refines discriminative features and then fuses multi-modal priors according to sample-dependent modality reliability.",
+      "llm_tldr_cn": "针对少样本3D识别中预训练多模态特征存在通道冗余、任务噪声以及模态可靠性随样本变化的问题，本文提出免训练框架RTF。该方法先进行优先级特征精炼以剔除冗余与噪声，再依据样本自适应的模态可靠性进行多模态知识融合。在少样本3D识别基准上，RTF有效缓解了直接聚合异质表示带来的信息损失，取得更优性能。其贡献在于为点云表示中的多模态特征融合提供了无需训练、即插即用的通用方案。",
+      "llm_tldr": "针对少样本3D识别中预训练多模态特征存在通道冗余、任务噪声以及模态可靠性随样本变化的问题，本文提出免训练框架RTF。该方法先进行优先级特征精炼以剔除冗余与噪声，再依据样本自适应的模态可靠性进行多模态知识融合。在少样本3D识别基准上，RTF有效缓解了直接聚合异质表示带来的信息损失，取得更优性能。其贡献在于为点云表示中的多模态特征融合提供了无需训练、即插即用的通用方案。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "fusing multi-modal features into point cloud representations",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.22687v1",
+      "source": "arxiv",
+      "title": "PanoSeg3R: Feed-Forward 3D Semantic Segmentation for Panoramic Images with an Automatic Data Curation Pipeline",
+      "abstract": "We present PanoSeg3R, a feed-forward framework for 3D panoramic semantic segmentation. Unlike existing methods designed for perspective inputs, PanoSeg3R jointly predicts 3D geometry and multi-view semantic segmentation in one single forward pass. Built upon a pretrained reconstruction backbone that supports panoramic images, our approach extends feed-forward 3D reconstruction with a query-based mask decoder. Furthermore, we introduce an automatic panorama data curation pipeline that leverages the complementary strengths of off-the-shelf foundation models to generate reliable pseudo semantic annotations, substantially expanding the training data and improving zero-shot generalization. PanoSeg3R achieves state-of-the-art performance on panoramic 3D semantic segmentation, improving 3D mIoU by up to 16.02 on ScanNet++, while the curated training data further improves zero-shot performance by up to 4.26 and 43.28 mIoU on Stanford2D3D and ToF-360, respectively. Website: https://harryyoon777.github.io/PanoSeg3R/",
+      "authors": [
+        "Heechan Yoon",
+        "Dongki Jung",
+        "Phuc Nguyen",
+        "Ming Lin",
+        "Dinesh Manocha"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-19T01:42:19+00:00",
+      "link": "https://arxiv.org/pdf/2609.22687v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "feed-forward 3D semantic segmentation jointly predicting geometry and multi-view semantics",
+      "llm_evidence_cn": "前馈式三维语义分割，联合预测几何与多视图语义",
+      "llm_evidence": "前馈式三维语义分割，联合预测几何与多视图语义",
+      "canonical_evidence": "前馈式三维语义分割，联合预测几何与多视图语义",
+      "llm_tldr_en": "PanoSeg3R is a feed-forward framework that jointly predicts 3D geometry and multi-view semantic segmentation for panoramic images, adding a query-based mask decoder and an automatic pseudo-label curation pipeline.",
+      "llm_tldr_cn": "现有3D语义分割方法多面向透视图像，难以直接处理全景输入。本文提出PanoSeg3R，一个前馈式全景3D语义分割框架，基于支持全景的重建骨干，联合预测3D几何与多视图语义分割，并引入查询式掩码解码器。同时设计自动全景数据整理流程，利用现成基础模型生成可靠伪标签以扩充训练数据。实验表明该方法在零样本泛化上达到领先水平，为多视图语义融合与3D场景理解提供了新途径。",
+      "llm_tldr": "现有3D语义分割方法多面向透视图像，难以直接处理全景输入。本文提出PanoSeg3R，一个前馈式全景3D语义分割框架，基于支持全景的重建骨干，联合预测3D几何与多视图语义分割，并引入查询式掩码解码器。同时设计自动全景数据整理流程，利用现成基础模型生成可靠伪标签以扩充训练数据。实验表明该方法在零样本泛化上达到领先水平，为多视图语义融合与3D场景理解提供了新途径。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "semantic segmentation of 3D point clouds and volumetric scenes",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.23541v1",
+      "source": "arxiv",
+      "title": "Towards robust multimodal 3D object detection via visual foundation models",
+      "abstract": "Multimodal 3D object detection is fundamental to robust perception in autonomous driving because it integrates complementary information from LiDAR and camera sensors. However, existing methods often fail to maintain robustness under out-of-distribution (OOD) corruptions caused by sensor noise, adverse weather, and environmental changes. To address this problem, we propose RoboDistill, a robust and generalizable multimodal 3D object detection framework that leverages visual foundation models (VFMs), such as the Segment Anything Model (SAM). First, we introduce SAM-AD, a domain-specific pretraining strategy that fine-tunes SAM on autonomous-driving imagery to extract feature representations with rich semantic information. Second, we design the AD Feature Pyramid Network (AD-FPN) to refine and upsample SAM features at multiple scales for seamless fusion with LiDAR features. Third, we develop the Depth-Guided Wavelet Attention (DGWA) module, which suppresses high-frequency sensor noise while preserving critical contextual information. Finally, we introduce KD Fusion, in which the pretrained SAM-AD serves as a teacher that distills high-quality visual knowledge into a lightweight point-cloud network, thereby improving robustness under noisy conditions. Extensive experiments across 27 challenging OOD corruption settings show that RoboDistill generally delivers stronger or competitive detection performance and robustness relative to representative state-of-the-art methods. This work bridges the gap between VFMs and 3D object detection and advances robust multimodal perception for real-world autonomous-driving applications.",
+      "authors": [
+        "Ziying Song",
+        "Lin Liu",
+        "Hongyu Pan",
+        "Shaoqing Xu",
+        "Lei Yang",
+        "Mingzhe Guo",
+        "Caiyan Jia"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-09-20T10:41:37+00:00",
+      "link": "https://arxiv.org/pdf/2609.23541v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "multimodal 3D detection fusing LiDAR and camera via visual foundation models",
+      "llm_evidence_cn": "借助视觉基础模型融合LiDAR与相机的多模态三维检测",
+      "llm_evidence": "借助视觉基础模型融合LiDAR与相机的多模态三维检测",
+      "canonical_evidence": "借助视觉基础模型融合LiDAR与相机的多模态三维检测",
+      "llm_tldr_en": "RoboDistill leverages visual foundation models like SAM for robust multimodal 3D object detection, pretraining SAM-AD on driving imagery and distilling semantic features to withstand out-of-distribution corruptions.",
+      "llm_tldr_cn": "多模态3D目标检测依赖LiDAR与相机互补信息，但传感器噪声、恶劣天气等分布外干扰会显著降低鲁棒性。本文提出RoboDistill框架，借助视觉基础模型提升鲁棒性：先以SAM-AD在自动驾驶图像上微调SAM以提取富含语义的特征，再设计特征蒸馏模块融合多模态表征。实验表明该方法在多种分布外损坏下保持稳健检测性能。其意义在于将视觉基础模型引入多模态3D检测，增强跨模态融合的泛化能力。",
+      "llm_tldr": "多模态3D目标检测依赖LiDAR与相机互补信息，但传感器噪声、恶劣天气等分布外干扰会显著降低鲁棒性。本文提出RoboDistill框架，借助视觉基础模型提升鲁棒性：先以SAM-AD在自动驾驶图像上微调SAM以提取富含语义的特征，再设计特征蒸馏模块融合多模态表征。实验表明该方法在多种分布外损坏下保持稳健检测性能。其意义在于将视觉基础模型引入多模态3D检测，增强跨模态融合的泛化能力。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "cross modal feature alignment and fusion for open vocabulary 3D object detection and segmentation",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.23144v1",
+      "source": "arxiv",
+      "title": "Probabilistic Scene Graphs: Hierarchical Representation and Real-time System",
+      "abstract": "3D scene graphs provide semantically rich and hierarchical representations for robot perception. However, existing systems do not maintain uncertainty as an explicit belief or propagate it through the operations that construct and refine the graph. We introduce Probabilistic Scene Graph (PSG), a generalization of the conventional scene graph that represents a posterior over possible graphs, factorized into a discrete graph structure of entities, relations, and semantic attributes, and continuous states that ground them spatially, with uncertainty maintained over both components. Geometry is carried directly by the nodes rather than selected from a separately constructed metric map, so a metric map, where needed, follows from the graph rather than preceding it. We instantiate PSG's probabilistic spatial grounding with hierarchical graphs of Gaussians (HGG): each object primitive is represented by a full-covariance Gaussian under a Normal-Inverse-Wishart belief, and the same parametrization applied recursively within a node yields a geometry graph that resolves its surface at finer resolution. We then build a mapping pipeline that preserves these beliefs throughout graph construction and refinement: a purely graph-based coarse-to-fine alignment registers observations by comparing node beliefs, while a nested Expectation-Maximization and factor-graph optimization jointly refines poses, object parameters, and internal geometry. Across six datasets spanning indoor RGB-D, outdoor LiDAR, and cross-modality deployment, HGG operates at sensor rate with near-constant memory and achieves state-of-the-art object accuracy and zero-shot graph alignment.",
+      "authors": [
+        "Waqas Ali",
+        "Michele Antonazzi",
+        "Timon Homberger",
+        "Thien-Minh Nguyen",
+        "Lukas Rosenberger Schmid",
+        "Patric Jensfelt",
+        "Yixi Cai"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-09-19T17:21:58+00:00",
+      "link": "https://arxiv.org/pdf/2609.23144v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "3D scene graph hierarchical representation for robot scene understanding",
+      "llm_evidence_cn": "面向机器人场景理解的三维场景图分层表示",
+      "llm_evidence": "面向机器人场景理解的三维场景图分层表示",
+      "canonical_evidence": "面向机器人场景理解的三维场景图分层表示",
+      "llm_tldr_en": "Probabilistic Scene Graph generalizes 3D scene graphs by maintaining an explicit posterior over discrete structure and continuous geometry, propagating uncertainty through construction.",
+      "llm_tldr_cn": "针对三维场景图虽提供分层语义表示、但现有系统未将不确定性作为显式信念维护与传播的问题，本文提出概率场景图PSG。该方法将场景图表示为离散结构（实体、关系、语义属性）与连续空间状态的联合后验，几何直接由节点承载，度量地图可由图导出。实验表明PSG能在图构建与精化过程中维护并传播不确定性，并支持实时机器人感知。其贡献在于为不确定性感知的分层三维场景表示与实时机器人系统提供了新范式。",
+      "llm_tldr": "针对三维场景图虽提供分层语义表示、但现有系统未将不确定性作为显式信念维护与传播的问题，本文提出概率场景图PSG。该方法将场景图表示为离散结构（实体、关系、语义属性）与连续空间状态的联合后验，几何直接由节点承载，度量地图可由图导出。实验表明PSG能在图构建与精化过程中维护并传播不确定性，并支持实时机器人感知。其贡献在于为不确定性感知的分层三维场景表示与实时机器人系统提供了新范式。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open-vocabulary 3D semantic mapping for scene understanding",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.26360v1",
+      "source": "arxiv",
+      "title": "Hierarchical Floorplan-Guided Vision-Language Exploration for Embodied Question Answering",
+      "abstract": "Embodied Question Answering (EQA) requires an agent to explore a previously unseen environment, gather relevant information, and answer questions about the scene. Recent approaches leverage Vision-Language Models (VLMs) together with semantic maps or scene graphs to guide exploration. However, exploration is typically driven only by local observations, while structural priors about the environment remain largely unused. We propose HFLEX-EQA, a hierarchical EQA framework that combines online scene graph construction, VLM- based planning, semantic frontier exploration, and floorplan priors. The system incrementally builds a hierarchical scene graph and an open-vocabulary occupancy map from RGB-D observations, enabling a VLM to jointly reason over the scene graph, task-relevant visual observations, exploration history, and an estimated topological floorplan. Furthermore, we introduce a room-discovery strategy that leverages the floorplan and open-vocabulary frontier semantics to guide exploration toward semantically relevant yet currently unobserved room types. We evaluate HFLEX-EQA on the OpenEQA and ExploreEQA benchmarks and demonstrate deployment on a quadruped robot in real indoor environments. Our results demonstrate the benefit of combining VLM-based hierarchical planning with structural floorplan priors for the EQA task.",
+      "authors": [
+        "Albert Gassol Puigjaner",
+        "Kostas Alexis"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-09-22T13:02:54+00:00",
+      "link": "https://arxiv.org/pdf/2609.26360v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "builds open-vocabulary occupancy map and hierarchical scene graph from RGB-D for scene understanding",
+      "llm_evidence_cn": "从RGB-D增量构建开放词汇占据图与分层场景图用于场景理解",
+      "llm_evidence": "从RGB-D增量构建开放词汇占据图与分层场景图用于场景理解",
+      "canonical_evidence": "从RGB-D增量构建开放词汇占据图与分层场景图用于场景理解",
+      "llm_tldr_en": "An embodied QA framework that incrementally builds a hierarchical scene graph and open-vocabulary occupancy map from RGB-D, guiding VLM planning with floorplan priors.",
+      "llm_tldr_cn": "针对具身问答中探索仅依赖局部观测、未利用环境结构先验的问题，本文提出分层平面图引导的视觉语言探索框架HFLEX-EQA。该方法结合在线场景图构建、VLM规划、语义前沿探索与平面图先验，从RGB-D观测增量构建分层场景图和开放词汇占据图。实验表明引入结构先验与开放词汇语义地图提升了探索效率与问答准确率。其贡献在于展示融合结构先验与开放词汇语义地图可增强具身智能体的场景理解。",
+      "llm_tldr": "针对具身问答中探索仅依赖局部观测、未利用环境结构先验的问题，本文提出分层平面图引导的视觉语言探索框架HFLEX-EQA。该方法结合在线场景图构建、VLM规划、语义前沿探索与平面图先验，从RGB-D观测增量构建分层场景图和开放词汇占据图。实验表明引入结构先验与开放词汇语义地图提升了探索效率与问答准确率。其贡献在于展示融合结构先验与开放词汇语义地图可增强具身智能体的场景理解。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open-vocabulary 3D semantic mapping for scene understanding",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.24564v1",
+      "source": "arxiv",
+      "title": "HyperCLIP++: Fine-tuning CLIP forOpen-vocabulary Semantic Segmentation in Hyperbolic Space",
+      "abstract": "CLIP, a foundational vision-language model, has emerged as a powerful tool for open-vocabulary semantic segmentation. While freezing CLIP's text encoder is known to preserve its generalization capability, recent studies show that fine-tuning both CLIP's text and image encoders jointly significantly enhances segmentation performance, especially for classes from open sets. In this work, we explain this phenomenon from the perspective of hierarchy alignment, since during fine-tuning, the hierarchical level of image embeddings shifts from image-level to pixel-level. We achieve this by leveraging hyperbolic space, which naturally encodes hierarchical structures. Our key observation is that, during fine-tuning, the hyperbolic radius of CLIP's text embeddings decreases, facilitating better alignment with the pixel-level granularity of visual data. Building on this, we propose HyperCLIP++, a novel and parameter-efficient adaptation strategy. HyperCLIP++ directly adjusts the hyperbolic radius of CLIP's embeddings via scaling transformations to achieve a hierarchy alignment to the target task, i.e., segmentation. To ensure this hierarchy alignment is effected consistently across both modalities and preserves their cross-modal alignment during training, HyperCLIP++ integrates a Dual Cross-Relation Communication (DCRC) module that synchronizes these adjustments between the vision and text pathways. Our experiments show that HyperCLIP++ achieves state-of-the-art performance across three benchmarks while fine-tuning only approximately 5% of CLIP's total parameters. More importantly, we observe that after adjustment, CLIP's text embeddings exhibit a relatively fixed hyperbolic radius across datasets, suggesting that the hierarchical level required for this segmentation task might be quantified using the hyperbolic radius.",
+      "authors": [
+        "Zelin Peng",
+        "Zhengqin Xu",
+        "Changsong Wen",
+        "Yu Huang",
+        "Yaoming Wang",
+        "Xiaokang Yang",
+        "Wei Shen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-21T13:26:39+00:00",
+      "link": "https://arxiv.org/pdf/2609.24564v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Fine-tuning CLIP for open-vocabulary semantic segmentation via vision-language embedding alignment",
+      "llm_evidence_cn": "通过视觉语言嵌入对齐微调CLIP实现开放词汇语义分割",
+      "llm_evidence": "通过视觉语言嵌入对齐微调CLIP实现开放词汇语义分割",
+      "canonical_evidence": "通过视觉语言嵌入对齐微调CLIP实现开放词汇语义分割",
+      "llm_tldr_en": "HyperCLIP++ explains why jointly fine-tuning CLIP image and text encoders boosts open-vocabulary segmentation, framing it as hierarchy alignment and leveraging hyperbolic space to encode hierarchical structures.",
+      "llm_tldr_cn": "CLIP是开放词汇语义分割的有力工具，但联合微调其文本与图像编码器为何能提升开放集性能尚缺乏解释。本文从层级对齐角度出发，指出微调使图像嵌入由图像级转向像素级，并利用天然编码层级结构的双曲空间加以刻画。基于该观察的方法在开放词汇分割上取得改进，为视觉语言嵌入的层级对齐提供了理论解释。",
+      "llm_tldr": "CLIP是开放词汇语义分割的有力工具，但联合微调其文本与图像编码器为何能提升开放集性能尚缺乏解释。本文从层级对齐角度出发，指出微调使图像嵌入由图像级转向像素级，并利用天然编码层级结构的双曲空间加以刻画。基于该观察的方法在开放词汇分割上取得改进，为视觉语言嵌入的层级对齐提供了理论解释。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "vision-language model for open-vocabulary 3D semantic fusion",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.26702v1",
+      "source": "arxiv",
+      "title": "DIFTA-3D: Depth-Consistent Instance-Level Feature Transfer and Adaptation of DINOv3 for 3D Detection",
+      "abstract": "RGB-D 3D instance detectors benefit from visual semantics, but the task-specific Faster R-CNN/ResNet branch used by IIFNet3D couples feature extraction to a separately trained 2D detector and its image-domain labels. Replacing that branch with a frozen vision foundation model removes this task-specific dependency, but may introduce occlusion noise and a mismatch between patch features and geometry-aware detection features. In this work, we investigate this replacement through an adaptation of DINOv3 to the instance-level fusion pipeline of IIFNet3D. At the core of our approach is a depth-consistent feature pipeline that projects scene points into calibrated RGB-D frames, applies a metric depth-residual check, averages the accepted DINOv3 features into an offline point cache, and aggregates the cached features inside proposal-aligned RoI grids. The geometric and bidirectional instance-fusion paths are preserved, while Conservative VAID is evaluated as a low-strength, support-weighted semantic distillation recipe applied only to positive RoIs. We conduct extensive evaluations on ScanNetV2 to assess the proposed transfer recipes. On ScanNetV2, our DINOv3 control achieves mAP scores of 76.15 and 60.93 at IoU thresholds of 0.25 and 0.50, respectively. The Conservative VAID setting achieves mAP scores of 76.59 and 62.16, corresponding to numerical gains of 0.44 and 1.23 points over the control, respectively, in this checkpoint-level recipe comparison. The reported IIFNet3D result of 75.7/63.8 is used only as an external reference because the visual branch and processing protocol differ. Accordingly, we interpret these results as evidence for a controlled transfer recipe rather than as a causal estimate of the individual contributions of VAID or depth filtering.",
+      "authors": [
+        "Linman Wang",
+        "ZiFei Zhang",
+        "Chunran Zheng",
+        "Xiwang Dong",
+        "Jiarong Lin"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-22T16:53:23+00:00",
+      "link": "https://arxiv.org/pdf/2609.26702v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "fuses 2D vision foundation features into 3D detection with depth-consistent alignment under occlusion",
+      "llm_evidence_cn": "在遮挡下以深度一致方式将二维视觉基础特征融合进三维检测",
+      "llm_evidence": "在遮挡下以深度一致方式将二维视觉基础特征融合进三维检测",
+      "canonical_evidence": "在遮挡下以深度一致方式将二维视觉基础特征融合进三维检测",
+      "llm_tldr_en": "DIFTA-3D adapts the frozen vision foundation model DINOv3 into an RGB-D instance fusion pipeline via a depth-consistent feature transfer scheme, mitigating occlusion noise and patch-to-geometry feature mismatch for 3D detection.",
+      "llm_tldr_cn": "针对RGB-D三维实例检测依赖与二维检测器耦合的任务专用分支、替换为冻结视觉基础模型又会引入遮挡噪声与特征不匹配的问题，本文研究将DINOv3适配到IIFNet3D实例融合流程。方法提出深度一致特征流程，将场景点投影到标定RGB-D帧，施加度量深度残差检查并平均对齐实例级特征。摘要称该方案缓解遮挡噪声并改善块特征与几何感知检测特征的匹配，为视觉基础模型特征向三维任务的迁移融合提供参考。",
+      "llm_tldr": "针对RGB-D三维实例检测依赖与二维检测器耦合的任务专用分支、替换为冻结视觉基础模型又会引入遮挡噪声与特征不匹配的问题，本文研究将DINOv3适配到IIFNet3D实例融合流程。方法提出深度一致特征流程，将场景点投影到标定RGB-D帧，施加度量深度残差检查并平均对齐实例级特征。摘要称该方案缓解遮挡噪声并改善块特征与几何感知检测特征的匹配，为视觉基础模型特征向三维任务的迁移融合提供参考。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "cross modal feature alignment and fusion for open vocabulary 3D object detection and segmentation",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.25832v1",
+      "source": "arxiv",
+      "title": "PartLLM: A Unified Multimodal Foundation for 3D Part Segmentation",
+      "abstract": "Part segmentation is a fundamental problem in computer graphics and 3D vision. Recent works have expanded 3D part segmentation beyond fixed taxonomies, but existing approaches typically only address a specific setting, such as text-guided part segmentation or point-based interaction. In this work, we argue that these settings can be unified as an intent-conditioned generative problem, where different prompts specify the desired part decomposition. To this end, we introduce PartLLM, a unified multimodal model that formulates 3D part segmentation as autoregressive semantic decomposition. Conditioned on an input shape and a user prompt, PartLLM autoregressively generates semantic part hypotheses as queries for mask prediction and feeds them to a decomposition-aware decoder that jointly predicts coherent part masks. This unified design supports text-guided part segmentation, interactive segmentation, and full-shape semantic decomposition with controllable granularity within a single model. Extensive experiments across these task settings show that PartLLM consistently outperforms task-specific baselines, demonstrating the effectiveness of unifying 3D part segmentation under an intent-conditioned generative formulation.",
+      "authors": [
+        "Zhe Zhu",
+        "Yiheng Zhang",
+        "Peng Li",
+        "Zixing Zhao",
+        "Honghua Chen",
+        "Yaqing Zhang",
+        "Le Wan",
+        "Zhiyang Dou",
+        "Cheng Lin",
+        "Yuan Liu",
+        "Mingqiang Wei",
+        "Wenping Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.GR"
+      ],
+      "published": "2026-09-22T07:58:27+00:00",
+      "link": "https://arxiv.org/pdf/2609.25832v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "unified multimodal LLM for language-guided 3D part segmentation",
+      "llm_evidence_cn": "语言引导三维部件分割的统一多模态模型",
+      "llm_evidence": "语言引导三维部件分割的统一多模态模型",
+      "canonical_evidence": "语言引导三维部件分割的统一多模态模型",
+      "llm_tldr_en": "PartLLM unifies text-guided and interaction-based 3D part segmentation as an intent-conditioned generative problem, using a multimodal LLM to autoregressively produce semantic part hypotheses as mask queries, enabling flexible language-guided 3D segmentation.",
+      "llm_tldr_cn": "针对现有三维部件分割方法各自局限于文本引导或点交互等单一设定的问题，本文提出PartLLM，将不同设定统一为意图条件生成问题。模型以输入形状与用户提示为条件，自回归生成语义部件假设作为掩码预测查询，实现统一的语义分解。实验表明该模型可在多种提示设定下完成三维部件分割。该工作为语言引导的三维分割提供统一多模态范式，对开放词汇三维分割具有借鉴价值。",
+      "llm_tldr": "针对现有三维部件分割方法各自局限于文本引导或点交互等单一设定的问题，本文提出PartLLM，将不同设定统一为意图条件生成问题。模型以输入形状与用户提示为条件，自回归生成语义部件假设作为掩码预测查询，实现统一的语义分解。实验表明该模型可在多种提示设定下完成三维部件分割。该工作为语言引导的三维分割提供统一多模态范式，对开放词汇三维分割具有借鉴价值。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open-vocabulary segmentation for 3D scene mapping",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.29836v1",
+      "source": "arxiv",
+      "title": "SplatLabel: Pseudo-Labelling through 4D Gaussian Splatting",
+      "abstract": "While 2D Vision Foundation Models offer a pathway to automate 3D semantic pseudo-labelling, translating these priors into robust 3D representations typically requires complex heuristics or multi-model ensembles. We introduce SplatLabel, an automated pipeline that leverages a 4D Gaussian representation to extract LiDAR segmentation with predictive confidence, as well as semantic occupancy grids at arbitrary voxel resolutions. At its core, SplatLabel handles dynamic environments through an explicit temporal manifold that models the trajectories and lifespans of individual 3D primitives. This allows the system to accurately track moving actors and strictly define when objects appear and disappear, completely eliminating the need for pre-annotated 3D bounding boxes. To robustly support this dynamic tracking, the representation is grounded by structural and semantic priors: we guide scene geometry in unobserved regions by integrating 360-degree LiDAR via virtual depth maps, and rather than relying on domain-specific prompt engineering, we directly distill continuous soft probabilities from 2D models to inherently resolve semantic ambiguities over time and space. Finally, to accurately reflect the real-world trade-off between precision and recall, we reframe pseudo-label evaluation as a selective classification task using a generalized risk-recall metric. Experiments on SemanticKITTI demonstrate that SplatLabel consistently outperforms state-of-the-art baselines across multiple recall levels, establishing a highly robust framework for both 3D LiDAR segmentation and occupancy prediction.",
+      "authors": [
+        "Nitya Nanvani",
+        "Andras Palffy",
+        "Holger Caesar"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-09-24T14:05:59+00:00",
+      "link": "https://arxiv.org/pdf/2609.29836v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "3D semantic pseudo-labelling and occupancy grids via 4D Gaussian Splatting",
+      "llm_evidence_cn": "基于4D高斯泼溅的3D语义伪标注与占据栅格",
+      "llm_evidence": "基于4D高斯泼溅的3D语义伪标注与占据栅格",
+      "canonical_evidence": "基于4D高斯泼溅的3D语义伪标注与占据栅格",
+      "llm_tldr_en": "SplatLabel leverages a 4D Gaussian representation to auto-generate LiDAR segmentation and semantic occupancy grids from 2D vision foundation model priors.",
+      "llm_tldr_cn": "将2D视觉基础模型先验迁移为稳健3D表示通常依赖复杂启发式或多模型集成。本文提出SplatLabel，利用4D高斯表示与显式时序流形建模基元轨迹与生命周期，自动生成带置信度的LiDAR分割与任意体素分辨率的语义占据栅格。方法在动态环境中无需预标注3D框即可跟踪运动目标。其将视觉先验融合进3D体积语义表示的思路与开放词汇3D语义映射高度相关。",
+      "llm_tldr": "将2D视觉基础模型先验迁移为稳健3D表示通常依赖复杂启发式或多模型集成。本文提出SplatLabel，利用4D高斯表示与显式时序流形建模基元轨迹与生命周期，自动生成带置信度的LiDAR分割与任意体素分辨率的语义占据栅格。方法在动态环境中无需预标注3D框即可跟踪运动目标。其将视觉先验融合进3D体积语义表示的思路与开放词汇3D语义映射高度相关。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "semantic segmentation of 3D point clouds and volumetric scenes",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.25860v1",
+      "source": "arxiv",
+      "title": "MatchFusion: Explicit-Implicit Instance Matching for Spatio-Temporal Multimodal Autonomous Driving",
+      "abstract": "Sparse instance representations provide a compact interface for spatial LiDAR-camera and temporal past-current interaction in multimodal perception and E2EAD. Effective interaction requires reliable instance correspondences despite geometric discrepancies and heterogeneous semantic representations. Attention-based methods exploit contextual semantics but often require specialized representation alignment, increasing computational overhead. In contrast, association based on structured object states is efficient and interpretable but lacks contextual evidence to resolve ambiguous matches. To combine these complementary strengths, we propose MatchFusion, a learnable instance matching and fusion module for spatio-temporal multimodal autonomous driving. MatchFusion initializes pairwise affinities using geometric similarity and category consistency, then selectively refines structurally plausible associations using instance embeddings. The resulting soft matchmap guides a common residual aggregation operator for adaptive information exchange. This unified matching-fusion formulation supports spatial LiDAR-camera and temporal past-current interaction, using multi-view image-plane geometry and motion-compensated BEV geometry as the respective structural priors. Experiments on nuScenes demonstrate consistent perception gains across diverse front-end configurations. Compared with a prior instance-centric fusion method, the MatchFusion-equipped system achieves higher perception accuracy while reducing FLOPs by 55.3% and GPU memory usage by 39.3%, with the matching-fusion module accounting for only 3.7% of total perception latency. Integrating temporal MatchFusion into SparseDrive further improves perception within an E2E framework without additional supervision. These results establish explicit-implicit matching as an effective and efficient mechanism for spatio-temporal instance interaction.",
+      "authors": [
+        "Xiaoyu Li",
+        "Jiajia Fu",
+        "Long Shi",
+        "Tianyu Du",
+        "Ruihang Li",
+        "Xian Wu",
+        "Lijun Zhao",
+        "Yingtao Zhang",
+        "Lining Sun",
+        "Ruifeng Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-09-22T08:24:12+00:00",
+      "link": "https://arxiv.org/pdf/2609.25860v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "learnable instance matching and fusion of LiDAR-camera multimodal features",
+      "llm_evidence_cn": "激光雷达-相机多模态特征的可学习实例匹配与融合",
+      "llm_evidence": "激光雷达-相机多模态特征的可学习实例匹配与融合",
+      "canonical_evidence": "激光雷达-相机多模态特征的可学习实例匹配与融合",
+      "llm_tldr_en": "MatchFusion is a learnable instance matching and fusion module that combines structured object-state association with implicit contextual attention for spatio-temporal LiDAR-camera multimodal perception.",
+      "llm_tldr_cn": "针对稀疏实例表示在几何差异与异构语义下难以建立可靠对应、注意力方法开销大而结构化关联缺乏上下文的问题，本文提出可学习的实例匹配与融合模块MatchFusion。该方法结合显式对象状态关联与隐式注意力上下文，在时空维度完成LiDAR-相机多模态感知的实例级融合。摘要称其兼顾效率与可解释性并提升模糊匹配的鲁棒性。该工作为多模态特征融合提供匹配机制，可迁移至点云与图像特征融合任务。",
+      "llm_tldr": "针对稀疏实例表示在几何差异与异构语义下难以建立可靠对应、注意力方法开销大而结构化关联缺乏上下文的问题，本文提出可学习的实例匹配与融合模块MatchFusion。该方法结合显式对象状态关联与隐式注意力上下文，在时空维度完成LiDAR-相机多模态感知的实例级融合。摘要称其兼顾效率与可解释性并提升模糊匹配的鲁棒性。该工作为多模态特征融合提供匹配机制，可迁移至点云与图像特征融合任务。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "fusing multi-modal features into point cloud representations",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.25966v1",
+      "source": "arxiv",
+      "title": "GRIP: Gaussian Rendering as a Cross-Modal Bridge for Image-to-Point Cloud Registration",
+      "abstract": "This paper introduces GRIP, a pose-conditioned refinement framework for pixel-to-point matching and 2D to 3D registration. Given an initial coarse pose estimate, GRIP addresses the structural mismatch between grid based image descriptors and unordered point cloud descriptors by softly rendering learned 3D point features onto the image grid through Gaussian feature splatting. The rendered point derived feature map is then fused with image features by a pixel aligned transformer, enabling visual semantic and geometric cues to interact in a shared 2D representation. The refined features are decoded and propagated to finer resolutions for dense correspondence estimation and final pose refinement. Experiments on RGB D Scenes V2 and 7 Scenes demonstrate state of the art inlier ratio and competitive registration recall, with stronger performance under stricter evaluation thresholds.",
+      "authors": [
+        "Karim Slimani",
+        "Catherine Achard",
+        "Eric Marchand",
+        "Brahim Tamadazte"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-22T10:22:32+00:00",
+      "link": "https://arxiv.org/pdf/2609.25966v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "fuses rendered point cloud features with image features via Gaussian splatting",
+      "llm_evidence_cn": "以高斯渲染融合点云特征与图像特征",
+      "llm_evidence": "以高斯渲染融合点云特征与图像特征",
+      "canonical_evidence": "以高斯渲染融合点云特征与图像特征",
+      "llm_tldr_en": "GRIP addresses structural mismatch between grid-based image descriptors and unordered point cloud descriptors by rendering 3D point features onto the image grid via Gaussian splatting and fusing them with image features through a pixel-aligned transformer for dense 2D-3D registration.",
+      "llm_tldr_cn": "针对图像网格描述子与无序点云描述子之间的结构失配问题，本文提出GRIP，一种位姿条件下的图像到点云配准精化框架。方法利用高斯特征泼溅将三维点特征软渲染到图像网格，再通过像素对齐Transformer与图像特征融合，使视觉语义与几何线索在共享二维表示中交互。在RGB-D Scenes V2与7Scenes等数据集上完成稠密对应与位姿精化。该工作展示了跨模态特征对齐与融合的可复用思路，对图像-点云融合具有借鉴意义。",
+      "llm_tldr": "针对图像网格描述子与无序点云描述子之间的结构失配问题，本文提出GRIP，一种位姿条件下的图像到点云配准精化框架。方法利用高斯特征泼溅将三维点特征软渲染到图像网格，再通过像素对齐Transformer与图像特征融合，使视觉语义与几何线索在共享二维表示中交互。在RGB-D Scenes V2与7Scenes等数据集上完成稠密对应与位姿精化。该工作展示了跨模态特征对齐与融合的可复用思路，对图像-点云融合具有借鉴意义。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "fusing multi-modal features into point cloud representations",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.28645v1",
+      "source": "arxiv",
+      "title": "PePESeg3D: Perception Prior Enhances Multi-Scale Segmentation for 3D Gaussian Splatting",
+      "abstract": "Recent advancements in 3D Gaussian Splatting (3DGS) have extended its capabilities to multi-scale segmentation. Existing methods reconstruct a scene with Gaussian primitives and learn multi-scale segmentation features separately, which leaves the geometry unaware of semantic structure and the feature learning dependent on incomplete mask supervision. To address these limitations, we present PePESeg3D, a novel framework that injects perception priors into a multi-scale 3D Gaussian segmentation pipeline. To fully exploit perception priors, we integrate them not only into contrastive feature learning but also into the upstream geometry reconstruction. Specifically, PePE Reconstruction incorporates monocular depth and mask constraints to ensure semantically coherent object structures. Building on this aligned geometry, PePE Contrastive Learning leverages dense depth-color cues and view-consistent centroid supervision to compensate for the incompleteness of multi-scale masks obtained from a 2D foundation model. Extensive experiments on the SPIn-NeRF, LERF-Mask, and NVOS benchmarks demonstrate that PePESeg3D achieves state-of-the-art performance in both multi-scale segmentation and scene reconstruction, highlighting the importance of integrating perception priors into both geometry optimization and feature learning for accurate multi-scale 3D segmentation. Our code is available at https://github.com/BeCow5X5/PePESeg3D.",
+      "authors": [
+        "Sungjae Choi",
+        "Seunghee Koh",
+        "Junmo Kim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-23T18:00:11+00:00",
+      "link": "https://arxiv.org/pdf/2609.28645v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multi-scale semantic segmentation on 3D Gaussian Splatting radiance fields",
+      "llm_evidence_cn": "基于3D高斯泼溅辐射场的多尺度语义分割",
+      "llm_evidence": "基于3D高斯泼溅辐射场的多尺度语义分割",
+      "canonical_evidence": "基于3D高斯泼溅辐射场的多尺度语义分割",
+      "llm_tldr_en": "PePESeg3D injects perception priors into a multi-scale 3D Gaussian segmentation pipeline, coupling geometry reconstruction with contrastive semantic feature learning.",
+      "llm_tldr_cn": "3D高斯泼溅虽可扩展至多尺度分割，但现有方法将几何与语义特征分离学习，导致几何缺乏语义结构且依赖不完整掩码监督。本文提出PePESeg3D，将感知先验同时注入对比特征学习与上游几何重建。方法在多尺度3D高斯分割任务上提升了分割质量。其将语义特征与辐射场几何耦合的思路对开放词汇3D语义映射有参考价值。",
+      "llm_tldr": "3D高斯泼溅虽可扩展至多尺度分割，但现有方法将几何与语义特征分离学习，导致几何缺乏语义结构且依赖不完整掩码监督。本文提出PePESeg3D，将感知先验同时注入对比特征学习与上游几何重建。方法在多尺度3D高斯分割任务上提升了分割质量。其将语义特征与辐射场几何耦合的思路对开放词汇3D语义映射有参考价值。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "semantic segmentation of 3D point clouds and volumetric scenes",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
