@@ -1,0 +1,94 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-28T23:29:21.990763+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [
+    {
+      "id": "2609.31005v1",
+      "source": "arxiv",
+      "title": "TRACKGRAPH: Online Open-Vocabulary 3D Scene Graphs via Image-Space Tracking",
+      "abstract": "Open-vocabulary 3D maps enable robots to reason about previously unknown environments using natural language. However, existing systems typically segment every incoming image, associate detections with persistent 3D segments, and frequently perform costly Vision-Language (VL) inference. We present TRACKGRAPH, an online open-vocabulary system that maintains short-term 2D mask identity directly in the image stream before fusing segments into 3D. FastSAM masks and CLIP features are computed at sparse keyframes, while dense DINOv3 features are used to propagate masks at a high rate in between. The resulting tracked masks are fused into a class-agnostic 3D segment layer within a hierarchical scene graph, with 3D association handling tracking interruptions and long-term revisits. Compact multi-view CLIP embeddings enable open-vocabulary retrieval. Across Replica, ScanNet++, and HM3D, TRACKGRAPH achieves competitive open-vocabulary segmentation and retrieval against state-of-the-art mapping methods, including the highest synonym frequency on Replica (0.50). On the same NVIDIA A100, it is 1.7x faster and uses 3.3x less GPU memory than ViT-H OVI-MAP. Real-world quadruped deployments demonstrate onboard scene graph construction and object search at 7.5Hz, while recorded drone data is used to test the method under aerial viewpoints.",
+      "authors": [
+        "Peder Borge Hellesylt",
+        "Albert Gassol Puigjaner",
+        "Kostas Alexis",
+        "Annette Stahl"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-09-25T08:51:33+00:00",
+      "link": "https://arxiv.org/pdf/2609.31005v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "online open-vocabulary 3D scene graph fusing tracked masks into 3D segments",
+      "llm_evidence_cn": "将跟踪掩码融合为三维片段的在线开放词汇三维场景图",
+      "llm_evidence": "将跟踪掩码融合为三维片段的在线开放词汇三维场景图",
+      "canonical_evidence": "将跟踪掩码融合为三维片段的在线开放词汇三维场景图",
+      "llm_tldr_en": "Open-vocabulary 3D maps let robots reason about unknown environments, but existing systems segment every frame and run costly VL inference. TRACKGRAPH maintains 2D mask identity in the image stream, computes FastSAM and CLIP at sparse keyframes, propagates with DINOv3, and fuses tracked masks into a class-agnostic 3D segment layer.",
+      "llm_tldr_cn": "开放词汇三维地图使机器人能用自然语言推理未知环境，但现有系统通常逐帧分割、将检测关联到持久三维片段，并频繁进行昂贵的视觉语言推理。TRACKGRAPH提出在线开放词汇系统，先在图像流中维护短期二维掩码身份，仅在稀疏关键帧计算FastSAM掩码与CLIP特征，中间用稠密DINOv3特征高速传播掩码。所得跟踪掩码被融合进层次场景图中类无关的三维片段层，三维关联可处理跟踪中断。该工作为高效多视图融合的开放词汇三维语义建图提供了新范式。",
+      "llm_tldr": "开放词汇三维地图使机器人能用自然语言推理未知环境，但现有系统通常逐帧分割、将检测关联到持久三维片段，并频繁进行昂贵的视觉语言推理。TRACKGRAPH提出在线开放词汇系统，先在图像流中维护短期二维掩码身份，仅在稀疏关键帧计算FastSAM掩码与CLIP特征，中间用稠密DINOv3特征高速传播掩码。所得跟踪掩码被融合进层次场景图中类无关的三维片段层，三维关联可处理跟踪中断。该工作为高效多视图融合的开放词汇三维语义建图提供了新范式。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open-vocabulary 3D semantic mapping for scene understanding",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.26325v1",
+      "source": "arxiv",
+      "title": "Leveraging Vision-Based Point Cloud Map Priors for Camera-Based 3D Object Detection and Online Vectorized HD Mapping",
+      "abstract": "Camera-based 3D object detection and online vectorized HD mapping provide compact scene representations for autonomous driving, but both depend on accurate metric geometry and remain limited by depth ambiguity. Over long-term deployment, observations from repeated traversals can be accumulated into persistent point cloud priors that provide geometric context beyond the current observations. Existing explicit point cloud prior approaches, however, rely on LiDAR-based map construction and therefore require expensive 3D ranging sensors. We propose a framework that constructs a static point cloud prior map from previous camera traversals using Pi3X and augments each point with DINOv3 features. At runtime, a local prior patch is retrieved using global localization, encoded with a sparse voxel backbone, and fused in bird's-eye view (BEV) with lifted multi-view camera features. Task-specific sparse transformer heads then predict 3D objects and vectorized map elements from the fused representation. On Argoverse 2, the vision-based prior improves a strong baseline from 0.287 to 0.299 CDS and from 0.669 to 0.750 vectorized mapping mAP. Ablations show that semantic DINOv3 features are particularly important for vectorized mapping. These results demonstrate that vision-built geometric-semantic priors provide an effective form of long-term scene memory for camera-based perception, improving both tasks without LiDAR for prior-map construction or online inference.",
+      "authors": [
+        "Markus Käppeler",
+        "Rohit Mohan",
+        "Abhinav Valada"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-09-22T12:36:48+00:00",
+      "link": "https://arxiv.org/pdf/2609.26325v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Static point cloud prior map augmented with DINOv3 vision features and fused at runtime",
+      "llm_evidence_cn": "用DINOv3视觉特征增强静态点云先验地图并在运行时融合",
+      "llm_evidence": "用DINOv3视觉特征增强静态点云先验地图并在运行时融合",
+      "canonical_evidence": "用DINOv3视觉特征增强静态点云先验地图并在运行时融合",
+      "llm_tldr_en": "This framework builds a static point cloud prior map from camera traversals using Pi3X and augments points with DINOv3 features, providing geometric and semantic context to improve camera-based 3D detection and online HD mapping.",
+      "llm_tldr_cn": "论文针对相机三维目标检测与在线矢量化HD建图受深度歧义限制、而现有显式点云先验依赖昂贵LiDAR的问题，提出利用历史相机轨迹通过Pi3X构建静态点云先验地图，并用DINOv3视觉特征增强每个点。运行时通过定位对齐将先验融入当前观测，为感知提供几何与语义上下文。实验表明该框架在自动驾驶场景中改善了检测与建图表现，展示了视觉基础模型特征与点云先验融合服务下游三维感知的可行路径。",
+      "llm_tldr": "论文针对相机三维目标检测与在线矢量化HD建图受深度歧义限制、而现有显式点云先验依赖昂贵LiDAR的问题，提出利用历史相机轨迹通过Pi3X构建静态点云先验地图，并用DINOv3视觉特征增强每个点。运行时通过定位对齐将先验融入当前观测，为感知提供几何与语义上下文。实验表明该框架在自动驾驶场景中改善了检测与建图表现，展示了视觉基础模型特征与点云先验融合服务下游三维感知的可行路径。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "fusing multi-modal features into point cloud representations",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "date": "20260928",
+  "date_label": "",
+  "generated_at": "2026-09-28 23:31:58 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.31005v1",
+      "route": "202609/28/2609.31005v1-trackgraph-online-open-vocabulary-3d-scene-graphs-via-image-space-tracking",
+      "title": "TRACKGRAPH: Online Open-Vocabulary 3D Scene Graphs via Image-Space Tracking",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "将跟踪掩码融合为三维片段的在线开放词汇三维场景图",
+      "first_seen_at": "2026-09-28 23:31:58 UTC",
+      "updated_at": "2026-09-28 23:31:58 UTC"
+    },
+    {
+      "paper_id": "2609.26325v1",
+      "route": "202609/28/2609.26325v1-leveraging-vision-based-point-cloud-map-priors-for-camera-based-3d-object-detection-and-online-vectorized-hd-mapping",
+      "title": "Leveraging Vision-Based Point Cloud Map Priors for Camera-Based 3D Object Detection and Online Vectorized HD Mapping",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "用DINOv3视觉特征增强静态点云先验地图并在运行时融合",
+      "first_seen_at": "2026-09-28 23:31:58 UTC",
+      "updated_at": "2026-09-28 23:31:58 UTC"
+    }
+  ]
+}
