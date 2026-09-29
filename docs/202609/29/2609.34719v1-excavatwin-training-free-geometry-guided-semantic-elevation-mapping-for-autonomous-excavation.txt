@@ -1,0 +1,255 @@
+Title: ExcavaTwin: Training-Free Geometry-Guided Semantic Elevation Mapping for Autonomous Excavation
+
+URL Source: https://arxiv.org/pdf/2609.34719v1
+
+Published Time: Tue, 29 Sep 2026 03:40:54 GMT
+
+Number of Pages: 8
+
+Markdown Content:
+# ExcavaTwin: Training-Free Geometry-Guided Semantic Elevation Mapping for Autonomous Excavation 
+
+Yu Deng 1, Lingshan Zeng 2, Tong Hu 3, Rushi Dai 1,∗
+
+Fig. 1. Overview of ExcavaTwin. LiDAR-based perception in outdoor environments can be affected by environmental interference. ExcavaTwin uses visual input to construct a clear, multi-layer spatial representation for excavators’ tasks. 
+
+Abstract — Autonomous excavation requires a spatial rep-resentation that jointly captures terrain geometry and task-relevant semantics. Existing excavation mapping is largely elevation-centric, while generic semantic models remain unsta-ble in unstructured outdoor scenes. We present ExcavaTwin, a pure-vision geometry-guided semantic elevation mapping framework without excavation-specific training. Given multi-view RGB images, the framework: 1) reconstructs scene geom-etry and semantic observations using frozen vision models; 2) derives terrain and non-terrain geometric support; 3) performs geometry-constrained multi-view semantic fusion to suppress implausible predictions and recover incomplete observations; and 4) projects the fused state into a task-oriented semantic elevation map. Experiments on public datasets and real ex-cavation scenes demonstrate reliable geometric and semantic perception. In real excavation, the system achieved an average update interval of approximately 1.4 s and a mean elevation error of 12.74cm in dynamically modified regions. Larger errors mainly occur during rapid terrain changes and transient visual disturbances caused by machine motion. 
+
+I. I NTRODUCTION 
+
+Autonomous excavation requires a spatial representation that identifies where the machine can operate, what parts    
+
+> *Corresponding author. This work was supported in part by the Guangdong Provincial Key Laboratory of Integrated Communication, Sensing and Computation for Ubiquitous Internet of Things (No. 2023B1212010007).
+> 1The Smart Manufacturing Thrust, The Hong Kong University of Science and Technology (Guangzhou)
+> 2Department of Electronic and Electrical Engineering, Southern Univer-sity of Science and Technology.
+> 3Capstone Technology Co., Ltd., Shenzhen, China.
+
+of the scene should be avoided, and how the terrain changes during execution. Conventional elevation maps provide com-pact estimates of surface height and uncertainty [1], [2], [3], [4], but do not distinguish operable terrain from surface interference, machinery, or obstacles. Consequently, non-terrain observations may be incorporated into the estimated surface, while geometrically adjacent regions with different task roles remain indistinguishable. Projecting image semantics into 3D does not fully resolve this limitation. Single-view predictions are incomplete under occlusion and may vary across viewpoints, while generic semantic categories do not necessarily reflect the func-tional roles required for excavation. Direct multi-view voting improves consistency by accumulating semantic scores at corresponding 3D locations [5], [6], but it does not determine whether a predicted class is physically compatible with the local terrain or object structure. As a result, repeated but geometrically implausible predictions may still be retained, and uncertain regions may be forced into an observed class. We present ExcavaTwin, a pure-vision geometry-guided semantic elevation mapping framework that requires no excavation-specific semantic training. Unlike direct 3D voting, which selects labels primarily from accumulated per-view scores, our method restricts the candidate label space using connected terrain/non-terrain support and class-dependent geometric admissibility, while retaining an explicit unknown state when the available evidence is insufficient or conflicting. Geometry and semantics therefore contribute complementary constraints to a shared scene interpretation. arXiv:2609.34719v1 [cs.RO] 28 Sep 2026 An overview of the proposed framework is shown in Fig. 1. Given multi-view RGB observations, the proposed frame-work first reconstructs scene geometry and obtains semantic observations using frozen vision models. It then extracts connected terrain and non-terrain support from the recon-struction. Semantic observations are subsequently aligned and fused across views under class-dependent geometric con-straints. Finally, the fused state is mapped to an excavation-oriented taxonomy and projected into a metric semantic elevation map containing terrain geometry, semantic identity, and observation confidence. The main contributions of this work are:  
+
+> •
+
+A vision-based geometry–semantic elevation mapping framework for autonomous excavation that requires no specific semantic training or fine-tuning.  
+
+> •
+
+A geometry-guided fusion mechanism that improves semantic segmentation performance in outdoor environ-ments without requiring additional training.  
+
+> •
+
+Extensive evaluation across public datasets, the OCES dataset, and real-world excavation, demonstrating ge-ometric accuracy, semantic robustness, and practical feasibility. II. R ELATED WORK 
+
+A. Terrain Mapping for Field Robotics 
+
+Terrain mapping has been extensively studied for field robotics, where 2.5D elevation representations provide an efficient description of local surface geometry. Fankhauser et al. [1] introduced probabilistic robot-centric elevation mapping with explicit uncertainty modelling, and subsequent work improved its efficiency and applicability to rough-terrain locomotion [2]. For excavation, Jud et al. [3], [4] extended terrain mapping to account for self-occlusion and continuously modified surfaces during digging, while Bhan-dari et al. [7] further introduced probabilistic temporal mod-elling for rapidly changing terrain. These studies demonstrate that geometric terrain estimation and continuous updating are already well established. However, the maintained scene state remains dominated by geometric quantities such as elevation, local shape, and uncertainty, while semantic identity is typically handled separately. 
+
+B. Outdoor Semantic Perception and Open-Vocabulary Mod-els 
+
+Semantic perception in unstructured outdoor environments remains more dependent on domain-specific data. Dedicated datasets such as RELLIS-3D [8] and WildScenes [9] were introduced specifically to support semantic understanding in off-road and natural environments, reflecting the diffi-culty of directly transferring models trained on structured urban scenes. For construction and excavation sites, this dependency is particularly restrictive because soil appear-ance, vegetation, illumination, machine occlusion, and ter-rain deformation vary substantially across worksites. Recent open-vocabulary models alleviate this requirement by en-abling zero-shot recognition of previously unseen concepts. YOLOE [10], for example, provides prompt-based open-set detection and segmentation without excavation-specific training. Nevertheless, such predictions remain image-space observations and may be incomplete or inconsistent across viewpoints. Thus, eliminating task-specific training does not by itself produce a persistent and physically coherent scene representation. 
+
+C. 3D Semantic Mapping and Geometry–Semantic Fusion 
+
+A related line of research integrates image semantics with reconstructed 3D geometry. SemanticFusion [5] demon-strated multi-view fusion of CNN predictions through dense geometric correspondences, improving semantic consistency over single-frame results. More recent methods further ex-tend semantic mapping toward open-vocabulary scene under-standing. OpenScene [11] transfers vision-language features into 3D for zero-shot semantic queries, while Concept-Fusion [12] and Open-Fusion [6] construct persistent 3D representations from pretrained foundation-model features without task-specific fine-tuning. These methods significantly reduce the dependence on fixed semantic taxonomies and annotated 3D training data. However, existing semantic mapping methods mainly use geometry as a spatial carrier for accumulating semantic predictions. In unstructured earthmoving scenes, geometry can provide stronger physical constraints: terrain continu-ity, local relief, surface orientation, and 3D object support indicate where particular semantic hypotheses are physically plausible. Our method therefore uses reconstructed geometry not only to associate multi-view semantic observations, but also to constrain and complete incomplete open-vocabulary predictions over the observed physical surface. The re-sulting geometry–semantic scene state is further projected into a task-oriented elevation representation for autonomous excavation, where semantic identity, terrain structure, and observation validity are jointly maintained. This differs from semantic elevation mapping approaches that rely on site-specific semantic training [13], while retaining the compact terrain representation required by downstream excavation tasks. Learning-based reconstruction models provide dense depth, camera geometry, and three-dimensional point predic-tions from a small set of images [14]. Their output, however, remains an unstructured geometric observation: it does not state which points form a continuous terrain surface, which structures are physically detached from that surface, or how semantic evidence should be interpreted at terrain–object boundaries. Conversely, an image segmenter can recognize appearance, but its predictions are view dependent, incom-plete under occlusion, and unaware of the physical support of a class. Our objective is therefore not to attach indepen-dent two-dimensional labels to a reconstructed point cloud. Instead, we seek a physically supported scene decomposition in which terrain structure and semantic identity are inferred on the same three-dimensional support. Fig. 2. Main pipeline of ExcavaTwin. The pipeline consists of two stages: vision-based twinning and geometry–semantic coupling. First, frozen visual reconstruction and segmentation models, such as VGGT and YOLOE, recover the scene structure and semantics. Then, geometric features are fused with semantic information to produce an excavation-oriented spatial map with semantic and elevation representations. 
+
+III. M ETHOD 
+
+A. Problem Formulation 
+
+As illustrated in Fig. 2, the framework takes a sequence of RGB observations and jointly builds geometric and semantic representations. Given a sequence of RGB observations I =
+
+{Is}Ss=1 , a geometry backbone such as VGGT predicts a world point map Ps, camera parameters, and a reconstruction confidence map Cs for each view [14]. In parallel, an open-vocabulary segmenter [10] provides a non-negative semantic evidence vector os(u) at image location u. The point pre-diction and semantic observation are retained on the same image lattice. Each valid image sample therefore defines 
+
+(s, u) ←→  psu, c su, osu
+
+, (1) where psu is the reconstructed point and csu is its reconstruc-tion confidence. This is an index-level correspondence, not a separately estimated nearest-neighbor association between a two-dimensional mask and an unrelated point cloud. The framework integrates these geometric and semantic observations and projects the fused representation onto a horizontal grid to construct a semantic elevation map: 
+
+M = F
+
+
+
+{(psu, c su, osu)}s, u
+
+
+
+, (2) where F denotes the proposed geometry–semantic mapping framework and M is the resulting semantic elevation map. 
+
+B. Task-Oriented Hierarchical Spatial Taxonomy 
+
+Autonomous excavation requires distinguishing manipula-ble terrain, environmental interference, and objects relevant to operational safety. We therefore organize the reconstructed scene into task-oriented functional classes rather than relying directly on the predefined vocabulary of generic segmenta-tion models. We partition the workspace into three task-oriented lay-ers: an object layer for machinery and obstacles, a noise layer for environmental interference, and a working terrain layer for manipulable ground. The proposed framework uses geometric structure to constrain semantic inference, suppressing implausible predictions while semantic evidence resolves the identities of spatially admissible regions.The resulting geometry–semantic representation is projected onto a horizontal grid to construct a multi-layer semantic elevation map, 
+
+M = Mwork , Mnoise , Mobject , (3) where the three layers respectively preserve terrain elevation, environmental interference, and task-relevant objects within a common spatial reference. Geometric structure first establishes terrain and non-terrain support, constraining the spatial admissibility of semantic predictions. Within these supports, semantic evidence further distinguishes construction terrain, other terrain, removable surface cover, excavators, and obstacles. Construction terrain represents manipulable soil, other terrain provides surround-ing spatial reference, and removable surface cover represents environmental interference such as vegetation. Excavators and obstacles represent machinery and objects relevant to operational safety, respectively. Regions with insufficient or conflicting evidence are assigned to the unknown class. Generic semantic predictions are mapped to these task-oriented classes to provide a consistent interpretation of the reconstructed scene. Following this taxonomy, the outputs of the semantic segmentation model are mapped to the corresponding task-oriented classes using a predefined class mapping. Predic-tions assigned to the same task class are merged into a common semantic evidence channel, providing a unified label space for subsequent geometry-constrained fusion. C. Geometric Spatial Processing 
+
+The geometric branch constructs the spatial support for subsequent semantic inference rather than determining se-mantic identity independently. Starting from the recon-structed point cloud, we first extract local geometric features and identify unreliable observations. These features are then used to establish a continuous terrain support, from which the remaining non-terrain regions are separated and orga-nized into object-level components. The resulting terrain and object supports provide the geometric basis for subsequent geometry-constrained semantic fusion. 
+
+1) Local Geometric Feature Extraction: From the three-dimensional point cloud produced by visual reconstruction, we first extract local geometric structure to establish a stable geometric representation for subsequent spatial reasoning. The raw point cloud is voxelized at a scene-adaptive res-olution, and a k-nearest-neighbor topology is built over the voxel centers using a spatial index to define consistent local neighborhoods Ni. Following covariance-based surface analysis [15], we perform an eigendecomposition of the local covariance matrix within each neighborhood, 
+
+Ci = 1
+
+|N i|
+
+X
+
+> j∈N i
+
+(pj − ¯pi)( pj − ¯pi)⊤ =
+
+> 3
+
+X
+
+> m=1
+
+λi,m vi,m v⊤
+
+> i,m
+
+(4) where ¯pi is the neighborhood centroid. The eigenvector 
+
+vi, 1 associated with the smallest eigenvalue is taken as the surface normal ni (consistently oriented upward), while the eigenvalue spectrum yields planarity descriptors such as the orthogonal-residual roughness ri = pλi, 1 and the curvature 
+
+κi = λi, 1/(λi, 1 + λi, 2 + λi, 3). From the normal we derive the local slope θi = arccos  ni · ˆz as its deviation from the vertical axis ˆz, and from the height distribution within each neighborhood we compute the raw height variance together with a detrended elevation discontinuity, defined as the median absolute distance to the local tangent plane, which isolates genuine surface undulation from smooth slope. Rather than committing points to premature outlier de-cisions, we identify unreliable observations through spatial consistency. Let di denote the mean distance from voxel i to its neighbors; using the median ˜d and the median absolute deviation MAD( d) as a robust scale estimate [16], a point is flagged as a spatial outlier when 
+
+di > ˜d + γ · MAD( d), MAD( d) = median i di − ˜d (5) with sensitivity parameter γ. This robust criterion excludes geometrically incoherent points from all downstream geo-metric support. 
+
+2) Terrain Envelope Estimation: Based on the local ge-ometric evidence, we partition the scene into continuous terrain and non-terrain structures. Because legitimate terrain in an excavation scene may be sloped or locally uneven, we do not assume a single global ground plane. Instead, inspired by progressive morphological ground filtering [17], we estimate a local terrain reference surface over the hori-zontal plane, and form an initial terrain estimation from each point’s height relative to this surface, together with its local slope and its spatial continuity. Pointwise compatibility alone is not sufficient, since isolated elevated fragments can also satisfy these conditions; we therefore impose a neighborhood elevation-continuity constraint. Two adjacent cells a and b are linked into the same terrain region only when their reference elevations vary continuously, 
+
+bH(a) − bH(b) ≤ δhL + δs d(a, b ), (6) where d(a, b ) is their horizontal spacing and the slope term 
+
+δs tolerates gradual elevation change. Isolated and small con-nected components are then discarded. This yields a spatially continuous terrain region, while the remaining structures are treated as non-terrain and passed to subsequent analysis. 
+
+3) Non-Terrain Object Extraction: With the continuous terrain support identified, we restrict object extraction to the remaining non-terrain points. This separation reduces ground-induced connections during spatial clustering and allows distinct object structures to be recovered from the reconstructed scene. We then apply reliability filtering, spa-tial clustering, and geometric cleanup to obtain object-level geometric support. For each class c, we retain points whose reconstruction confidence and class-specific evidence exceed their respec-tive thresholds. A point i of class ci is retained when 
+
+ϕi ≥ Qq
+
+ {ϕj : cj = ci} and ei(ci) ≥ emin , (7) where ϕi is the reconstruction confidence, Qq (·) is the 
+
+q-th percentile taken within the class, and ei(ci) is the accumulated evidence for the point’s own class. The surviving points are grouped into connected com-ponents on a scene-relative radius graph, so that distinct machines and obstacles fall into separate components. 
+
+D. Geometry-Semantic Fusion 
+
+Our geometry–semantic fusion consists of three stages: pixel-to-point semantic projection, spatial consistency filter-ing, and reliability-weighted multi-view fusion with geomet-ric constraints. The resulting semantic 3D representation is subsequently projected onto a horizontal grid to construct a semantic elevation map. For each image, semantic responses are expressed in the task-oriented taxonomy defined above. The response os(u, k )
+
+for class k at pixel u in view s is associated with the reconstructed 3D point observed at the same image location, 
+
+os(u, k ) → ei,s (k), (8) where ei,s (k) denotes the semantic evidence assigned to point i from view s.Per-view segmentation produces incomplete and noisy semantic observations after 3D projection. We address these inconsistencies in the shared 3D cloud. For each class, labeled points are grouped by single-linkage clustering with a distance threshold ε, and clusters below a minimum size are discarded as noise. The surviving clusters provide foreground anchors for propagating labels to nearby unlabeled points. A candidate point receives a class only when it is closer to a foreground anchor of that class than to any corresponding background anchor. This foreground–background competi-tion fills gaps in semantic coverage while limiting label propagation onto adjacent terrain. The filtered evidence is then used for multi-view fusion. The observations are aggregated on a common 3D voxel grid, so that observations falling within voxel j share the same spatial support. Evidence from the same view is first consolidated into a single class-wise vector ej,s , preventing densely sampled views from contributing disproportionately. Each view contributes a reliability weight wj,s incorporat-ing semantic confidence, reconstruction confidence, viewing angle, and camera distance. The fused semantic vote is 
+
+vj (k) = 
+
+P 
+
+> s
+
+wj,s ej,s (k)
+
+P 
+
+> s
+
+wj,s + ϵ , (9) where ϵ is a small constant for numerical stability. The semantic vote is combined with a class-dependent geometric support term gj (k), which suppresses hypotheses inconsistent with the local spatial structure. The normalized class score is 
+
+qj (k) = gj (k)vj (k) + ϵλv
+
+P 
+
+> ℓ
+
+gj (ℓ)vj (ℓ) + ϵλv , (10) where λv controls the contribution of semantic evidence. The final label is selected as 
+
+ˆkj =
+
+(arg max  
+
+> k
+
+qj (k), max  
+
+> k
+
+qj (k) ≥ τ, 
+
+unknown , otherwise , (11) where τ is the decision threshold. To construct the semantic elevation map, the labeled 3D points are projected onto a horizontal grid in the gravity-aligned coordinate frame. Let Pc denote the points assigned to cell c, and let Tc ⊆ Pc contain points classified as construction terrain or other terrain that satisfy the geometric terrain-support criterion. The terrain elevation is estimated as 
+
+Hc = median {hi | i ∈ T c}, (12) where hi is the gravity-aligned height of point i. The cell-level semantic label is obtained by confidence-weighted voting, 
+
+Lc = arg max 
+
+> k∈K
+
+X
+
+> i∈P c
+
+αi I(ˆki = k), αi = max( γi, γ min ),
+
+(13) where K includes the task-oriented classes and unknown, ˆki
+
+and γi denote the assigned semantic label and confidence of point i, and γmin is a minimum voting weight. Excavator and obstacle points additionally define object occupancy and vertical extents within the same grid. Cells without terrain support retain an undefined terrain elevation, while obser-vation masks distinguish observed and unobserved regions. These co-registered layers provide a compact 2.5D repre-sentation of terrain geometry, semantic classes, and object occupancy for subsequent excavation-oriented analysis. Finally, metric scale is recovered using a selected reference object with a known physical dimension. Let dref denote this dimension and ˆdref the corresponding measurement in the reconstructed scene. A global scale factor is computed as s = dref / ˆdref and applied uniformly to the reconstructed geometry. This converts the scene into metric units while preserving its relative geometric structure, enabling physical measurements of object dimensions and terrain elevation. IV. E XPERIMENTS 
+
+A. Experimental Details a) Datasets: We conducted experiments on four datasets: RELLIS-3D [8], Objectron [18], GOOSE-Ex [19], and the collected OCES dataset. These datasets cover outdoor terrain, object-level geometry, and excavation-scene seman-tics, respectively, and are used to evaluate the geometric and semantic capabilities of our framework. The characteristics and evaluation roles of the four datasets are summarized in Tab. I. 
+
+RELLIS-3D: RELLIS-3D is a large-scale multimodal off-road dataset containing synchronized RGB images and LiDAR measurements collected in unstructured outdoor en-vironments. It provides annotations for 13,556 LiDAR scans and 6,235 RGB images across 20 semantic classes. We use selected scenes to evaluate outdoor geometric reconstruction and elevation estimation, with LiDAR measurements serving as the geometric reference [8]. 
+
+Objectron: Objectron is a large-scale object-centric dataset containing 14,819 annotated video sequences across nine common object categories. We sample 20 videos per category, resulting in 180 videos for evaluation [18]. 
+
+GOOSE-Ex: GOOSE-Ex is an outdoor dataset designed for semantic perception in unstructured environments, pro-viding pixel-level semantic annotations for diverse terrain and object classes. We evaluate our framework on the se-lected sequences of GOOSE-Ex to assess its semantic seg-mentation accuracy and its ability to suppress environmental interference [19]. 
+
+Outdoor Construction Excavation Site (OCES) Dataset: We additionally collect a dataset from real outdoor excavation scenes, comprising 25 video sequences, 5 object categories, and approximately 15k frames. The dataset provides metric object dimensions, LiDAR-based elevation references, and manually annotated semantic segmentation images. Fig. 3 shows a representative example of the collected excavation scenes.  
+
+> Fig. 3. Outdoor Construction Excavation Site (OCES) Dataset TABLE I COMPARISON OF THE FOUR EVALUATION DATASETS AND THEIR ROLES IN THIS STUDY .
+
+Dataset Source Key scale Visual input Geometric Reference Evaluation role RELLIS-3D [8] Public 13,556 LiDAR scans; 6,235 RGB images; 20 semantic classes RGB video LiDAR-based terrain reference Terrain elevation 
+
+Objectron Public 14,819 annotated video sequences; 9 categories; 180 videos sampled RGB video Object-level metric reference Object dimension recovery 
+
+GOOSE-Ex [19] Public Selected outdoor sequences with semantic annotations RGB video – Semantic mapping 
+
+OCES Self-collected 25 video sequences; 5 object categories; ∼15k RGB frames; 3,500 LiDAR scans RGB video LiDAR-based terrain reference + object dimensions 
+
+Object dimension recovery; terrain elevation; semantic mapping 
+
+b) Metrics: We evaluate geometry using object dimen-sion error and terrain elevation MAE/RMSE, semantics using mIoU and spatial coverage, and excavation performance using the final terrain elevation and excavation volume errors. 
+
+c) Implementation: Experiments were run on an NVIDIA GeForce RTX 5070 Ti (16 GB), an Intel Core Ultra 7 265KF, and 15 GiB of visible system memory. 
+
+B. Experimental Results a) Quantitative Results: Tab. II evaluates the geometric reliability of the proposed scene representation from two as-pects: object-scale recovery and terrain elevation estimation. On Objectron, the mean absolute error (MAE), root mean square error (RMSE), and relative error of object dimensions are 2.63 cm, 4.55 cm, and 9.01%, respectively. On the OCES dataset, the corresponding errors are 6.23 cm, 8.94 cm, and 10.43%. For terrain elevation, the MAE and RMSE are 28.30 cm and 32.14 cm on the selected RELLIS-3D scene. On the OCES dataset, the corresponding values are 12.61 cm and 15.32 cm, respectively. These results demonstrate that the framework provides metric-scale geometric estimates across both object-level and terrain-level evaluation settings. The reconstruction accuracy is affected by visual conditions, and the selected RELLIS-3D scene contains lower-quality imagery and more environmental interference, which intro-duce additional reconstruction drift.                      
+
+> TABLE II GEOMETRIC ACCURACY OF THE PROPOSED SCENE REPRESENTATION .
+> Task Dataset MAE (cm) ↓RMSE (cm) ↓Rel. Error (%) ↓
+> Object Dimension Objectron 2.63 4.55 9.01 OCES 6.23 8.94 10.43 Terrain Elevation RELLIS-3D 28.30 32.14 –OCES 12.61 15.32 –
+
+We evaluate YOLOE [10] and Mask2Former [20] as two semantic backbones in our framework. Without additional task-specific training or fine-tuning, the two models exhibit different characteristics in challenging outdoor scenes. As shown in Tab. III, YOLOE achieves only 3.34% mIoU and 2.57% coverage on GOOSE-Ex when used as the back-bone alone, while the proposed geometry–semantic fusion increases these values to 20.77% and 90.52%, respectively. On OCES, YOLOE improves from 6.53% mIoU and 2.70% coverage to 34.57% and 80.40%. Mask2Former provides stronger backbone performance, with 21.40% mIoU and 94.26% coverage on GOOSE-Ex and 34.71% mIoU and 91.85% coverage on OCES. After geometry-guided fusion, these values increase to 38.03% and 96.15% on GOOSE-Ex and 53.19% and 99.28% on OCES. Thus, the proposed method improves both semantic accuracy and spatial cover-age for both backbones, while the magnitude of improvement depends on the type and severity of the backbone’s initial errors. Fig. 4 provides a qualitative comparison of the ground truth, backbone predictions, and the proposed geometry-guided results. Our framework improves both backbones by exploiting the reconstructed geometry as a common spatial support for semantic refinement. For YOLOE, the main benefit is the recovery of missing regions through multi-view association and spatial propagation, which increases coverage while maintaining consistent object boundaries. For Mask2Former, the improvement mainly comes from geometry-guided fil-tering and consistency constraints, which suppress isolated or implausible predictions and reduce semantic instability across views. As a result, both semantic accuracy and spatial coverage are improved, demonstrating that the proposed geometry-semantic coupling can compensate for different types of errors produced by generic semantic backbones without requiring additional task-specific training. 
+
+b) Real-world experiments: To evaluate the practical applicability of the proposed perception system, we inte-grated it with a Cat 303 CR compact excavator in a real-world excavation experiment. A UAV was positioned at an oblique overhead viewpoint to provide RGB observations of the workspace as the visual input. The excavator was retrofitted with a remote-control interface, allowing motion TABLE III SEMANTIC ACCURACY AND SPATIAL COVERAGE .                              
+
+> GOOSE-Ex OCES Backbone Method mIoU (%) ↑Coverage (%) ↑mIoU (%) ↑Coverage (%) ↑
+> YOLOE Backbone 3.34 2.57 6.53 2.70 YOLOE + Ours 20.77 90.52 34.57 80.40
+> Mask2Former Backbone 21.40 94.26 34.71 91.85 Mask2Former + Ours 38.03 96.15 53.19 99.28
+
+and digging commands generated by an external planning module to be executed on the real machine. During opera-tion, our system continuously provided task-oriented spatial information, including terrain geometry, semantic regions, and candidate excavation areas, to support the planning and execution of successive digging actions. Fig. 5 presents representative snapshots of the excavation process together with the corresponding perception results, illustrating how the spatial representation evolves as the terrain changes during operation.  
+
+> Fig. 4. The qualitative comparison of GT, YOLOE, Mask2Former and our method.
+
+The system achieved an average spatial-map update inter-val of approximately 1.4 s, which was sufficient to match the action frequency of the excavator during the tested operation. We further compared the reconstructed elevation map with a LiDAR-based reference throughout the dynamic excavation process. Over regions affected by excavation, the mean elevation error was 12 .74 ± 5.32 cm, while the minimum short-term mean error reached approximately 5 cm during relatively stable periods. Larger deviations mainly occurred during rapid terrain changes and transient visual disturbances caused by machine motion. These results show that the proposed system provides an update rate suitable for practical excavator operation. Using only visual input, it achieves reliable spatial percep-tion at lower sensing cost while jointly providing geomet-ric and semantic information. The resulting representation suppresses environmental interference and preserves task-relevant structure, supporting outdoor excavation tasks such as site clearing, navigation, and digging.  
+
+> Fig. 5. Evolution of the proposed spatial representation during real-world excavation
+
+C. Ablation study 
+
+The ablation results highlight the importance of local geo-metric filtering and semantic spatial consistency processing. Removing local geometric filtering reduces mIoU by 11.65% and 12.75% on GOOSE-Ex and OCES. Removing semantic spatial consistency processing causes the largest coverage reductions, reaching 27.34% on GOOSE-Ex and 29.93% on OCES, while also decreasing mIoU by 10.41% and 16.65%. These results suggest that geometric filtering and spatial consistency play complementary roles in improving semantic accuracy and maintaining spatial coverage. 
+
+> TABLE IV ABLATION STUDY .
+
+GOOSE-Ex OCES 
+
+Configuration mIoU Cov. mIoU Cov. 
+
+YOLOE backbone 3.34 2.57 6.53 2.70 w/o Local geometry 9.12 70.46 21.82 64.13 w/o Terrain continuity 17.84 81.28 29.63 79.72 w/o Object support 18.40 89.07 30.28 81.94 w/o Spatial consistency 10.36 63.18 17.92 50.47 w/o View reliability 19.11 90.87 32.18 78.06 YOLOE + ExcavaTwin (full) 20.77 90.52 34.57 80.40 Cov. denotes coverage; all values are percentages. 
+
+V. CONCLUSIONS 
+
+Conclusion. We propose ExcavaTwin, a novel perception framework for autonomous excavators working in outdoor environments. The proposed framework extracts geometric structure from a visual reconstruction model and semantic masks from a segmentation model, coupling the two to suppress outdoor interference and build a comprehensive and reliable scene representation.The resulting spatial map jointly maintains geometric and semantic information while suppressing irrelevant environmental disturbances. Experiments across four datasets and a real excavation platform demonstrate the reliability and practical applicabil-ity of the proposed representation. The framework obtains object-dimension MAE/RMSE of 2.63/4.55 cm on Objec-tron and 6.23/8.94 cm on OCES, while terrain-elevation MAE/RMSE reaches 12.61/15.32 cm on OCES. For semantic mapping, the proposed fusion increases mIoU to 38.03% on GOOSE-Ex and 53.19% on OCES with Mask2Former, while the real-world system maintains an average update interval of approximately 1.4 s and a dynamic-region mean elevation error of 12 .74 ± 5.32 cm. 
+
+Limitations. The current study only demonstrates the potential of the proposed representation to support down-stream tasks such as site cleanup and navigation, while its effectiveness in these tasks has not yet been validated on a real excavator. The effects of UAV viewpoint and camera-to-scene distance on reconstruction accuracy remain to be systematically investigated. 
+
+Future work. We believe that vision-based perception is a promising direction for autonomous excavation. Future work will explore integrating models such as VLMs to achieve tighter coupling between visual perception, planning, and control, thereby improving the autonomy and intelligence of excavation systems. ACKNOWLEDGMENT The authors used ChatGPT to assist with language editing and polishing of the manuscript. All revisions were reviewed and approved by the authors, who take full responsibility for the final content. REFERENCES [1] P. Fankhauser, M. Bloesch, C. Gehring, M. Hutter, and R. Siegwart, “Robot-centric elevation mapping with uncertainty estimates,” in Mo-bile Service Robotics , 2014, pp. 433–440. [2] T. Miki, L. Wellhausen, R. Grandia, F. Jenelten, T. Homberger, and M. Hutter, “Elevation mapping for locomotion and navigation using GPU,” in Proc. IEEE/RSJ Int. Conf. Intell. Robots Syst. (IROS) , 2022, pp. 2273–2280. [3] D. Jud, P. Leemann, S. Kerscher, and M. Hutter, “Autonomous free-form trenching using a walking excavator,” IEEE Robot. Autom. Lett. ,vol. 4, no. 4, pp. 3208–3215, 2019. [4] D. Jud, S. Kerscher, M. Wermelinger, E. Jelavic, P. Egli, P. Leemann, G. Hottiger, and M. Hutter, “HEAP—The autonomous walking exca-vator,” Autom. Constr. , vol. 129, Art. no. 103783, 2021. [5] J. McCormac, A. Handa, A. J. Davison, and S. Leutenegger, “Se-manticFusion: Dense 3D semantic mapping with convolutional neural networks,” in Proc. IEEE Int. Conf. Robot. Autom. (ICRA) , 2017, pp. 4628–4635. [6] K. Yamazaki, T. Hanyu, K. Vo, T. Pham, M. Tran, G. Doretto, A. Nguyen, and N. Le, “Open-Fusion: Real-time open-vocabulary 3D mapping and queryable scene representation,” in Proc. IEEE Int. Conf. Robot. Autom. (ICRA) , 2024, pp. 9411–9417. [7] V. Bhandari, J. James, T. D’Adamo, T. Phillips, and P. R. McAree, “Real-time dynamic terrain mapping for autonomous mining opera-tions,” IEEE Trans. Field Robot. , vol. 2, pp. 437–464, 2025. [8] P. Jiang, P. R. Osteen, M. Wigness, and S. Saripalli, “RELLIS-3D dataset: Data, benchmarks and analysis,” in Proc. IEEE Int. Conf. Robot. Autom. (ICRA) , 2021, pp. 1110–1116. [9] K. Vidanapathirana, J. Knights, S. Hausler, M. Cox, M. Ramezani, J. Jooste, E. Griffiths, S. Mohamed, S. Sridharan, C. Fookes, and P. Moghadam, “WildScenes: A benchmark for 2D and 3D semantic segmentation in large-scale natural environments,” Int. J. Robot. Res. ,vol. 44, no. 4, pp. 532–549, 2025. [10] A. Wang, L. Liu, H. Chen, Z. Lin, J. Han, and G. Ding, “YOLOE: Real-time seeing anything,” in Proc. IEEE/CVF Int. Conf. Comput. Vis. (ICCV) , 2025, pp. 24591–24602. [11] S. Peng, K. Genova, C. Jiang, A. Tagliasacchi, M. Pollefeys, and T. Funkhouser, “OpenScene: 3D scene understanding with open vo-cabularies,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recogn. (CVPR) , 2023, pp. 815–824. [12] K. M. Jatavallabhula et al. , “ConceptFusion: Open-set multimodal 3D mapping,” in Proc. Robot. Sci. Syst. (RSS) , 2023. [13] G. Chen, Z. Zhang, L. Cheng, C. Jin, S. Yao, Y. Wang, R. Xiong, and Y. Chen, “Efficient and robust shoveling control system based on semantic elevation mapping for unmanned loaders,” Eng. Appl. Artif. Intell. , vol. 167, Art. no. 113908, 2026. [14] J. Wang, M. Chen, N. Karaev, A. Vedaldi, C. Rupprecht, and D. Novotny, “VGGT: Visual geometry grounded transformer,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recogn. (CVPR) , 2025, pp. 5294–5306. [15] M. Pauly, M. Gross, and L. P. Kobbelt, “Efficient simplification of point-sampled surfaces,” in Proc. IEEE Visualization (VIS) , 2002, pp. 163–170. [16] F. R. Hampel, “The influence curve and its role in robust estimation,” 
+
+J. Amer. Statist. Assoc. , vol. 69, no. 346, pp. 383–393, 1974. [17] K. Zhang, S.-C. Chen, D. Whitman, M.-L. Shyu, J. Yan, and C. Zhang, “A progressive morphological filter for removing nonground measurements from airborne LIDAR data,” IEEE Trans. Geosci. Remote Sens. , vol. 41, no. 4, pp. 872–882, 2003. [18] A. Ahmadyan, L. Zhang, A. Ablavatski, J. Wei, and M. Grundmann, “Objectron: A large scale dataset of object-centric videos in the wild with pose annotations,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recogn. (CVPR) , 2021, pp. 7822–7831. [19] R. Hagmanns, P. Mortimer, M. Granero, T. L¨ uttel, and J. Petereit, “Excavating in the wild: The GOOSE-Ex dataset for semantic seg-mentation,” in Proc. IEEE Int. Conf. Robot. Autom. (ICRA) , 2025, doi: 10.1109/ICRA55743.2025.11127604. [20] B. Cheng, I. Misra, A. G. Schwing, A. Kirillov, and R. Girdhar, “Masked-attention mask transformer for universal image segmenta-tion,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recogn. (CVPR) ,2022, pp. 1290–1299.

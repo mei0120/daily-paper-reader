@@ -1,0 +1,89 @@
+{
+  "date": "20260929",
+  "date_label": "",
+  "generated_at": "2026-09-29 23:03:59 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.31716v1",
+      "route": "202609/29/2609.31716v1-panovocc-panoramic-embodied-open-vocabulary-occupancy-mapping-with-long-term-spatial-voxel-memory",
+      "title": "PanOVOcc: Panoramic Embodied Open-Vocabulary Occupancy Mapping with Long-term Spatial Voxel Memory",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "免训练持续开放词汇语义占据建图与空间体素记忆",
+      "first_seen_at": "2026-09-29 23:03:59 UTC",
+      "updated_at": "2026-09-29 23:03:59 UTC"
+    },
+    {
+      "paper_id": "2609.34853v1",
+      "route": "202609/29/2609.34853v1-evisplat-preserving-multi-view-evidence-in-3d-gaussian-splatting-for-open-vocabulary-segmentation",
+      "title": "EviSplat: Preserving Multi-View Evidence in 3D Gaussian Splatting for Open-Vocabulary Segmentation",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "在三维高斯泼溅中保留逐视图语言特征以支持开放词汇分割",
+      "first_seen_at": "2026-09-29 23:03:59 UTC",
+      "updated_at": "2026-09-29 23:03:59 UTC"
+    },
+    {
+      "paper_id": "2609.32013v1",
+      "route": "202609/29/2609.32013v1-trio-tri-modal-unsupervised-occupancy-world-model-for-anything-perception",
+      "title": "TriO: Tri-Modal Unsupervised Occupancy World Model for Anything Perception",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "三模态融合实现四维占据分割",
+      "first_seen_at": "2026-09-29 23:03:59 UTC",
+      "updated_at": "2026-09-29 23:03:59 UTC"
+    },
+    {
+      "paper_id": "2609.34833v1",
+      "route": "202609/29/2609.34833v1-multi-scale-semantic-mapping-in-urban-environments-via-observation-calibration-and-policy-dependence-regularization",
+      "title": "Multi-Scale Semantic Mapping in Urban Environments via Observation Calibration and Policy Dependence Regularization",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "通过观测校准与策略依赖正则化实现城市环境语义建图",
+      "first_seen_at": "2026-09-29 23:03:59 UTC",
+      "updated_at": "2026-09-29 23:03:59 UTC"
+    },
+    {
+      "paper_id": "2609.34719v1",
+      "route": "202609/29/2609.34719v1-excavatwin-training-free-geometry-guided-semantic-elevation-mapping-for-autonomous-excavation",
+      "title": "ExcavaTwin: Training-Free Geometry-Guided Semantic Elevation Mapping for Autonomous Excavation",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "几何约束的多视角语义融合用于语义高程建图",
+      "first_seen_at": "2026-09-29 23:03:59 UTC",
+      "updated_at": "2026-09-29 23:03:59 UTC"
+    }
+  ]
+}

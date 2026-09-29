@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-28</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-29</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 2 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 5 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>1</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>1</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>2</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>3</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-28 23:31:58 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-29 23:03:59 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,7 +69,7 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今日精读 1 篇、速读 1 篇，聚焦在线开放词汇 3D 场景图与视觉点云先验辅助的 3D 检测和 HD 建图。最值得看的是 9.0 分的 TRACKGRAPH，用图像空间跟踪实现在线开放词汇 3D 场景图；速读那篇 6.0 分则探索用视觉点云地图先验提升相机 3D 检测与在线矢量化 HD 建图。普通读者可先读 TRACKGRAPH 了解开放词汇 3D 场景图思路，再按兴趣看第二篇的地图先验应用。</p>
+<p>今日精读2篇、速读3篇，聚焦全景占用建图与开放词汇3D分割。最值得看的是两篇9分工作：PanOVOcc用长期空间体素记忆做全景具身开放词汇占用建图，EviSplat在3D高斯泼溅中保留多视角证据以提升开放词汇分割。普通读者可先读这两篇精读，再按需浏览速读中的多模态占用世界模型与城市语义建图。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -78,12 +78,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">1 篇</strong>
+    <strong class="dpr-home-dashboard-count">2 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="TRACKGRAPH: Online Open-Vocabulary 3D Scene Graphs via Image-Space Tracking">TRACKGRAPH: Online Open-Vocabulary 3D Scene Graphs via Image-Space Tracking</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="PanOVOcc: Panoramic Embodied Open-Vocabulary Occupancy Mapping with Long-term Spatial Voxel Memory">PanOVOcc: Panoramic Embodied Open-Vocabulary Occupancy Mapping with Long-term Spatial Voxel Memory</span></li><li><span class="dpr-home-dashboard-paper-title" title="EviSplat: Preserving Multi-View Evidence in 3D Gaussian Splatting for Open-Vocabulary Segmentation">EviSplat: Preserving Multi-View Evidence in 3D Gaussian Splatting for Open-Vocabulary Segmentation</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">ovd-fusion <strong>1</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">ovd-fusion <strong>2</strong></span></div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -91,12 +91,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">1 篇</strong>
+    <strong class="dpr-home-dashboard-count">3 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Leveraging Vision-Based Point Cloud Map Priors for Camera-Based 3D Object Detection and Online Vectorized HD Mapping">Leveraging Vision-Based Point Cloud Map Priors for Camera-Based 3D Object Detection and Online Vectorized HD Mapping</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="TriO: Tri-Modal Unsupervised Occupancy World Model for Anything Perception">TriO: Tri-Modal Unsupervised Occupancy World Model for Anything Perception</span></li><li><span class="dpr-home-dashboard-paper-title" title="Multi-Scale Semantic Mapping in Urban Environments via Observation Calibration and Policy Dependence Regularization">Multi-Scale Semantic Mapping in Urban Environments via Observation Calibration and Policy Dependence Regularization</span></li><li><span class="dpr-home-dashboard-paper-title" title="ExcavaTwin: Training-Free Geometry-Guided Semantic Elevation Mapping for Autonomous Excavation">ExcavaTwin: Training-Free Geometry-Guided Semantic Elevation Mapping for Autonomous Excavation</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">ovd-fusion <strong>1</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">ovd-fusion <strong>3</strong></span></div>
 </section>
 </div>
 

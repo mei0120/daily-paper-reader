@@ -1,0 +1,215 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-29T23:02:38.298460+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2609.31716v1",
+      "source": "arxiv",
+      "title": "PanOVOcc: Panoramic Embodied Open-Vocabulary Occupancy Mapping with Long-term Spatial Voxel Memory",
+      "abstract": "Persistent semantic occupancy mapping is essential for embodied scene understanding. However, perspective-based systems provide limited spatial coverage, while existing panoramic methods primarily predict local volumes from single observations. We introduce PanOVOcc, a training-free framework for persistent open-vocabulary semantic occupancy mapping from panoramic sequences. PanOVOcc unifies panoramic SLAM, open-vocabulary perception, and long-term spatial voxel memory within an online architecture, continuously integrating geometric and semantic evidence into a global, language-queryable map. To facilitate systematic evaluation of this setting, we establish Pan-Replica and Pan-Holo360D, two benchmarks pairing continuous panoramic RGB-D sequences with scene-level semantic occupancy ground truth across synthetic and real-world scenes. Compared with the strongest evaluated baseline for each metric, PanOVOcc improves occupancy IoU and semantic mIoU by absolute +20.03 and +7.06 on Pan-Replica, and by +43.26 and +20.16 on Pan-Holo360D, respectively. The source code and the established benchmarks will be available at https://github.com/bakereet/PanOVOcc.",
+      "authors": [
+        "Di Kuang",
+        "Mengfei Duan",
+        "Yuhang Wang",
+        "Weixing Peng",
+        "Kailun Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO",
+        "eess.IV"
+      ],
+      "published": "2026-09-21T16:05:58+00:00",
+      "link": "https://arxiv.org/pdf/2609.31716v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free persistent open-vocabulary semantic occupancy mapping with spatial voxel memory",
+      "llm_evidence_cn": "免训练持续开放词汇语义占据建图与空间体素记忆",
+      "llm_evidence": "免训练持续开放词汇语义占据建图与空间体素记忆",
+      "canonical_evidence": "免训练持续开放词汇语义占据建图与空间体素记忆",
+      "llm_tldr_en": "Perspective systems give limited coverage and panoramic methods predict only local volumes. PanOVOcc is a training-free framework unifying panoramic SLAM, open-vocabulary perception and long-term spatial voxel memory to build a global, language-queryable semantic occupancy map.",
+      "llm_tldr_cn": "持续的语义占据建图对具身场景理解至关重要，但基于透视的系统空间覆盖有限，而现有全景方法多只从单次观测预测局部体素。本文提出PanOVOcc，一个免训练框架，从全景序列构建持续开放词汇语义占据地图，将全景SLAM、开放词汇感知与长期空间体素记忆统一在在线架构中，持续把几何与语义证据整合进全局且可用语言查询的地图。为系统评估该设定，作者还构建了Pan-Replica与Pan-Holo360D两个配对连续全景序列的基准。该工作直接面向开放词汇三维语义映射与多视角融合，是遮挡场景下地图构建的重要参考。",
+      "llm_tldr": "持续的语义占据建图对具身场景理解至关重要，但基于透视的系统空间覆盖有限，而现有全景方法多只从单次观测预测局部体素。本文提出PanOVOcc，一个免训练框架，从全景序列构建持续开放词汇语义占据地图，将全景SLAM、开放词汇感知与长期空间体素记忆统一在在线架构中，持续把几何与语义证据整合进全局且可用语言查询的地图。为系统评估该设定，作者还构建了Pan-Replica与Pan-Holo360D两个配对连续全景序列的基准。该工作直接面向开放词汇三维语义映射与多视角融合，是遮挡场景下地图构建的重要参考。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open-vocabulary 3D semantic mapping for scene understanding",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.34853v1",
+      "source": "arxiv",
+      "title": "EviSplat: Preserving Multi-View Evidence in 3D Gaussian Splatting for Open-Vocabulary Segmentation",
+      "abstract": "Open-vocabulary 3D scene understanding enables object localization and segmentation from free-form text queries without a fixed category vocabulary. Many recent methods build on 3D Gaussian Splatting and consolidate multi-view observations, such as masked crops from individual views, into language features or compact object descriptors before the query is known. However, observations of the same object vary across viewpoints and are not equally informative: some reveal cues relevant to a particular query, whereas others provide incomplete or misleading evidence. Pre-query consolidation can therefore suppress cues on which a later query depends. We introduce EviSplat, which preserves individual observation features as evidence for later text queries. EviSplat retains individual observation features within class-agnostic 3D instances that represent objects, object parts, or background regions. It also learns, for each Gaussian, a distribution describing which visual appearances its observations support. Given a text query, EviSplat scores each instance using its most relevant observations. It then computes a score for each Gaussian by combining instance-level relevance with locally supported evidence, weighted by how often and how unambiguously that Gaussian was observed. Different queries can thus draw on different visual cues from the same preserved evidence. Experiments across diverse datasets and evaluation protocols demonstrate state-of-the-art performance, supporting the benefit of preserving multi-view evidence until query time and aggregating it according to the query.",
+      "authors": [
+        "Sungho Moon",
+        "Kota Shimomura",
+        "Junwoo Park",
+        "Wonhyeok Choi",
+        "Seunghun Lee",
+        "Takayoshi Yamashita",
+        "Sunghoon Im"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-09-28T10:46:23+00:00",
+      "link": "https://arxiv.org/pdf/2609.34853v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "preserving per-view language features in 3D Gaussian Splatting for open-vocabulary segmentation",
+      "llm_evidence_cn": "在三维高斯泼溅中保留逐视图语言特征以支持开放词汇分割",
+      "llm_evidence": "在三维高斯泼溅中保留逐视图语言特征以支持开放词汇分割",
+      "canonical_evidence": "在三维高斯泼溅中保留逐视图语言特征以支持开放词汇分割",
+      "llm_tldr_en": "Open-vocabulary 3D methods consolidate multi-view observations into language features before the query is known, which can suppress useful cues. EviSplat instead preserves individual observation features as evidence in 3D Gaussian Splatting for query-time open-vocabulary segmentation.",
+      "llm_tldr_cn": "开放词汇三维场景理解旨在无需固定类别词表即可按自由文本查询定位与分割物体。许多近期方法基于三维高斯泼溅，在查询到来之前就把各视图的掩码裁剪等观测压缩为语言特征或紧凑物体描述符，然而同一物体在不同视角下的观测信息量并不相同，有的包含与特定查询相关的线索，有的则片面甚至误导，预查询压缩会因此抹掉后续查询依赖的线索。本文提出EviSplat，将各观测特征作为证据逐条保留，在查询时再行聚合，从而提升开放词汇三维分割对多视角证据的利用效率，是视觉语言嵌入与辐射场对齐的代表性工作。",
+      "llm_tldr": "开放词汇三维场景理解旨在无需固定类别词表即可按自由文本查询定位与分割物体。许多近期方法基于三维高斯泼溅，在查询到来之前就把各视图的掩码裁剪等观测压缩为语言特征或紧凑物体描述符，然而同一物体在不同视角下的观测信息量并不相同，有的包含与特定查询相关的线索，有的则片面甚至误导，预查询压缩会因此抹掉后续查询依赖的线索。本文提出EviSplat，将各观测特征作为证据逐条保留，在查询时再行聚合，从而提升开放词汇三维分割对多视角证据的利用效率，是视觉语言嵌入与辐射场对齐的代表性工作。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open vocabulary 3D semantic fusion methods that align vision language embeddings with point clouds or radiance fields",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.32013v1",
+      "source": "arxiv",
+      "title": "TriO: Tri-Modal Unsupervised Occupancy World Model for Anything Perception",
+      "abstract": "We present TriO, a multi-modal unsupervised world model that predicts 4D occupancy, obstacle segmentation, flow and LiDAR. In contrast to prior work, TriO utilizes three distinct sensor modalities (camera, LiDAR, and RADAR) as both inputs and sources of self-supervision, eliminating the need for additional human annotations. Thanks to its novel supervision, the model is able to segment any occupancy from the drivable surface, overcoming the limitations of existing open-set methods in handling long-tail objects. TriO achieves state-of-the-art results in multiple 3D and 4D tasks, including occupancy, flow, and LiDAR prediction, as well as zero-shot road obstacle segmentation across multiple datasets such as Argoverse 2, and Spotting the Unexpected.",
+      "authors": [
+        "Quinlan Sykora",
+        "Sourav Biswas",
+        "Christopher Diehl",
+        "Andrew Cunningham",
+        "Thomas Gilles",
+        "Raquel Urtasun"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-09-25T21:20:16+00:00",
+      "link": "https://arxiv.org/pdf/2609.32013v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "tri-modal camera LiDAR RADAR fusion for 4D occupancy segmentation",
+      "llm_evidence_cn": "三模态融合实现四维占据分割",
+      "llm_evidence": "三模态融合实现四维占据分割",
+      "canonical_evidence": "三模态融合实现四维占据分割",
+      "llm_tldr_en": "TriO is a tri-modal unsupervised world model using camera, LiDAR and RADAR as inputs and self-supervision, predicting 4D occupancy, obstacle segmentation, flow and LiDAR, achieving zero-shot road obstacle segmentation and state-of-the-art 3D/4D results.",
+      "llm_tldr_cn": "针对现有开放集方法难以处理长尾目标的问题，TriO提出三模态无监督占据世界模型，将相机、激光雷达与毫米波雷达同时作为输入与自监督信号，无需人工标注。模型可预测四维占据、障碍物分割、流场与激光雷达点云，并从可行驶表面出发分割任意占据。在Argoverse 2与Spotting the Unexpected等数据集上，该方法在占据、流场、点云预测及零样本道路障碍分割上取得领先结果，为多模态三维场景理解提供新范式。",
+      "llm_tldr": "针对现有开放集方法难以处理长尾目标的问题，TriO提出三模态无监督占据世界模型，将相机、激光雷达与毫米波雷达同时作为输入与自监督信号，无需人工标注。模型可预测四维占据、障碍物分割、流场与激光雷达点云，并从可行驶表面出发分割任意占据。在Argoverse 2与Spotting the Unexpected等数据集上，该方法在占据、流场、点云预测及零样本道路障碍分割上取得领先结果，为多模态三维场景理解提供新范式。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "fusing multi-modal features into point cloud representations",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.34719v1",
+      "source": "arxiv",
+      "title": "ExcavaTwin: Training-Free Geometry-Guided Semantic Elevation Mapping for Autonomous Excavation",
+      "abstract": "Autonomous excavation requires a spatial representation that jointly captures terrain geometry and task-relevant semantics. Existing excavation mapping is largely elevation-centric, while generic semantic models remain unstable in unstructured outdoor scenes. We present ExcavaTwin, a pure-vision geometry-guided semantic elevation mapping framework without excavation-specific training. Given multi-view RGB images, the framework: 1) reconstructs scene geometry and semantic observations using frozen vision models; 2) derives terrain and non-terrain geometric support; 3) performs geometry-constrained multi-view semantic fusion to suppress implausible predictions and recover incomplete observations; and 4) projects the fused state into a task-oriented semantic elevation map. Experiments on public datasets and real excavation scenes demonstrate reliable geometric and semantic perception. In real excavation, the system achieved an average update interval of approximately 1.4 s and a mean elevation error of 12.74cm in dynamically modified regions. Larger errors mainly occur during rapid terrain changes and transient visual disturbances caused by machine motion.",
+      "authors": [
+        "Yu Deng",
+        "Lingshan Zeng",
+        "Tong Hu",
+        "Rushi Dai"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-09-28T09:25:21+00:00",
+      "link": "https://arxiv.org/pdf/2609.34719v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "geometry-constrained multi-view semantic fusion for semantic elevation mapping",
+      "llm_evidence_cn": "几何约束的多视角语义融合用于语义高程建图",
+      "llm_evidence": "几何约束的多视角语义融合用于语义高程建图",
+      "canonical_evidence": "几何约束的多视角语义融合用于语义高程建图",
+      "llm_tldr_en": "ExcavaTwin is a training-free framework that uses frozen vision models to reconstruct geometry and semantics, then performs geometry-constrained multi-view semantic fusion for excavation mapping.",
+      "llm_tldr_cn": "自主挖掘需要同时表达地形几何与任务语义，而现有高程建图偏重几何，通用语义模型在非结构化室外场景不稳定。本文提出ExcavaTwin免训练几何引导语义高程建图框架，利用冻结视觉模型重建场景几何与语义观测，推导地形几何支撑，并执行几何约束的多视角语义融合以抑制不合理预测、恢复不完整观测，最后投影到高程图。实验表明该流程提升了非结构化挖掘场景语义建图的稳定性。该工作为室外自主作业提供了多视角语义融合建图方案。",
+      "llm_tldr": "自主挖掘需要同时表达地形几何与任务语义，而现有高程建图偏重几何，通用语义模型在非结构化室外场景不稳定。本文提出ExcavaTwin免训练几何引导语义高程建图框架，利用冻结视觉模型重建场景几何与语义观测，推导地形几何支撑，并执行几何约束的多视角语义融合以抑制不合理预测、恢复不完整观测，最后投影到高程图。实验表明该流程提升了非结构化挖掘场景语义建图的稳定性。该工作为室外自主作业提供了多视角语义融合建图方案。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "multi-view semantic fusion for open-vocabulary 3D maps",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.34833v1",
+      "source": "arxiv",
+      "title": "Multi-Scale Semantic Mapping in Urban Environments via Observation Calibration and Policy Dependence Regularization",
+      "abstract": "Semantic mapping is fundamental to embodied navigation, yet existing methods are developed for indoor environments, where objects exhibit relatively limited scale variation and are observed from a restricted range of viewpoints. Urban environments pose substantially greater challenges: agents must map objects ranging from pedestrians to buildings while navigating large spaces with highly diverse viewing distances. These conditions introduce two key difficulties that existing datasets and methods fail to cover. First, object scale and observation distance can be severely mismatched. For example, small objects may be viewed from far away, whereas large objects may be observed at extremely close range, resulting in unreliable observation likelihoods. Second, objects with substantially different sizes and geometries require distinct mapping behaviors, which are difficult to capture with a single shared value estimator. To investigate these challenges, we introduce a large-scale urban semantic mapping dataset featuring realistic city layouts, high-fidelity rendering, and instance-level annotations spanning multiple object scales. We then propose a category-aware likelihood calibration policy that identifies and alleviates unreliable observations according to object category and viewing distance. Because the calibration and motion policies are optimized toward the same mapping objective, they may learn redundant shortcuts and become excessively coupled. We therefore introduce a mutual-information (MI) regularizer that penalizes their estimated representation dependence and encourages complementary behaviors. To better model heterogeneous mapping strategies across object scales, we further employ category-wise value estimators. We formulate their joint optimization as a Pareto optimization problem to mitigate conflicting gradients across categories.",
+      "authors": [
+        "Runling Long",
+        "Junhao Feng",
+        "Jia Wan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-28T10:26:27+00:00",
+      "link": "https://arxiv.org/pdf/2609.34833v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "semantic mapping in urban environments via observation calibration and policy dependence regularization",
+      "llm_evidence_cn": "通过观测校准与策略依赖正则化实现城市环境语义建图",
+      "llm_evidence": "通过观测校准与策略依赖正则化实现城市环境语义建图",
+      "canonical_evidence": "通过观测校准与策略依赖正则化实现城市环境语义建图",
+      "llm_tldr_en": "This paper tackles semantic mapping beyond indoor settings by calibrating observations and regularizing policy dependence to handle severe scale-view mismatch in urban environments.",
+      "llm_tldr_cn": "语义建图是具身导航的基础，但现有方法多面向室内，物体尺度变化有限且视角受限；城市环境中物体从小行人到大建筑尺度差异巨大，观测距离多样，导致尺度与观测距离严重失配。作者提出基于观测校准与策略依赖正则化的多尺度语义建图方法，针对城市场景中这两类困难进行处理。实验表明该方法能缓解尺度与观测距离失配问题，提升城市环境下语义建图的鲁棒性。该工作将语义建图从室内拓展到城市大尺度场景，支撑具身导航。",
+      "llm_tldr": "语义建图是具身导航的基础，但现有方法多面向室内，物体尺度变化有限且视角受限；城市环境中物体从小行人到大建筑尺度差异巨大，观测距离多样，导致尺度与观测距离严重失配。作者提出基于观测校准与策略依赖正则化的多尺度语义建图方法，针对城市场景中这两类困难进行处理。实验表明该方法能缓解尺度与观测距离失配问题，提升城市环境下语义建图的鲁棒性。该工作将语义建图从室内拓展到城市大尺度场景，支撑具身导航。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "open-vocabulary 3D semantic mapping for scene understanding",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
