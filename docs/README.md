@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-29</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-30</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 5 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 1 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>2</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>3</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>0</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>1</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-29 23:03:59 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-30 23:14:38 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,7 +69,7 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今日精读2篇、速读3篇，聚焦全景占用建图与开放词汇3D分割。最值得看的是两篇9分工作：PanOVOcc用长期空间体素记忆做全景具身开放词汇占用建图，EviSplat在3D高斯泼溅中保留多视角证据以提升开放词汇分割。普通读者可先读这两篇精读，再按需浏览速读中的多模态占用世界模型与城市语义建图。</p>
+<p>今日速读1篇6.0分论文，聚焦LEGAU用语义高斯先验做可扩展的类别级位姿估计。该方向值得关注之处在于把语义先验与高斯表示结合，有望提升类别级位姿估计的泛化与扩展性。普通读者可先了解类别级位姿估计的基本设定，再跟进这类语义先验方法的后续验证。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -78,12 +78,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">2 篇</strong>
+    <strong class="dpr-home-dashboard-count">0 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="PanOVOcc: Panoramic Embodied Open-Vocabulary Occupancy Mapping with Long-term Spatial Voxel Memory">PanOVOcc: Panoramic Embodied Open-Vocabulary Occupancy Mapping with Long-term Spatial Voxel Memory</span></li><li><span class="dpr-home-dashboard-paper-title" title="EviSplat: Preserving Multi-View Evidence in 3D Gaussian Splatting for Open-Vocabulary Segmentation">EviSplat: Preserving Multi-View Evidence in 3D Gaussian Splatting for Open-Vocabulary Segmentation</span></li></ul>
+<p class="dpr-home-dashboard-empty">今日暂无推荐。</p>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">ovd-fusion <strong>2</strong></span></div>
+
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -91,12 +91,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">3 篇</strong>
+    <strong class="dpr-home-dashboard-count">1 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="TriO: Tri-Modal Unsupervised Occupancy World Model for Anything Perception">TriO: Tri-Modal Unsupervised Occupancy World Model for Anything Perception</span></li><li><span class="dpr-home-dashboard-paper-title" title="Multi-Scale Semantic Mapping in Urban Environments via Observation Calibration and Policy Dependence Regularization">Multi-Scale Semantic Mapping in Urban Environments via Observation Calibration and Policy Dependence Regularization</span></li><li><span class="dpr-home-dashboard-paper-title" title="ExcavaTwin: Training-Free Geometry-Guided Semantic Elevation Mapping for Autonomous Excavation">ExcavaTwin: Training-Free Geometry-Guided Semantic Elevation Mapping for Autonomous Excavation</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="LEGAU: Learning Semantic Gaussian Priors for Scalable Category-level Pose Estimation">LEGAU: Learning Semantic Gaussian Priors for Scalable Category-level Pose Estimation</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">ovd-fusion <strong>3</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">ovd-fusion <strong>1</strong></span></div>
 </section>
 </div>
 

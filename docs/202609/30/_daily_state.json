@@ -1,0 +1,25 @@
+{
+  "date": "20260930",
+  "date_label": "",
+  "generated_at": "2026-09-30 23:14:38 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.35046v1",
+      "route": "202609/30/2609.35046v1-legau-learning-semantic-gaussian-priors-for-scalable-category-level-pose-estimation",
+      "title": "LEGAU: Learning Semantic Gaussian Priors for Scalable Category-level Pose Estimation",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "利用语义高斯场与文本嵌入进行多模态特征融合",
+      "first_seen_at": "2026-09-30 23:14:38 UTC",
+      "updated_at": "2026-09-30 23:14:38 UTC"
+    }
+  ]
+}
