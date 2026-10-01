@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-10-01 <!--dpr-date:20261001-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202610/01/2609.33518v1-scenescaffold-active-scene-state-construction-for-unified-3d-scene-understanding" data-sidebar-item="{&quot;title&quot;: &quot;SceneScaffold: Active Scene-State Construction for Unified 3D Scene Understanding&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.33518v1-scenescaffold-active-scene-state-construction-for-unified-3d-scene-understanding&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;ovd-fusion&quot;}], &quot;evidence&quot;: &quot;构建与语言耦合的三维场景状态表示以支持统一三维场景理解&quot;}">SceneScaffold: Active Scene-State Construction for Unified 3D Scene Understanding</a>
   * 2026-09-30 <!--dpr-date:20260930-->
     * 速读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/30/2609.35046v1-legau-learning-semantic-gaussian-priors-for-scalable-category-level-pose-estimation" data-sidebar-item="{&quot;title&quot;: &quot;LEGAU: Learning Semantic Gaussian Priors for Scalable Category-level Pose Estimation&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.35046v1-legau-learning-semantic-gaussian-priors-for-scalable-category-level-pose-estimation&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;ovd-fusion&quot;}], &quot;evidence&quot;: &quot;利用语义高斯场与文本嵌入进行多模态特征融合&quot;}">LEGAU: Learning Semantic Gaussian Priors for Scalable Category-level Pose Estimation</a>

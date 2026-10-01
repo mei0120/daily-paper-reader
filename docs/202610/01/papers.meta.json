@@ -1,0 +1,24 @@
+{
+  "label": "2026-10-01",
+  "date": "2026-10-01",
+  "generated_at": "2026-10-01T23:42:37",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202610/01/2609.33518v1-scenescaffold-active-scene-state-construction-for-unified-3d-scene-understanding",
+      "section": "quick",
+      "title_en": "SceneScaffold: Active Scene-State Construction for Unified 3D Scene Understanding",
+      "authors": "Xiangqi Li, Libo Huang, Jiarui Zhao, Weilun Feng, Chuanguang Yang, Zhulin An, Yongjun Xu",
+      "date": "2026-09-27",
+      "pdf": "https://arxiv.org/pdf/2609.33518v1",
+      "score": "6.0",
+      "evidence": "构建与语言耦合的三维场景状态表示以支持统一三维场景理解",
+      "tldr": "现有3D多模态模型依赖视觉瓶颈，把复杂场景证据压成有限视觉token，却多是被动的物体中心同质压缩，空间组织不足，令LLM在关系密集或空间模糊场景中推理不稳。SceneScaffold将视觉瓶颈重构为主动场景组织器，在语言推理前构建角色感知空间脚手架。它把超点证据组织为实体状态、场景框架状态、关系状态与全局摘要，为LLM提供空间化表示。在3D视觉定位、问答和密集描述等统一任务上，方法验证有效，并改善关系密集与空间模糊场景表现。",
+      "tags": "query:ovd-fusion",
+      "abstract_en": "Recent 3D large multimodal models (3D-LMMs) rely on a visual bottleneck to compress complex 3D scene evidence into a limited number of visual tokens compatible with large language models (LLMs). Current visual bottlenecks, however, often passively compress heterogeneous 3D evidence into a homogeneous object-centric token sequence, leaving the spatial organization of the scene under-represented. This under-representation forces the LLM to recover spatial relations from a flattened token sequence, leading to unstable reasoning in relation-intensive and spatially ambiguous scenes. To address this issue, we propose SceneScaffold, an active scene-state construction framework for unified 3D scene understanding. SceneScaffold reformulates the visual bottleneck from a passive feature compressor into an active scene organizer, constructing a role-aware spatial scaffold before language reasoning. Specifically, SceneScaffold organizes superpoint-level visual evidence into scene-state components with distinct structural roles: entity states preserve core object semantics, scene-frame states maintain spatial references via boundary and region anchors, relation states encode object-environment interaction cues, and a global summary provides compact context. Through this role-aware construction, SceneScaffold provides the LLM with a spatially organized scene representation before language reasoning. Experiments on unified 3D scene understanding tasks, including 3D visual grounding, question answering, and dense captioning, demonstrate the effectiveness of SceneScaffold, while diagnostic results further show its applicability to relation-intensive and spatially ambiguous cases. Code is available at https://github.com/lixiangqi707/SceneScaffold.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

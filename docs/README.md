@@ -48,7 +48,7 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-30</span>
+      <span class="dpr-home-dashboard-kicker">2026-10-01</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
     <strong class="dpr-home-dashboard-count">共 1 篇</strong>
@@ -58,7 +58,7 @@
     <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>0</dd></div>
     <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>1</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-30 23:14:38 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-10-01 23:42:36 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,7 +69,9 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今日速读1篇6.0分论文，聚焦LEGAU用语义高斯先验做可扩展的类别级位姿估计。该方向值得关注之处在于把语义先验与高斯表示结合，有望提升类别级位姿估计的泛化与扩展性。普通读者可先了解类别级位姿估计的基本设定，再跟进这类语义先验方法的后续验证。</p>
+<p>今日速读 1 篇，精读挂零：唯一入选的是 3D 场景理解方向的 SceneScaffold（6.0/10）。</p>
+<p>它值得关注的点在于用&quot;主动构建场景状态&quot;来统一 3D 场景理解，属中等评分的思路型工作，而非已验证的强结论。</p>
+<p>普通读者可先看摘要与图示判断是否与自身任务相关，再决定要不要深入读方法细节。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -94,7 +96,7 @@
     <strong class="dpr-home-dashboard-count">1 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="LEGAU: Learning Semantic Gaussian Priors for Scalable Category-level Pose Estimation">LEGAU: Learning Semantic Gaussian Priors for Scalable Category-level Pose Estimation</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="SceneScaffold: Active Scene-State Construction for Unified 3D Scene Understanding">SceneScaffold: Active Scene-State Construction for Unified 3D Scene Understanding</span></li></ul>
   </div>
   <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">ovd-fusion <strong>1</strong></span></div>
 </section>

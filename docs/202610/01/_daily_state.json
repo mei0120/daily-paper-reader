@@ -1,0 +1,25 @@
+{
+  "date": "20261001",
+  "date_label": "",
+  "generated_at": "2026-10-01 23:42:36 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.33518v1",
+      "route": "202610/01/2609.33518v1-scenescaffold-active-scene-state-construction-for-unified-3d-scene-understanding",
+      "title": "SceneScaffold: Active Scene-State Construction for Unified 3D Scene Understanding",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "构建与语言耦合的三维场景状态表示以支持统一三维场景理解",
+      "first_seen_at": "2026-10-01 23:42:36 UTC",
+      "updated_at": "2026-10-01 23:42:36 UTC"
+    }
+  ]
+}
