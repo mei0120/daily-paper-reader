@@ -1,0 +1,780 @@
+Title: AevaScenes: An FMCW LiDAR Dataset and Benchmark for Long-Range Perception
+
+URL Source: https://arxiv.org/pdf/2609.33230v1
+
+Published Time: Tue, 29 Sep 2026 02:36:22 GMT
+
+Number of Pages: 16
+
+Markdown Content:
+# AevaScenes: An FMCW LiDAR Dataset and Benchmark for Long-Range Perception 
+
+Gautham Narayan Narasimhan 1, Heethesh Vhavle 1, Kumar Bhargav Viswanatha 1,James Reuther 1, and Deva Ramanan 2
+
+Fig. 1: (Top ) We color each point in a FMCW LiDAR frame by its radial velocity d = ˆ rT v after ego-motion compensation, where ˆr is the unit line-of-sight (LOS) vector to that point and v is the point’s true 3D velocity. In this scene, the ego-vehicle is moving to the right and a highway barrier separates the opposing direction of travel. Vehicles moving away from the ego-vehicle have positive d (red), while vehicles moving toward the ego-vehicle have negative 
+
+d (blue). ( Middle ) The same scene with annotated 3D bounding boxes. ( Bottom ) We show a bus moving to the right. Its front is moving away from the ego-vehicle and so has positive d, while its rear is moving toward the ego-vehicle, and so has negative d. Importantly, points in the center have zero d
+
+(white) because their direction of travel v is orthogonal to the LOS ˆr. This "French flag" visual illustrates the zero-Doppler blindspot .
+
+Abstract — FMCW LiDAR measures per-point radial Doppler velocity alongside range, providing a motion cue unavailable in conventional time-of-flight sensors. Exploiting this signal at long range remains understudied. We present an FMCW LiDAR dataset of 575 sequences (57.5K frames) with over 8 million annotated 3D boxes across 16 detection classes and per-point labels across 24 semantic classes, captured by six commercial FMCW LiDAR sensors and six paired 4K cameras across eight Bay Area cities, including 237 nighttime sequences, with annotations extending to 400 m. We define a benchmark with three tasks: 3D object detection, scene flow estimation, and semantic segmentation. Detection and scene flow are evaluated across three range bins to 400 m, with a public evaluation server. We explore the impact of Doppler measurements on flagship recognition tasks, and find significant improvements up to 2X in detection AP of far-away vehicles and pedestrians, particularly in low-latency single-frame settings. We similarly find scene flow accuracy is significantly improved with Doppler measurements across all ranges. Our dataset and benchmark have been publicly released at scenes.aeva.com .
+
+Index Terms —FMCW LiDAR , Object Detection , Scene Flow , Semantic Segmentation , Long Range Perception 
+
+I. I NTRODUCTION 
+
+Safe autonomous driving at highway speeds demands reliable 3D perception well beyond current dataset ranges. Typical highway speeds of 60 mph require obstacle detection at 400 m to ensure enough reaction time ( ∼15 seconds) 
+
+> 1
+
+Aeva Inc., Mountain View, CA, USA. 2Carnegie Mellon University, Pittsburgh, PA, USA. 
+
+for safe planning and deceleration. Yet widely-used LiDAR benchmarks, KITTI [1], nuScenes [2], Waymo Open [3], and Argoverse 2 [4], annotate only to 80–214 m. Beyond ∼150 m, per-object point counts drop to single digits, making it difficult to annotate, much less detect, objects at range. In theory, multi-frame aggregation could enable annotation/detection with fewer points, but this adds blur for moving objects, noise from ego-motion registration, and sensing latency: five frames (500 ms) at 60 mph cost ∼13 m of travel. Frequency-modulated continuous-wave (FMCW) LiDAR potentially addresses this gap by measuring radial point velocity at the sensor level. It measures both distance and radial velocity by transmitting a laser whose frequency changes over time (a chirp) and then correlating the returned light with a copy of the transmitted light. From the resulting interference signal, the sensor extracts two frequencies that correspond to range (distance) and Doppler shift (radial velocity). This is analogous to radar, but implemented with coherent laser light instead of radio frequencies. Compared to traditional (pulsed time-of-flight or ToF) LiDAR or Radar, FMCW LiDAR directly measures per-point range and per-point radial velocity from a single sweep, without multi-frame aggregation or multi-sensor fusion (Fig. 1). Traditional radar offers poor spatial reso-lution, while traditional LiDAR infers point velocity only by differencing consecutive scans. This per-point velocity is especially valuable at long range, where geometric structure arXiv:2609.33230v1 [cs.CV] 27 Sep 2026 (a) No blooming on retro-reflectors.    
+
+> (b) In-sensor ego-motion compensation.
+> (c) Minimal degradation in fog. (Left: ) Foggy scene. ( Right: ) Minimal degradation in point-cloud quality.
+> Fig. 2: Key advantages of FMCW LiDAR.
+
+is sparse: with ∼15 points per object at 200–400 m, velocity becomes the dominant cue for separating dynamic objects from static background. FMCW LiDAR also offers practical robustness advantages: because coherent processing correlates the returned signal with an internal copy, it is more robust to environmental obscurants such as fog and direct sunlight, interference from other LiDAR sensors, and blooming from retro-reflectors (Figure 2, Figure 3). 
+
+FMCW LiDAR Datasets. Public FMCW data is scarce. HeLiPR [5] includes FMCW data but lacks 3D annotations; its extension HeLiMOS [6] adds binary moving-object labels to a single sequence without bounding boxes or class labels. Most related to us is TruckDrive [7], which provides an FMCW LiDAR dataset annotated with 3D cuboids to 400 m, but targets heavy-truck highway driving (6.1% urban, 9.6% night) and does not explore the impact of Doppler cues for detection and velocity estimation. 
+
+Our Dataset. We present a large-scale FMCW LiDAR dataset captured with six Aeva Aeries II FMCW LiDAR sensors and six paired 4K cameras across eight San Francisco Bay Area cities: 575 sequences and 57.5K synchronized frames at 10 Hz ( ∼508K points per frame). The dataset contains over 8 million annotated 3D boxes across 16 detection classes, with per-object tracking IDs, per-point labels across 24 semantic classes and annotations extending to 400 m. It spans a more even urban/highway (55.8%/44.2%) and day/night (58.8%/41.2%) mix, with 237 nighttime sequences covering diverse traffic densities, road types, and lighting conditions; ego-motion poses are derived from fused GNSS, FMCW-based odometry, and offline registration, with paired cameras enabling future multimodal research. 
+
+Our Benchmark. We define a benchmark with three tasks on a 10K-frame (100 sequences) test set: 3D object detection and scene flow estimation, both with a static/dynamic split and evaluated across three range bins (0–100, 100–200, 200–400 m), and semantic segmentation over 24 classes. We evaluate four 3D detectors—CenterPoint [8], DSVT [9], VoxelNeXt [10], and TransFusion [11]—with geometry-only and +Doppler velocity variants. For scene flow, we similarly evaluate DeFlow [12], Flow4D [13], and SSF [14] with and without Doppler velocity. Preliminary Cylinder3D [15] and PTv3 [16] segmentation experiments show that naive velocity concatenation does not consistently improve dynamic-class         
+
+> (a) (b) (c)
+> (d) (e) (f) Fig. 3: FMCW LiDAR under challenging sensing conditions. Top: Direct sunlight. (a) Even under severe sun glare in the RGB image, ( b) FMCW LiDAR still produces accurate range and velocity measurements, which ( c)align well when overlaid. Bottom: Multi-LiDAR interference. (d) Here, the ego-vehicle is surrounded by other active LiDAR sensors (the Waymo vehicle). ( e) FMCW LiDAR is immune to such interference and can still produce accurate range, velocity, and ( f) reflectivity.
+> Fig. 4: Comparison of ToF vs FMCW LiDAR showing immunity to optical interference under direct illumination
+
+IoU, motivating future motion-aware architectures. 
+
+Conclusions. We focus on the impact of adding Doppler velocity measurements on far-range and low-latency (single-frame) perception. Classic detectors like CenterPoint double 
+
+in accuracy from 33 AP to 67 AP for dynamic cars at range (200+ meters). Contemporary models like TransFusion im-prove from 50 to 72 AP. The effect is even more pronounced for challenging classes like pedestrians; TransFusion improves from 0 to 42 AP. Adding 5-frames of context improves overall performance (by adding 500 ms of latency), but Doppler still more than doubles all-motion-state pedestrian AP from 13 AP to 33 AP. Doppler also consistently reduces scene-flow error, while preliminary semantic-segmentation baselines do not yet capture consistent gains from velocity on dynamic objects. II. R ELATED WORK 
+
+LiDAR Datasets for Autonomous Driving. Large-scale annotated datasets have been central to advancing 3D per-ception for autonomous driving. KITTI [1] was the first large-scale benchmark to pair camera and LiDAR data with 3D bounding box annotations, catalyzing a decade of research in 3D object detection. nuScenes [2] significantly expanded scope by providing full 360 ◦ coverage with six cameras, five radars, and one LiDAR across 1,000 scenes in Boston and Singapore. The Waymo Open Dataset [3] further scaled annotation density, offering over 12 million 3D boxes across diverse US geographies with high-quality 64-beam LiDAR. Argoverse 2 [4] introduced the largest object taxonomy to date with 30 classes across six US cities, along with rich HD maps containing 3D lane geometry. Beyond fully supervised TABLE I: Comparison with existing autonomous driving datasets. Our FMCW LiDAR dataset is the first large-scale dataset captured entirely with FMCW LiDAR, offering the highest point density (508K pts/fr), greatest annotation density (140 boxes/fr), longest effective range (400 m), and the second largest number of night sequences (237) among all compared datasets.                                                                                                                                          
+
+> Scale Sensor Setup Coverage Year Dataset Scenes Frames Boxes/Fr Pts/Fr Objects LiDARs Type Cameras Range Night (#) Classes
+> 2012 KITTI 22 15K 13 120K 0.2M 1ToF 491 m ×82019 nuScenes 1000 40K 35 34K 1.4M 1ToF 670 m ✓23 2020 Waymo Open 1150 230K 55 177K 12.6M 5ToF 580 m 102 42023 Argoverse V2 1000 150K 33 107K 5M 2ToF 9214 m ×30 2023 HeLiPR 6––––4ToF+FMCW –200 m ✓–2024 HeLiMOS 112K –––4ToF+FMCW 0200 m ×32024 MAN TruckScenes 747 30K 33 –1M 6ToF 4230 m ✓27 2026 Boreas-RT 60 ––––2ToF+FMCW 1400 m ––2026 TruckDrive 3828 165K –––7+3 FMCW+ToF 11–15 400 m 367 92026 Ours 575 57.5K 140 508K >8M 6FMCW 6400 m 237 16
+> ✓indicates night data is available but sequence count is not reported; ×indicates no night data; – denotes not reported.
+
+settings, ONCE [17] provided one million LiDAR scenes to enable research in semi-supervised and self-supervised 3D detection. While these datasets have driven enormous progress, they all employ time-of-flight (ToF) LiDAR sensors that measure only range and reflectance requiring either multi-frame temporal reasoning or auxiliary sensor fusion to infer per-point motion. 
+
+4D Radar Datasets. Automotive 4D radar natively measures radial velocity alongside position. Astyx HiRes2019 [18] was the first public 4D radar dataset (500 frames, front-view only); View-of-Delft (VoD) [19] expanded to 8,693 frames focusing on vulnerable road users; TJ4DRadSet [20] added diverse lighting and road conditions; K-Radar [21] introduced 35,000 frames of full 4D tensors (range, azimuth, elevation, Doppler) with 3D annotations under adverse weather; and MAN TruckScenes [22] provided the first 360 ◦ 4D radar coverage for heavy vehicles. Despite valuable Doppler measurements, 4D radar angular resolution remains fundamentally limited and produces two to three orders of magnitude fewer points per frame than LiDAR thereby restricting fine-grained detection of small or distant objects. 
+
+FMCW LiDAR Sensing and Datasets. Prior work utiliz-ing FMCW LiDAR for perception has been limited in scope, scale, and public availability. Doppler velocity improves tracking [23], detection [24], and predictive localization [25], but all rely on proprietary data, instance-only labels, or simulation without real sensor noise. HeLiPR [5] targets place recognition without 3D annotations; its extension HeLiMOS [6] adds binary moving-object labels to one sequence but lacks bounding boxes, class labels, or tracking IDs. MUSES [26] pairs an FMCW scanning radar (not LiDAR) with a MEMS LiDAR, offering only 2D panoptic annotations without per-point velocity at LiDAR-level density. A prior version of this dataset was released with a smaller set of 10K annotated frames [27], limiting its use for training. 4DLidarOpen [28] benchmarks Doppler-aware detection and BEV flow, but its 28K-frame, five-class human split uses one forward-facing FMCW sensor, reaches only up to 150 m, and limits evaluation to one detector. TruckDrive [7] provides an FMCW dataset annotated with 3D cuboids to 400 m, but targets heavy-truck highway driving (6.1% urban, 9.6% night) and does not explore the impact of Doppler cues for detection and velocity estimation. III. A EVA SCENES DATASET 
+
+> Fig. 5: Long-range annotation statistics of our FMCW LiDAR dataset.
+> (Top: ) distribution of 3D bounding boxes vs. distance from the ego vehicle; annotations extend up to 400 m (Waymo 80 m, nuScenes 141 m, Argoverse V2 214 m). ( Bottom: ) average LiDAR points per box vs. distance, remaining
+> ∼13 points per box to 400 m.
+
+A. FMCW LiDAR 
+
+FMCW LiDAR demonstrates robust sensing performance across challenging environmental and operational conditions. As shown in Fig. 3 (top row), range and per-point velocity measurements are preserved under direct sunlight. In Fig. 3 (bottom row), a multi-LiDAR traffic scene containing an-other autonomous vehicle remains fully observable with no degradation in range or velocity measurements. As illustrated in Fig. 2, returns from retro-reflective infrastructure such as traffic signs exhibit no blooming artifacts, and under foggy conditions scene structure and motion cues remain observable despite significant visual degradation. Collectively, these properties enable consistent data collection across diverse pole_trunk car traffic_sign pedestrian traffic_item other_structure truck trailer bicycle other_vehicle bus bicyclist motorcycle motorcyclist vehicle_on_rails animal 
+
+10 4
+
+10 5
+
+10 6
+
+> Number of instances
+
+Infrastructure Vehicle Vulnerable Road User Other 
+
+Fig. 6: Class distribution of our annotated FMCW LiDAR dataset. 
+
+lighting conditions, dense traffic, varying material properties, and adverse weather. Per-point radial velocity directly benefits ego-motion estimation. In GNSS-denied and geometrically degenerate environments such as tunnels, highways, and long corridors, the Doppler channel constrains translational motion even when scene geometry is ambiguous, while dense spatial struc-ture anchors the rotational estimate, significantly reducing drift [29]–[31]. Automotive 4D radars also provide Doppler velocity, but their sparse, noisy point clouds and poor angular resolution [32] limit odometry accuracy compared to the dense geometry available from FMCW LiDAR. Per-point velocity further enables dynamic object rejection without an external tracker [33]. Combined with accurate ego-motion, this allows temporal accumulation of point clouds free of dynamic trails, improving downstream tasks like small object detection, road hazard identification, and lane boundary estimation. 
+
+Vehicle and Sensor Setup Our data collection vehicle is equipped with six Aeva Aeries II FMCW LiDAR sensors and six RGB cameras (Fig. 8 and Tab. II). LiDARs follow a mixed wide/narrow FoV layout: front and rear positions each mount a wide, narrow pair for perception up to 400 m, while the two side-facing wide-FoV units cover up to 100 m. All LiDARs run at 10 Hz; each point encodes 3D position, reflectivity, instantaneous radial velocity, line index, and acquisition timestamp. The camera suite pairs four wide-FoV and two narrow-FoV 4K units at 30 Hz, with each camera spatially aligned to its corresponding LiDAR as shown in 
+
+(a) Raw Doppler d′.
+
+(b) Ego-motion compensated Doppler d.
+
+Fig. 7: Ego-motion compensation. (Top: ) raw radial velocity measured by the LiDAR sensors moving on a highway towards the right. ( Bottom: ) after ego-motion compensation, static surfaces (e.g. ground) have zero velocity. x-axis front_lidar_wide left_lidar left_camera front_camera_wide front_lidar_narrow front_camera_narrow rear_lidar_wide rear_camera_wide rear_lidar_narrow rear_camera_narrow right_lidar right_camera vehicle x-axis y-axis z-axis z-axis upward 
+
+Fig. 8: Sensor setup and coordinate system 
+
+TABLE II: Sensor specifications of the data collection vehicle. 
+
+LiDAR Count Range HFoV VFoV FPS 
+
+Aeries II Wide ×4 250 m 110° 19.4° 10 Aeries II Narrow ×2 400 m 35° 19.4° 10 
+
+Camera Count Resolution HFoV VFoV FPS 
+
+OX08B40 Wide ×4 3840 ×2160 120° 67.5° 30 OX08B40 Narrow ×2 3840 ×2160 60° 36° 30 
+
+Tab. II. All sensors are calibrated to a common ego-vehicle frame centered at the rear axle and synchronized using PTP (IEEE 1588-2008), with LiDAR frame geometry compensated at the temporal mid-frame. 
+
+Doppler velocity and ego-motion compensation. Alongside the range vector pi − oi from the per-point sensor origin oi
+
+to the return pi, the sensor measures a Doppler velocity di:the radial velocity of that point relative to the sensor along the unit line-of-sight (LOS) direction of the uncompensated geometry (Fig. 7), 
+
+ˆri = ( pi − oi)/∥pi − oi∥. (1) With sensor velocity vs ∈ R3 and point velocity vi ∈ R3
+
+(both in m/s, in the sensor frame; vi = 0 for static points, the object velocity otherwise), di is the LOS projection of the relative velocity, and adding back the projected sensor velocity yields the ego-motion-compensated Doppler d′
+
+> i
+
+, i.e., the radial velocity a stationary sensor would measure: 
+
+di = ˆ r⊤ 
+
+> i
+
+(vi − vs) = ˆ r⊤ 
+
+> i
+
+vi − ˆr⊤ 
+
+> i
+
+vs, (2) 
+
+d′ 
+
+> i
+
+= di + ˆ r⊤ 
+
+> i
+
+vs = ˆ r⊤ 
+
+> i
+
+vi. (3) 
+
+Dataset Overview The dataset comprises 575 sequences of 10 s at 10 Hz (100 frames each, 57,500 total), with ∼508K LiDAR points per frame and over 8 million annotated 3D boxes across 16 detection classes. Collection spans urban and highway environments across eight San Francisco Bay Area cities (Mountain View, Sunnyvale, Palo Alto, San Jose, San Francisco, Fremont, Union City, and San Mateo), covering diverse road types (residential, arterial, highway), traffic densities, and lighting conditions (55.8% urban / 44.2% highway; 58.8% day / 41.2% night), including 237 dedicated nighttime sequences. We provide both the raw and ego-motion compensated (eq. (3)) point clouds (see supplementary Sec. VII-A and Fig. 11). 
+
+Data Curation and Annotation . We curated the 57.5K frame dataset from several hundred hours of internally collected driving logs across various geographies. Front-camera images were embedded using CLIP and SigLIP 2 [34], [35], and their t-SNE projections were inspected to assess scene diversity and identify underrepresented conditions. Text-to-image retrieval further targeted challenging scenes, including severe sun glare and nearby autonomous vehicles equipped with LiDAR (Fig. 3). We also used a 3.5B-parameter Qwen-VL model to caption scene activity, followed by a secondary model that surfaced unusual behaviors such as pedestrian jaywalking and vehicles cutting closely in front of the ego vehicle. Because offline perception was insufficiently reliable beyond 200 m, where objects are sparse, frequently occluded, and can be tracked only for short durations, human annotators labeled the selected sequences from scratch. Every annotated frame was then processed by an in-house object detector to flag model– human disagreements for correction, followed by a final frame-by-frame QC process until we reach a 99% accuracy. 
+
+Long Range Annotations . A defining characteristic of our dataset is the extent and density of its long-range supervision. Each frame contains ∼140 annotated objects; ∼40% lie beyond 80 m and ∼18% beyond 141 m, with the distribution tailing continuously to 400 m, providing dense long-range labeled ground truth, including scene-flow labels (Fig. 5, Table I). Point density degrades gradually with range, with per-object point count plateauing at 13–15 points from 200– 400 m. Each long-range point carries instantaneous radial velocity, a signal absent from ToF sensors, which becomes the dominant discriminative cue for dynamic/static separation when spatial structure alone is ambiguous. Annotations comprise 3D bounding boxes across 16 categories, per-object tracking IDs, scene-flow labels, and per-point semantic labels (see supplementary Sec. VII-F and Tab. XI). Detection categories aggregate into four groups, 
+
+infrastructure , vehicles , Vulnerable Road Users (VRUs) , and 
+
+other , revealing a long-tailed distribution (Fig. 6). At long range, radial velocity is essential for annotators to disam-biguate moving objects from static background where frame-to-frame geometric differencing is insufficient. Together with 237 nighttime sequences, these velocity-aware, long-range annotations support early detection, motion forecasting, and long-range perception, encouraging range-aware strategies in which Doppler velocity is increasingly valuable as geometric density diminishes. 
+
+B. Benchmark Tasks and Metrics 
+
+Our benchmark is designed to evaluate 3D perception at ranges up to 400 m and to encourage methods that exploit the per-point velocity signal unique to FMCW LiDAR. We define three tasks: 3D object detection, 3D scene flow estimation and semantic segmentation and present baseline results for all three. The goal of this benchmark is to encourage methods that exploit the per-point velocity signal unique to FMCW LiDAR, especially for single-frame detection—where Doppler matches five-frame geometry-only accuracy at 5 × lower sensing latency (500 ms vs 100 ms for newly visible objects) and long-range detection. 
+
+3D Object Detection. We evaluate detection across 16 classes grouped into vehicles (car, bus, truck, trailer, vehicle_on_rails, other_vehicle), vulnerable road users (pedestrian, bicyclist, bicycle, motorcyclist, motorcycle, animal), and infrastructure 
+
+(pole_trunk, traffic_sign, traffic_item, other_structure). Predictions are matched to ground truth by using center distance threshold of 2 m for vehicles and 1 m for pedestrians. The primary metric is Average Precision (AP) with 101-point interpolation. Ground-truth filtering is applied on the raw point cloud with a uniform minimum of 5 points per box, ensuring fairness independent of any model-specific preprocessing. Metrics are reported across three range bins (0–100, 100–200, 200–400 m) and over the full 400 m range on a test split of 10K frames (see supplementary Sec. VII-D and Tab. V for the dynamic/static partition and speed-error metric). 
+
+Scene Flow Estimation. Scene flow labels are derived from ground-truth human-annotated object tracks. Unlike conventional LiDAR, FMCW sensing directly measures the radial component of each point’s velocity via Doppler, so the estimation problem reduces to recovering the unobserved tangential component; methods can treat the per-point radial measurement as a strong prior, both for gating static points (compensated Doppler ≈0) and for constraining the flow of dynamic ones. The primary metric is absolute end-point error (EPE), reported on all, static, and dynamic points using the same three range bins as detection. We do not prescribe a fixed frame pairing, allowing methods to use consecutive or multi-frame inputs. 
+
+Semantic Segmentation. We define point-wise segmentation across 24 classes (excluding unknown from evaluation), span-ning vehicles, vulnerable road users, infrastructure, ground surfaces (road, sidewalk, lane_boundary, road_marking, re-flective_marker, other_ground), and vegetation. The primary metric is mIoU across all evaluated classes, with per-class IoU reported. Evaluation is restricted to points with ground-truth labels. We compare metrics with and without compensated radial velocity under otherwise identical settings; the full evaluation protocol is provided in supplementary Table V(e). IV. B ASELINE METHODS 
+
+A. Classical Dynamic Object Detection and Tracking 
+
+We introduce a classical, learning-free Kalman filter baseline that exploits per-point Doppler measurements for detection and tracking. We provide detailed pseudocode and parameters in supplementary Sec. VII-B, algorithm 1, and Tabs. III and IV, but include a summary here. 
+
+Dynamic object detection. After ego-motion compensation, each return measures d′ 
+
+> i
+
+= ˆ r⊤ 
+
+> i
+
+vobj from eq. (3). Static objects have d′ 
+
+> i
+
+≈ 0, while dynamic objects retain a non-zero radial component; thus, |d′
+
+> i
+
+| > 0.7 m/s isolates dynamic seed points without multi-frame differencing or scan registration. The zero-Doppler blind spot (Fig. 1) makes motion perpendicular to all LOS directions indistinguishable from static background, affecting perpendicular cross-traffic, adjacent-lane vehicles observed by side-facing sensors, and turning vehicles passing through the perpendicular-to-LOS direction. DBSCAN [36] clusters seeds in BEV, followed by Doppler-based splitting and re-merging to separate overlapping objects moving at different speeds. 
+
+Cluster velocity estimation. For each cluster, we estimate ground-plane velocity v = [ vx, v y ]⊤ using 
+
+d′ 
+
+> i
+
+= (ˆ ri)⊤ 
+
+> xy
+
+v, (4) where (·)xy retains the ground-plane components of the LOS direction in eq. (1). Weights wi = max( |d′
+
+> i
+
+|, 0.5) emphasize returns with a large Doppler velocity for robustness. If narrow azimuth spread or an ill-conditioned observation matrix leaves tangential velocity underdetermined, a radial-only fallback projects the median Doppler velocity along the mean LOS, preserving speed while leaving heading to the tracker. 
+
+Tracking and Limitations. A UKF [37] with a CTRV model tracks x = [ x, y, z, s, ψ, ˙ψ]T (position, speed, heading, yaw rate) from z = [ x, y, z, s, ψ ]T ; cluster velocity directly initializes and updates s and ψ, whereas ToF pipelines need several noisy positions before finite differencing yields usable velocity, leaving early tracks heading-ambiguous. For radial-only detections, inflated yaw noise lets the motion model carry heading through Doppler-blind phases. Beyond the zero-Doppler blind spot, pedestrian recall is near zero since returns are sparse and often below the Doppler threshold; learned methods could exploit temporal context [38], shape priors, and per-point Doppler supervision for scene flow. 
+
+B. Learning-Based Detection 
+
+Learned detectors address the shortcomings of the classical pipeline (Sec. IV-A) by leveraging shape priors, temporal context, and class-specific supervision. CenterPoint [8] pro-vides a convolutional BEV baseline, predicting an anchor-free heatmap of object centers and regressing a 3D box from each peak. DSVT [9] instead applies dynamic sparse window attention to voxel tokens, alternating rotated set partitions to exchange information across local groups before BEV detection. VoxelNeXt [10] is fully sparse: a sparse 3D CNN predicts boxes directly from occupied voxels without conversion to a dense BEV feature map. Because computation follows occupied voxels rather than the area of a dense grid, it scales efficiently to long-range scenes. Finally, we use the LiDAR-only variant of TransFusion [11], which initializes class-aware object queries from center-heatmap peaks and refines them by cross-attending to BEV features. Together, these strong baselines span convolutional and attention-based backbones, dense BEV and sparse voxel representations, and center-, voxel-, and query-based prediction. This provides architectural diversity while holding the sensing modality, supervision, and input variants fixed, allowing Doppler gains to be compared across detector families. 
+
+Geometry-only. XYZ coordinates and reflectivity, with no velocity. We train both a single-frame (100 ms) model and a five-frame (500 ms) model that accumulates the current frame plus four ego-motion-compensated past frames. This mirrors the standard ToF LiDAR detection setup applied to FMCW data, at the cost of 5 × sensing latency ( ∼13 m at 60 mph). 
+
++vel: Doppler velocity as additional input. We append ego-motion-compensated per-point radial velocity as an extra point channel. All other training settings are unchanged. 
+
+C. Scene Flow 
+
+We evaluate three recent supervised LiDAR scene-flow methods designed for full-scale driving point clouds. De-Flow [12] encodes two scans as dense PointPillars BEV maps with a 2D U-Net, then uses an iterative GRU decoder to re-cover point-level detail lost during pillarization. Flow4D [13] instead uses five scans and preserves height and time in a 4D voxel network, with decomposed 3D spatial and 1D temporal convolutions for efficient spatiotemporal fusion. SSF [14] targets long-range scalability using a sparse-convolutional U-Net and aligns the unequal occupied-voxel sets of two scans with masked virtual voxels before feature fusion. Thus, the baselines vary spatial representation, temporal context, and fusion/decoding strategy while retaining a practical supervised, feed-forward setting; for each, +vel appends radial velocity to the otherwise unchanged input and training configuration. 
+
+D. Semantic Segmentation 
+
+We evaluate Cylinder3D [15], which applies asymmetrical 3D convolutions over cylindrical voxels, and Point Trans-former V3 (PTv3) [16], which uses point-based transformer blocks. For each method, +vel appends compensated radial velocity to the geometry and reflectivity features under otherwise unchanged settings (see supplementary Sec. VII-C and Tab. V). V. E XPERIMENTS 
+
+We evaluate all baselines on the 10,000-frame test split using the protocol in Sec. III-B. Baseline methods use XYZ and reflectivity as input features, while +vel adds ego-motion-compensated radial velocity as an additional channel. We evaluate one-frame input and five-frame input formed by combining the current frame with four preceding ego-motion-compensated frames. Within each architecture, the training and evaluation settings are unchanged across input variants (see supplementary Sec. VII-C and Tab. V). 
+
+A. Classical Object Detection 
+
+The classical learning-free detector makes use of thresh-olded Doppler and geometric clustering (Sec. IV-A). At 200–400 m, it obtains 0.41 dynamic-vehicle AP, a higher reported point estimate than one-frame no-Doppler Center-Point ( 0.33 ), DSVT ( 0.31 ), and VoxelNeXt ( 0.39 ), and a lower estimate than TransFusion ( 0.50 ). Candidate generation requires |di| > 0.7 m/s. Across points enclosed by the over 8 million annotated 3D boxes, 97% have |di| > 0.5 m/s, indicating that informative radial motion is available for nearly all annotated object points. The classical result therefore provides a competitive long-range reference without learning, while the learned detectors additionally cover stationary and low-radial-velocity objects. 
+
+B. Learned Object Detection 
+
+Single-frame detection. Adding ego-motion-compensated radial velocity increasingly benefits single-frame detection as geometry becomes sparse: dynamic-vehicle AP increases from 0.09 –0.20 at 0–100 m to 0.22 –0.34 at 200–400 m. At 200–400 m, one-frame +vel matches or exceeds five-frame XYZ-only AP for CenterPoint ( 0.67 vs. 0.52 ), DSVT ( 0.63 
+
+vs. 0.62 ), VoxelNeXt ( 0.68 vs. 0.56 ), and TransFusion ( 0.72 
+
+vs. 0.60 ), showing that instantaneous Doppler can replace Object detection 
+
+Classical 1-frame 1-frame+vel 5-frame 5-frame+vel 0–100 m 100–200 m 200–400 m       
+
+> 30 40 50 60 70 80 90 100 AP
+> CenterPoint
+> 0–100 m 100–200 m 200–400 m
+> DSVT
+> 0–100 m 100–200 m 200–400 m
+> VoxelNext
+> 0–100 m 100–200 m 200–400 m
+> TransFusion
+
+·Dynamic objects Vehicle AP All objects (static + dynamic) Vulnerable Road User (VRU) SpdE 0–100 m 100–200 m 200–400 m       
+
+> 010 20 30 40 50 60 70 80 AP
+> CenterPoint
+> 0–100 m 100–200 m 200–400 m
+> DSVT
+> 0–100 m 100–200 m 200–400 m
+> VoxelNext
+> 0–100 m 100–200 m 200–400 m
+> TransFusion
+
+·Dynamic objects Vulnerable Road User (VRU) AP All objects (static + dynamic) Vulnerable Road User (VRU) SpdE 0–100 m 100–200 m 200–400 m       
+
+> 30 40 50 60 70 80 90 AP
+> CenterPoint
+> 0–100 m 100–200 m 200–400 m
+> DSVT
+> 0–100 m 100–200 m 200–400 m
+> VoxelNext
+> 0–100 m 100–200 m 200–400 m
+> TransFusion
+
+·All objects (static + dynamic) Vehicle AP All objects (static + dynamic) Vulnerable Road User (VRU) SpdE 0–100 m 100–200 m 200–400 m       
+
+> 010 20 30 40 50 60 70 80 90 AP
+> CenterPoint
+> 0–100 m 100–200 m 200–400 m
+> DSVT
+> 0–100 m 100–200 m 200–400 m
+> VoxelNext
+> 0–100 m 100–200 m 200–400 m
+> TransFusion
+
+·All objects (static + dynamic) Vulnerable Road User (VRU) AP All objects (static + dynamic) Vulnerable Road User (VRU) SpdE Fig. 9: Doppler improves single-frame and multi-frame long-range detection. We report AP ( ↑) by range for dynamic and all (static and dynamic) vehicles and pedestrians. At 200–400 m, adding Doppler to single-frame detectors consistently raises dynamic-vehicle AP from 0.33 →0.67 (CenterPoint), 
+
+0.31 →0.63 (DSVT), 0.39 →0.68 (VoxelNeXt), and 0.50 →0.72 (TransFusion). These velocity-aware single-frame detectors match or outperform their five-frame XYZ-only counterparts ( 0.52 , 0.62 , 0.56 , and 0.60 AP, respectively), using a 100 ms rather than 500 ms observation window. At the same range, all four single-frame XYZ-only models obtain 0.00 dynamic-pedestrian AP, while Doppler raises VoxelNeXt to 0.12 and TransFusion to 0.42 . With five frames, Doppler further raises all-pedestrian AP from 0.01 →0.13 for CenterPoint and 0.13 →0.33 for TransFusion, showing that instantaneous motion and accumulated geometry provide complementary cues. 
+
+much of the evidence obtained through temporal accumulation. Pedestrian performance is architecture-dependent: TransFu-sion reaches 0.42 dynamic AP compared with 0.00 without velocity >100m, whereas VoxelNeXt reaches 0.12 and the other detectors remain near zero >200m. Single-frame infer-ence also avoids maintaining and aligning temporal history, supporting immediate startup and recovery from dropped frames while potentially reducing memory, computation, latency, and cross-frame registration errors. 
+
+Multi-frame detection. With five-frame input, velocity remains valuable where accumulated geometry is sparse. At 200–400 m, +vel improves dynamic-vehicle AP by 0.01 –
+
+0.05 and all-motion-state vehicle AP by 0.04 –0.06 across all detectors, while full-range DSVT improves from 0.72 →0.78 .Long-range pedestrian gains are larger: all-motion-state AP increases from 0.01 →0.13 for CenterPoint, 0.23 →0.29 Scene fl ow             
+
+> DeFlow xyz DeFlow +vel Flow4D xyz Flow4D +vel SSF xyz SSF +vel 0–100 m 100–200 m 200–400 m
+> 10 0
+> 10 1
+> EPE (cm)
+> All points
+> 0–100 m 100–200 m 200–400 m
+> 10 0
+> 10 1
+> Static points
+> 0–100 m 100–200 m 200–400 m
+> 10 1
+> 10 2
+> Dynamic points
+> Scene fl ow absolute EPE (cm)
+
+Fig. 10: Scene-flow EPE ( ↓) by input configuration and range. Adding radial velocity reduces EPE for every plotted method, range, and point subset. At 200–400 m, all-point EPE decreases from 9.47 →5.02 cm for DeFlow, 17 .87 →5.44 cm for Flow4D, and 10 .34 →5.73 cm for SSF. 
+
+for VoxelNeXt, and 0.13 →0.33 for TransFusion; dynamic-pedestrian AP increases from 0.04 →0.28 for CenterPoint and 
+
+0.24 →0.30 for TransFusion. These results show that temporal stacking and Doppler provide complementary evidence: stacking increases spatial support and recovers object shape, whereas radial velocity supplies a per-point motion cue helping separate moving objects from static background. 
+
+Long-range detection (200–400 m). At 200–400 m, where an-notated objects contain approximately 13–15 returns (Fig. 5), velocity provides its largest gains. One-frame +vel matches or exceeds five-frame XYZ-only dynamic-vehicle AP for all four detectors, with all-motion-state margins of 0.19 ,
+
+0.04 , 0.12 , and 0.14 for CenterPoint, DSVT, VoxelNeXt, and TransFusion, respectively. The classical Doppler detector reaches 0.41 dynamic-vehicle AP, exceeding one-frame XYZ-only CenterPoint ( 0.33 ), DSVT ( 0.31 ), and VoxelNeXt ( 0.39 ), 
+
++vel raises all learned detectors to 0.63 –0.72 . For pedestrians, all one-frame XYZ-only models obtain 0.00 dynamic AP at the reported precision, whereas +vel reaches 0.42 for TransFusion and 0.12 for VoxelNeXt. Thus, FMCW velocity provides an effective per-return cue when sparse geometry and cross-frame misalignment limit temporal accumulation (see supplementary Tabs. VI to IX and Fig. 12). 
+
+C. Scene Flow 
+
+Adding ego-motion-compensated velocity consistently im-proves scene-flow estimation, reducing EPE in all 36 method– point-type–range combinations. Averaged across methods, all-point EPE decreases by 23.9% at 0–100 m, 55.7% at 100–200 m, and 57.0% at 200–400 m, showing that velocity becomes increasingly valuable as geometric evidence grows sparse. Static-point estimation benefits particularly strongly, with far-range EPE reductions of 72.7–87.4%. For dynamic points, Doppler directly constrains the radial component of motion, reducing flow ambiguity and lowering far-range EPE by 23.1% for DeFlow, 54.5% for Flow4D, and 22.9% for SSF. At 200–400 m, velocity brings all-point EPE to a consistent 5.0–5.7 cm and dynamic-point EPE to 49–51 cm across methods. The smaller full-range reductions reflect the dominance of dense near-range points, where geometry is already informative. Overall, velocity provides a direct motion prior that consistently reduces error and becomes especially effective at longer ranges (see supplementary Sec. VII-E and Tab. X). VI. C ONCLUSION 
+
+We presented a large-scale FMCW LiDAR dataset with 575 sequences (57,500 frames), over 8 million annotated 3D boxes across 16 detection classes, including 237 nighttime sequences, and labels extending to 400 m. The dataset also includes per-point labels across 24 semantic classes. Our analysis shows that Doppler becomes increasingly valuable as geometric evidence grows sparse. Across all four detection architectures, one-frame velocity-aware models match or exceed five-frame geometry-only vehicle detection at long range, while also improving pedestrian detection. Temporal aggregation and Doppler provide complementary geometric and motion evidence. Doppler also consistently reduces scene-flow error, although tangential motion must still be inferred. We hope this work accelerates perception systems that fully leverage the rich motion information provided by FMCW LiDAR. REFERENCES [1] A. Geiger, P. Lenz, and R. Urtasun, “Are we ready for autonomous driving? The KITTI vision benchmark suite,” in CVPR , 2012, pp. 3354–3361. [2] H. Caesar et al. , “nuScenes: A multimodal dataset for autonomous driving,” in CVPR , 2020, pp. 11 621–11 631. [3] P. Sun et al. , “Scalability in perception for autonomous driving: Waymo open dataset,” in CVPR , 2020, pp. 2446–2454. [4] B. Wilson et al. , “Argoverse 2: Next generation datasets for self-driving perception and forecasting,” in NeurIPS , 2023. [5] M. Jung et al. , “HeLiPR: Heterogeneous LiDAR dataset for inter-LiDAR place recognition under spatiotemporal variations,” Int. J. Robot. Res. , vol. 43, no. 12, pp. 1867–1883, 2024. [6] H. Lee et al. , “HeLiMOS: A dataset for moving object segmentation in 3D point clouds from heterogeneous LiDAR sensors,” arXiv preprint arXiv:2408.06328 , 2024. [7] F. Ghilotti et al. , “Truckdrive: Long-range autonomous highway driving dataset,” in CVPR , 2026, pp. 10 587–10 598. [8] T. Yin, X. Zhou, and P. Krähenbühl, “Center-based 3d object detection and tracking,” in CVPR , 2021, pp. 11 784–11 793. [9] H. Wang et al. , “DSVT: Dynamic sparse voxel transformer with rotated sets,” in CVPR , 2023, pp. 13 520–13 529. [10] Y. Chen et al. , “VoxelNeXt: Fully sparse VoxelNet for 3D object detection and tracking,” in CVPR , 2023, pp. 21 674–21 683. [11] X. Bai et al. , “TransFusion: Robust LiDAR-camera fusion for 3D object detection with transformers,” in CVPR , 2022, pp. 1090–1099. [12] Q. Zhang et al. , “DeFlow: Decoder of scene flow network in autonomous driving,” in ICRA , 2024, pp. 2105–2111. [13] J. Kim et al. , “Flow4D: Leveraging 4D voxel network for LiDAR scene flow estimation,” IEEE Robot. Autom. Lett. , vol. 10, no. 4, pp. 3462–3469, 2025. [14] A. Khoche et al. , “SSF: Sparse long-range scene flow for autonomous driving,” in ICRA , 2025, pp. 6394–6400. [15] X. Zhu et al. , “Cylindrical and asymmetrical 3D convolution networks for LiDAR segmentation,” in CVPR , 2021. [16] X. Wu et al. , “Point transformer V3: Simpler, faster, stronger,” in 
+
+CVPR , 2024. [17] J. Mao et al. , “One million scenes for autonomous driving: ONCE dataset,” in NeurIPS , 2021. [18] M. Meyer and G. Kuschk, “Automotive radar dataset for deep learning based 3D object detection,” in EuRAD , 2019, pp. 129–132. [19] A. Palffy et al. , “Multi-class road user detection with 3+1D radar in the View-of-Delft dataset,” IEEE Robot. Autom. Lett. , vol. 7, no. 2, pp. 4961–4968, 2022. [20] L. Zheng et al. , “TJ4DRadSet: A 4D radar dataset for autonomous driving,” in ITSC , 2022, pp. 493–498. [21] D.-H. Paek, S.-H. Kong, and K. T. Wijaya, “K-Radar: 4D radar object detection for autonomous driving in various weather conditions,” in 
+
+NeurIPS , 2022. [22] F. Fent et al. , “MAN TruckScenes: A multimodal dataset for au-tonomous trucking in diverse conditions,” in NeurIPS , 2024. [23] Y. Gu et al. , “Learning moving-object tracking with FMCW LiDAR,” in IROS , 2022, pp. 3747–3753. [24] G. Xi et al. , “DopplerPTNet: Object detection network with Doppler velocity information for FMCW LiDAR point cloud,” J. Phys.: Conf. Ser. , vol. 2809, p. 012006, 2024. [25] Y. Shi et al. , “POD: Predictive object detection with single-frame FMCW LiDAR point cloud,” arXiv preprint arXiv:2504.05649 , 2025. [26] T. Brödermann et al. , “MUSES: The multi-sensor semantic perception dataset for driving under uncertainty,” in ECCV , 2024. [27] G. N. Narasimhan et al. , “Aevascenes: A dataset and benchmark for fmcw lidar perception,” 2025. [28] K. Qian et al. , “4DLidarOpen: An open 4D FMCW LiDAR dataset for motion-aware autonomous driving,” arXiv preprint arXiv:2605.18074 ,2026. [29] B. Hexsel, H. Vhavle, and Y. Chen, “DICP: Doppler iterative closest point algorithm,” in Robotics: Science and Systems (RSS) , 2022. [30] Y. Wu et al. , “Picking up speed: Continuous-time lidar-only odometry using doppler velocity measurements,” IEEE Robot. Autom. Lett. , vol. 8, no. 1, pp. 264–271, 2022. [31] M. Zhao et al. , “FMCW-LIO: A doppler LiDAR-inertial odometry,” 
+
+IEEE Robot. Autom. Lett. , 2024. [32] Z. Li et al. , “CAO-RONet: A robust 4D radar odometry with exploring more information from low-quality points,” arXiv preprint arXiv:2503.01438 , 2025. [33] D. Wang et al. , “Dynamic-ICP: Doppler-aware iterative closest point registration for dynamic scenes,” arXiv preprint arXiv:2511.20292 ,2025. [34] A. Radford et al. , “Learning transferable visual models from natural language supervision,” in Proc. ICML , 2021. [35] M. Tschannen et al. , “SigLIP 2: Multilingual vision-language encoders with improved semantic understanding, localization, and dense features,” 
+
+arXiv:2502.14786 , 2025. [36] M. Ester et al. , “A density-based algorithm for discovering clusters in large spatial databases with noise,” in KDD , 1996, pp. 226–231. [37] S. J. Julier and J. K. Uhlmann, “New extension of the Kalman filter to nonlinear systems,” in Signal Processing, Sensor Fusion, and Target Recognition VI , vol. 3068. SPIE, 1997, pp. 182–193. [38] X. Chen et al. , “Moving object segmentation in 3D LiDAR data: A learning-based approach exploiting sequential data,” IEEE Robot. Autom. Lett. , vol. 6, no. 4, pp. 6529–6536, 2021. VII. S UPPLEMENTARY MATERIAL 
+
+A. Dataset 
+
+Fig. 11 presents bird’s-eye-view visualizations of a rep-resentative scene from our dataset. Unlike conventional ToF LiDAR, each point carries a direct radial velocity measurement. Ego-motion compensation removes the velocity contribution of the ego vehicle, leaving only the residual motion of dynamic objects in the scene, making moving agents immediately distinguishable from static background points. Reflectivity returns remain clean and artifact-free at long range, with no blooming or saturation effects. The dataset further provides dense 3D bounding box annotations and per-point semantic labels, spanning a full 800 m field of view (−400 m to +400 m). 
+
+B. Classical Dynamic Object Detection and Tracking 
+
+We provide a classical, learning-free detection and tracking baseline exploiting per-point Doppler. Unlike ToF LiDAR’s multi-frame differencing, FMCW measures instantaneous radial velocity per return, enabling single-frame detection at 200–400 m despite sparse geometry. Table III lists all configurable parameters for the classical pipeline, and Table IV details the range-tier overrides that adapt clustering and tracking behavior across the full 400 m operating range. 
+
+TABLE IV: Range-tier overrides. Tiers are checked in order; the first tier whose max range covers the object is used. Range Min pts Max resid Hits Skip Assoc dist (m) (cluster) (m/s) (mature) (max) (m) 0–50 8 5.0 3 5 850–100 3 5.0 2 5 8100–200 3 8.0 2 5 12 200–300 3 8.0 2 5 15 300–400 4 6.0 3 3 15 
+
+a) Ego-motion compensation: Between frames, all track states (position, velocity heading) are transformed into the current ego frame using the relative pose T −1
+
+> k−1
+
+Tk. The position history used for displacement heading is similarly compensated. 
+
+b) CTRV motion model: The prediction step propagates position via 
+
+xy
+
+
+
+> k+1
+
+=
+
+xy
+
+
+
+> k
+
++ s
+
+˙ψ
+
+ sin( ψ + ˙ψ∆t) − sin ψ
+
+cos ψ − cos( ψ + ˙ψ∆t)
+
+
+
+, (5) with a straight-line approximation when | ˙ψ| < 0.001 rad/s. UKF sigma points use Merwe scaling ( α = 1 , β = 2 , κ = 0 ). 
+
+c) Adaptive measurement noise: For radial-only fallback detections, the yaw measurement noise Rψ is inflated by 10 4×,effectively zeroing the Kalman gain for heading so the CTRV prediction carries it forward. 
+
+d) Displacement heading injection: For tracks with at least 3 frames of position history and net displacement above a speed-dependent threshold, a displacement-derived heading is computed from ego-compensated position deltas and blended into the UKF update, clamped to 8◦/frame. 
+
+Algorithm 1: Classical Dynamic Object Detection and Tracking                                                                                                                                          
+
+> Input: Fused point cloud {(pi, d ′
+> i,oi)}with positions, compensated Doppler, and sensor origins; ego pose Tk
+> Output: Tracked objects with position, velocity, heading, dimensions
+> // Detection
+> 1S ← { p∈ P :∥pxy ∥ ≤ 400 m,|d′
+> i|>0.7m/s }// Dynamic seeds
+> 2S ← VoxelDownsample (S, δ = 0 .2m)// Median Doppler per voxel
+> 3L ← DBSCAN (Sxy , ε = 1 .0m, n min = 5) [36]
+> 4Velocity split: run 1D DBSCAN ( εv= 2 .0m/s) on Doppler within each cluster
+> 5Velocity merge: rejoin pairs with ∥¯pj−¯pk∥<3m and
+> |˜dj−˜dk|<2m/s
+> // Cluster velocity estimation
+> 6foreach cluster Cjdo
+> 7ˆri←(pi−oi)xy /∥pi−oi∥// LOS unit vectors
+> 8if azimuth span ≥8◦and well-conditioned then
+> 9vj←arg min ∥W(Rv−d)∥2; flip if ⟨Rvj,d⟩<0
+> // WLS (Eq. 4)
+> 10 else
+> 11 vj←median (d′
+> i)·[cos ¯θ, sin ¯θ]T// Radial fallback
+> 12 end
+> 13 Fit heading-aligned box bjwith ψj=atan2 (vy, v x); discard outlier clusters
+> 14 end
+> 15 D ← NMS ({bj})with floored dims and velocity gate
+> // Tracking
+> 16 Ego-motion compensate all tracks; predict forward with CTRV model
+> 17 (M,Ut,Ud)←Hungarian (T,D)using BEV IoU + velocity cost
+> 18 foreach matched (ti, d j)∈ M do
+> 19 if radial fallback then inflate Rψby 10 4
+> 20 UKF update [37] with displacement heading blending
+> 21 end
+> 22 Init new tracks from Ud; prune stale tracks; post-process and NMS
+> 23 return T
+> TABLE III: Pipeline parameters.
+
+Stage Parameter Value Filter Voxel size 0.2 m Min dynamic speed 0.7 m/s Max range 400 m Cluster DBSCAN ε 1.0 m DBSCAN min points 5Velocity split εv 2.0 m/s Merge distance 3.0 m Merge velocity gate 2.0 m/s Velocity Method WLS Min azimuth spread 8◦ (12 ◦ <30 m) Min observability ratio 0.12 Max residual 5.0 m/s Max speed 50 m/s Tracker Process noise (accel) 2.0 m/s 2
+
+Process noise (yaw rate) 0.3 rad/s Measurement noise (pos) 0.5 m Measurement noise (vel) 1.0 m/s Min bbox dims 5.0 × 2.0 × 1.6 mMin export speed 1.0 m/s Max center shift 2.0 m Association Method BEV IoU + velocity IoU threshold 0.01 Velocity weight λ 0.3 Velocity gate 5.0 m/s 
+
+e) Data association: The Hungarian algorithm is used with cost Cij = (1 − IoU ij ) + 0 .3 · ∥ vi − vj ∥/5.0 m/s. Bounding box dimensions are floored to 5.0 × 2.0 m before IoU computation, and a center offset along the heading (a) Doppler Velocity (raw) (b) Doppler Velocity (ego-motion compensated) 
+
+(c) Doppler Velocity (ego-motion compensated) with labelled boxes 
+
+(d) Reflectivity (e) Semantic Labels 
+
+Fig. 11: Bird’s-eye-view visualization of FMCW LiDAR point cloud. compensates for single-face visibility bias. 
+
+f) Dimension smoothing: Cluster dimensions are smoothed with an asymmetric EMA (shrink α = 0 .7, grow 
+
+α = 0 .3) to reject transient spikes while allowing over-estimated dimensions to decay quickly. 
+
+C. Learned Baseline Implementation 
+
+Each physical scan is divided into front and rear hemi-spheres. The rear hemisphere, including its annotations and Cartesian object velocities, is rotated by 180 ◦, yielding two samples spanning 0–400 m. Radial velocity is invariant to this rotation and is not sign-flipped. Unless otherwise noted, the baselines use all six LiDARs and ego-motion-compensated point clouds. Where reflectivity is used, values below 100 are multiplied by 0.8 and values above 100 are clipped to 100. 
+
+1) 3D Object Detection: Table V summarizes the detector-specific spatial discretization, optimization, and point features. Five-frame inputs contain the current scan and four preceding scans transformed into the current ego frame. No geomet-ric, copy-paste, or ground-truth-sampling augmentation is enabled. 
+
+2) Scene Flow: Scene-flow methods receive either ego-motion-compensated coordinates ( xyz ) or coordinates aug-mented with compensated radial velocity ( xyz + vel ). The retained DeFlow configuration uses a frame stride of two and randomly selects a hemisphere during training. Flow4D uses two input frames. All three methods remove ground points at z ≤ − 1.4 m. 
+
+3) Semantic Segmentation: Both segmentation methods use the crop [0 , −100 , −2, 400 , 100 , 4] m. Radial velocity is normalized as tanh( vr /60) before being appended to the point features. 
+
+a) Data augmentation: Cylinder3D uses no augmenta-tion beyond sensor fusion, spatial cropping, and the hemi-sphere transform. PTv3 applies a random rotation about the vertical axis in [−1, 1] rad with probability 0.5, scaling in 
+
+[0 .9, 1.1] , random flipping with probability 0.5, and Gaussian jitter with standard deviation 0.005 clipped to 0.02 . Mixup is disabled. 
+
+b) Evaluation protocol: Task-specific metrics, matching thresholds, and range bins are summarized in Table V(e). 
+
+D. Object Detection Results 
+
+Following Table V(e), we report vehicle and pedestrian AP with 101-point interpolation for dynamic objects and for all objects. Evaluation uses the 10K-frame test split. We additionally report speed error (SpdE), defined as the L2 norm of the 3D velocity error over matched detections. 
+
+E. Scene Flow Estimation 
+
+Scene flow labels are derived from ground-truth human-annotated object tracks. Unlike conventional LiDAR, FMCW sensing directly measures the radial component of each point’s velocity via Doppler, so the estimation problem reduces to recovering the unobserved tangential component; methods can treat the per-point radial measurement as a strong prior, both for gating static points (compensated Doppler ≈0) and for constraining the flow of dynamic ones. The primary metric is absolute end-point error (EPE), reported on all, static, and dynamic points using the same three range bins as detection. We do not prescribe a fixed frame pairing, allowing methods to use consecutive or multi-frame inputs. 
+
+F. Semantic Segmentation 
+
+We evaluate Cylinder3D [15] and Point Transformer V3 (PTv3) [16]. Cylinder3D partitions the point cloud in cylindrical coordinates and processes it with asymmetrical 3D convolutions, while PTv3 applies point-based transformer blocks. Each method is evaluated with geometry-only ( xyz )input and with ego-motion-compensated radial velocity ap-pended as an additional input channel ( +vel). The primary metrics are per-class intersection over union (IoU) and mean IoU (mIoU) over all 24 semantic classes. Table XI reports the complete results. Adding velocity changes mIoU from 41.7 to 39.7 for Cylinder3D and from 49.1 to 44.3 for PTv3, with mixed effects across individual classes. Although isolated dynamic classes improve, neither architecture produces consistent gains across vehicles and vulnerable road users. These preliminary results suggest that appending radial velocity as a generic feature does not expose                                                                                    
+
+> TABLE V: Learned-baseline implementation and evaluation. Crops are specified as [xmin , y min , z min , x max , y max , z max ].
+> (a) 3D object detection
+> Method Spatial crop (m) Voxelization (m) Optimizer and schedule CenterPoint [0 ,−72 ,−3,400 ,72 ,5] [0 .1,0.1,0.2] Adam OneCycle, LR 10 −3, weight decay 0.01 ,pstart = 0 .4,division factor 10
+> DSVT [0 ,−74 ,−2,400 ,74 ,4] Dynamic [0 .4,0.4,0.2] Adam OneCycle, LR 3×10 −3, weight decay 0.05 ,pstart = 0 .1,division factor 100
+> VoxelNeXt [0 ,−74 ,−2,400 ,74 ,4] [0 .1,0.1,0.15] Adam OneCycle, LR 3×10 −3, weight decay 0.05 ,pstart = 0 .1,division factor 100
+> TransFusion [0 ,−72 ,−3,400 ,72 ,5] [0 .1,0.1,0.2] Adam OneCycle, LR 10 −3, weight decay 0.01 ,pstart = 0 .4,division factor 10
+> (b) Detection point features
+> Input variant Per-point features 1-frame xyz [x, y, z, reflectivity ]
+> 1-frame +vel [x, y, z, reflectivity , v r]
+> 5-frame xyz [x, y, z, frame index ,reflectivity ]
+> 5-frame +vel [x, y, z, frame index ,reflectivity , v r]
+
+Table V (continued) (c) Scene flow 
+
+Method Input Spatial crop (m) Voxelization (m) Optimization DeFlow xyz or xyz + vel [0 , −100 , −3, 400 , 100 , 3] [0 .4, 0.2, 6.0] Adam, LR 2×10 −4, clip 5.0
+
+Flow4D 2-frame xyz or xyz + vel [0 , −100 , −3, 400 , 100 , 3] [0 .4, 0.4, 0.3] LR 10 −3, clip 5.0
+
+SSF xyz or xyz + vel [0 , −100 , −3, 400 , 100 , 3] [0 .2, 0.2, 6.0] LR 2×10 −3, clip 5.0
+
+(d) Semantic segmentation 
+
+Method Point input Spatial discretization Optimizer and schedule Cylinder3D xyz + r or xyz + r + tanh( vr /60) Cylindrical grid 480 ×360 ×32 AdamW, LR 10 −3, weight decay 0.01 ;1K-iteration linear warmup; step decay at epoch 30 ( γ = 0 .1)PTv3 xyz + r or xyz + r + tanh( vr /60) 0.05 m train/validation; 
+
+0.025 →0.05 m test AdamW, LR 2×10 −3, weight decay 0.005 ;OneCycle with cosine annealing 
+
+(e) Evaluation protocol 
+
+Task Evaluation protocol 3D object detection BEV-center matching with a 2 m threshold for vehicles/unknown and 1 m for pedestrians. AP is reported over 0–100, 100–200, and 200–400 m and over the full 0–400 m range. Dynamic and static objects are separated at 1.0 m/s. Semantic segmentation Per-class IoU and mIoU over all 24 semantic classes. Scene flow Absolute end-point error over all, static, and dynamic points in the 0–100, 100–200, and 200–400 m intervals and over the full range. 
+
+TABLE X: Scene flow absolute EPE (m) 
+
+All Points Static Points Dynamic Points 
+
+Method Input 0–100 m 100–200 m 200–400 m Full Range 0–100 m 100–200 m 200–400 m Full Range 0–100 m 100–200 m 200–400 m Full Range 
+
+DeFlow xyz 0.0123 0.0273 0.0947 0.0127 0.0049 0.0114 0.0420 0.0051 0.1432 0.2815 0.6432 0.1470 +vel 0.0097 0.0167 0.0502 0.0099 0.0043 0.0033 0.0075 0.0043 0.1047 0.2300 0.4944 0.1080 
+
+Flow4D xyz 0.0147 0.0656 0.1787 0.0159 0.0066 0.0453 0.0897 0.0074 0.1596 0.3898 1.1052 0.1660 +vel 0.0115 0.0213 0.0544 0.0118 0.0051 0.0076 0.0113 0.0051 0.1253 0.2399 0.5028 0.1284 
+
+SSF xyz 0.0145 0.0356 0.1034 0.0150 0.0093 0.0213 0.0494 0.0095 0.1066 0.2634 0.6655 0.1108 +vel 0.0104 0.0189 0.0573 0.0106 0.0052 0.0054 0.0135 0.0052 0.1035 0.2354 0.5133 0.1069 
+
+TABLE XI: Semantic segmentation on the test split (IoU %) 
+
+Method Input Car Bus Truck Trailer Veh. on rails Other veh. Bicycle Motorcycle Pedestrian Animal Motorcyclist Bicyclist Traffic item Traffic sign Pole / trunk Building Other struct. Vegetation Road Lane bound. Road mark. Refl. marker Sidewalk Other ground 
+
+> mIoU
+
+Cylinder3D xyz 87.4 59.0 39.8 15.4 38.6 0.7 18.7 17.0 66.8 2.1 56.3 5.1 22.8 47.9 59.6 75.0 45.1 75.7 85.3 31.0 34.1 4.3 55.6 58.8 41.7 +vel 86.8 42.6 32.4 17.5 14.7 1.0 32.9 7.5 64.6 1.5 52.1 3.3 22.4 50.5 57.8 76.5 50.4 76.5 84.8 29.2 28.6 5.5 54.7 60.3 39.7 
+
+PTv3 xyz 87.9 82.8 51.0 20.2 66.5 2.5 38.9 21.5 78.4 6.7 34.9 13.2 26.4 59.0 66.4 78.6 54.8 81.5 87.2 40.1 44.5 5.4 66.3 64.6 49.1 
+
++vel 87.2 77.1 47.0 15.8 3.1 4.1 25.9 22.7 79.5 7.5 49.0 12.9 21.5 56.9 62.0 77.6 58.6 75.6 86.1 41.0 43.9 5.4 57.9 46.2 44.3 
+
+its motion structure effectively; motion-aware architectures and objectives remain future work. TABLE VI: Dynamic object detection. Best AP ( ↑) and SpdE ( ↓) values are bold within each frame setting; one-frame configurations are green and five-frame configurations are orange. 
+
+Vehicle Pedestrian AP SpdE (m/s) AP SpdE (m/s) 
+
+Method Input 0–100 m 100–200 m 200–400 mFull Range 0–100 m 100–200 m 200–400 mFull Range 0–100 m 100–200 m 200–400 mFull Range 0–100 m 100–200 m 200–400 mFull Range 
+
+Classical 1-frame 0.61 0.59 0.41 0.58 0.84 0.98 1.64 0.98 – – – – – – – –
+
+CenterPoint 1-frame 0.64 0.65 0.33 0.62 8.99 10.54 12.99 9.91 0.03 0.02 0.00 0.03 1.27 2.32 – 1.32 
+
++vel 0.79 0.81 0.67 0.80 3.99 3.28 3.41 3.68 0.04 0.04 0.00 0.04 0.99 0.54 – 0.94 
+
+5-frame 0.79 0.75 0.52 0.75 1.65 1.88 3.37 1.92 0.36 0.22 0.04 0.35 0.28 0.32 2.12 0.28 
+
++vel 0.81 0.77 0.57 0.78 1.50 1.64 3.00 1.72 0.25 0.22 0.28 0.25 0.30 0.33 1.21 0.30 
+
+DSVT 1-frame 0.64 0.66 0.31 0.62 9.04 10.92 12.54 10.02 0.02 0.02 0.00 0.02 2.40 3.16 5.03 2.46 
+
++vel 0.73 0.77 0.63 0.74 5.41 6.27 8.53 6.04 0.05 0.02 0.03 0.05 0.97 1.84 2.94 1.00 
+
+5-frame 0.81 0.79 0.62 0.80 1.92 2.09 4.08 2.21 0.38 0.22 0.04 0.37 0.34 0.39 0.75 0.34 
+
++vel 0.82 0.81 0.63 0.81 2.10 2.83 6.15 2.79 0.36 0.13 0.01 0.34 0.26 0.37 1.34 0.27 
+
+VoxelNeXt 1-frame 0.72 0.72 0.39 0.71 3.93 6.26 9.75 5.32 0.16 0.05 0.00 0.15 0.41 0.78 0.00 0.42 
+
++vel 0.85 0.83 0.68 0.84 1.68 2.32 3.65 2.09 0.24 0.21 0.12 0.24 0.32 0.40 1.48 0.32 
+
+5-frame 0.84 0.79 0.56 0.81 1.30 1.69 3.39 1.65 0.61 0.43 0.46 0.59 0.22 0.27 0.80 0.23 +vel 0.87 0.82 0.59 0.83 1.22 1.57 3.20 1.55 0.66 0.54 0.43 0.65 0.26 0.28 0.78 0.26 
+
+TransFusion 1-frame 0.66 0.73 0.50 0.68 5.10 5.88 8.51 5.68 0.02 0.00 0.00 0.01 2.24 2.38 – 2.24 
+
++vel 0.86 0.84 0.72 0.84 1.80 1.71 2.32 1.82 0.38 0.42 0.42 0.39 0.27 0.30 1.12 0.28 5-frame 0.82 0.80 0.60 0.80 1.61 1.76 2.76 1.78 0.35 0.29 0.24 0.34 0.30 0.39 1.93 0.31 
+
++vel 0.84 0.81 0.63 0.82 1.55 1.96 3.04 1.85 0.21 0.21 0.30 0.21 0.34 0.40 1.77 0.35 
+
+TABLE VII: All-object detection (static + dynamic). Best AP ( ↑) and SpdE ( ↓) values are bold within each frame setting; one-frame configurations are green and five-frame configurations are orange. 
+
+Vehicle Pedestrian AP SpdE (m/s) AP SpdE (m/s) 
+
+Method Input 0–100 m 100–200 m 200–400 mFull Range 0–100 m 100–200 m 200–400 mFull Range 0–100 m 100–200 m 200–400 mFull Range 0–100 m 100–200 m 200–400 mFull Range 
+
+Classical 1-frame 0.23 0.39 0.33 0.27 0.90 1.07 2.61 1.15 – – – – – – – –
+
+CenterPoint 1-frame 0.77 0.60 0.34 0.71 3.86 8.89 12.41 5.35 0.53 0.12 0.00 0.50 0.73 0.99 – 0.74 
+
++vel 0.76 0.68 0.58 0.74 1.77 2.85 4.34 2.18 0.65 0.37 0.01 0.63 0.76 0.99 – 0.77 
+
+5-frame 0.79 0.63 0.39 0.74 0.78 1.60 3.81 1.15 0.75 0.46 0.01 0.72 0.41 0.56 2.73 0.42 
+
++vel 0.80 0.66 0.45 0.75 0.73 1.47 3.62 1.08 0.72 0.53 0.13 0.71 0.48 0.59 1.33 0.48 
+
+DSVT 1-frame 0.76 0.64 0.32 0.72 3.94 8.84 11.90 5.41 0.56 0.26 0.00 0.54 0.77 1.02 3.67 0.79 
+
++vel 0.78 0.70 0.56 0.75 2.19 4.89 8.26 3.13 0.57 0.26 0.02 0.54 0.73 1.08 2.82 0.74 
+
+5-frame 0.75 0.66 0.52 0.72 0.92 1.81 4.50 1.34 0.57 0.35 0.02 0.56 0.35 0.50 0.75 0.36 
+
++vel 0.80 0.72 0.57 0.78 0.98 2.34 6.31 1.63 0.59 0.38 0.00 0.57 0.40 0.69 1.61 0.42 
+
+VoxelNext 1-frame 0.84 0.71 0.39 0.80 1.68 4.77 9.22 2.79 0.77 0.46 0.00 0.74 0.56 0.81 4.89 0.58 
+
++vel 0.86 0.76 0.60 0.83 0.79 1.92 4.15 1.23 0.79 0.58 0.06 0.77 0.47 0.60 1.65 0.48 
+
+5-frame 0.83 0.70 0.48 0.79 0.65 1.47 4.08 1.05 0.80 0.54 0.23 0.79 0.28 0.42 0.89 0.29 +vel 0.86 0.74 0.53 0.82 0.61 1.37 3.63 0.97 0.81 0.61 0.29 0.80 0.28 0.41 0.80 0.29 TransFusion 1-frame 0.86 0.75 0.47 0.82 2.04 4.45 7.54 2.81 0.53 0.41 0.00 0.52 0.79 1.01 – 0.80 
+
++vel 0.87 0.79 0.67 0.84 0.86 1.53 3.25 1.14 0.56 0.59 0.15 0.56 0.39 0.47 1.12 0.40 5-frame 0.84 0.73 0.53 0.80 0.79 1.53 3.34 1.10 0.54 0.50 0.13 0.54 0.40 0.56 2.19 0.41 
+
++vel 0.84 0.74 0.57 0.80 0.77 1.73 3.66 1.18 0.54 0.50 0.33 0.53 0.53 0.68 1.74 0.54 Object detection     
+
+> Classical 1-frame 1-frame+vel 5-frame 5-frame+vel
+
+Dynamic-object vehicle AP by point count 
+
+025 50 75 100 
+
+> 0–100 m AP (%)
+
+CenterPoint 
+
+025 50 75 100 
+
+DSVT 
+
+025 50 75 100 
+
+VoxelNeXt 
+
+025 50 75 100 
+
+TransFusion 
+
+025 50 75 100 
+
+> 100–200 m AP (%)
+
+025 50 75 100 025 50 75 100 025 50 75 100 025 50 75 100 
+
+> 200–400 m AP (%)
+
+025 50 75 100 025 50 75 100 025 50 75 100 500+ 
+
+> 100–500 50–100 20–50 10–20 5–10 1–5
+
+025 50 75 100 
+
+Points per box Full range AP (%) 
+
+> 500+
+> 100–500 50–100 20–50 10–20 5–10 1–5
+
+025 50 75 100 
+
+Points per box 
+
+> 500+
+> 100–500 50–100 20–50 10–20 5–10 1–5
+
+025 50 75 100 
+
+Points per box 
+
+> 500+
+> 100–500 50–100 20–50 10–20 5–10 1–5
+
+025 50 75 100 
+
+Points per box 
+
+All-object vehicle AP by point count 
+
+025 50 75 100 
+
+> 0–100 m AP (%)
+
+CenterPoint 
+
+025 50 75 100 
+
+DSVT 
+
+025 50 75 100 
+
+VoxelNeXt 
+
+025 50 75 100 
+
+TransFusion 
+
+025 50 75 100 
+
+> 100–200 m AP (%)
+
+025 50 75 100 025 50 75 100 025 50 75 100 025 50 75 100 
+
+> 200–400 m AP (%)
+
+025 50 75 100 025 50 75 100 025 50 75 100 500+ 
+
+> 100–500 50–100 20–50 10–20 5–10 1–5
+
+025 50 75 100 
+
+Points per box Full range AP (%) 
+
+> 500+
+> 100–500 50–100 20–50 10–20 5–10 1–5
+
+025 50 75 100 
+
+Points per box 
+
+> 500+
+> 100–500 50–100 20–50 10–20 5–10 1–5
+
+025 50 75 100 
+
+Points per box 
+
+> 500+
+> 100–500 50–100 20–50 10–20 5–10 1–5
+
+025 50 75 100 
+
+Points per box 
+
+Fig. 12: Vehicle AP by point count for dynamic objects (top) and all objects (bottom). Rows denote evaluation range and columns denote detector architecture; the classical baseline is repeated in each column. At 200–400 m with 5–10 points per box, Doppler improves one-frame AP by 27.1–37.3 points for dynamic vehicles and 25.6–33.1 points for all vehicles; five-frame gains are 4.1–7.2 and 5.8–6.9 points, respectively. TABLE VIII: Dynamic-object vehicle AP by point count. Per row/input, the best detector is bold (green: one-frame; orange: five-frame). Unmatched predictions are false positives in every bin; cross-bin matches are ignored. One-frame 1–5 entries are removed by ground-truth filtering. 
+
+Classical CenterPoint DSVT VoxelNeXt TransFusion Point count AP 1-frame 5-frame 1-frame 5-frame 1-frame 5-frame 1-frame 5-frame 
+
+w/o +vel w/o +vel w/o +vel w/o +vel w/o +vel w/o +vel w/o +vel w/o +vel 
+
+0–100 m 
+
+500+ 0.611 0.661 0.798 0.824 0.828 0.625 0.725 0.862 0.861 0.703 0.870 0.882 0.896 0.614 0.849 0.838 0.838 100–500 0.559 0.550 0.813 0.793 0.825 0.560 0.773 0.836 0.854 0.729 0.841 0.834 0.851 0.670 0.839 0.810 0.855 
+
+50–100 0.239 0.280 0.685 0.589 0.703 0.273 0.680 0.630 0.742 0.513 0.655 0.606 0.648 0.489 0.658 0.611 0.739 20–50 0.127 0.168 0.529 0.407 0.555 0.153 0.518 0.435 0.563 0.340 0.499 0.440 0.482 0.359 0.527 0.457 0.607 
+
+10–20 0.033 0.049 0.264 0.156 0.274 0.039 0.240 0.167 0.274 0.117 0.234 0.177 0.205 0.152 0.257 0.187 0.326 
+
+5–10 0.006 0.011 0.094 0.059 0.122 0.008 0.082 0.052 0.122 0.030 0.087 0.066 0.080 0.050 0.090 0.071 0.146 
+
+1–5 – – – 0.015 0.037 – – 0.013 0.035 – – 0.019 0.023 – – 0.017 0.037 100–200 m 
+
+500+ 0.088 0.052 0.228 0.218 0.336 0.048 0.253 0.234 0.269 0.132 0.321 0.272 0.340 0.210 0.280 0.273 0.298 100–500 0.408 0.540 0.678 0.644 0.660 0.543 0.630 0.714 0.730 0.603 0.741 0.735 0.749 0.556 0.691 0.669 0.656 50–100 0.575 0.668 0.808 0.756 0.774 0.678 0.795 0.816 0.836 0.743 0.823 0.800 0.808 0.732 0.801 0.779 0.790 20–50 0.556 0.624 0.811 0.741 0.763 0.614 0.777 0.794 0.809 0.718 0.816 0.776 0.794 0.747 0.829 0.787 0.814 
+
+10–20 0.269 0.280 0.616 0.507 0.559 0.257 0.588 0.573 0.611 0.422 0.608 0.541 0.572 0.542 0.661 0.594 0.641 
+
+5–10 0.083 0.046 0.298 0.216 0.274 0.036 0.270 0.242 0.315 0.097 0.286 0.235 0.281 0.179 0.303 0.281 0.338 
+
+1–5 – – – 0.030 0.050 – – 0.035 0.059 – – 0.039 0.054 – – 0.040 0.063 200–400 m 
+
+500+ – – – – – – – – – – – – – – – – –100–500 0.190 0.064 0.164 0.513 0.444 0.083 0.188 0.578 0.510 0.223 0.446 0.488 0.456 0.183 0.306 0.533 0.313 50–100 0.291 0.122 0.207 0.332 0.269 0.073 0.136 0.401 0.276 0.052 0.205 0.416 0.343 0.123 0.292 0.361 0.197 20–50 0.343 0.201 0.441 0.324 0.358 0.219 0.419 0.405 0.431 0.192 0.385 0.393 0.338 0.357 0.482 0.434 0.412 10–20 0.333 0.276 0.619 0.437 0.507 0.249 0.600 0.573 0.586 0.325 0.611 0.480 0.478 0.470 0.691 0.533 0.582 5–10 0.228 0.107 0.480 0.308 0.375 0.082 0.429 0.409 0.450 0.157 0.491 0.337 0.378 0.244 0.515 0.380 0.452 
+
+1–5 – – – 0.026 0.046 – – 0.044 0.050 – – 0.040 0.054 – – 0.037 0.061 Full range 
+
+500+ 0.561 0.642 0.782 0.804 0.809 0.610 0.712 0.845 0.844 0.688 0.863 0.870 0.882 0.596 0.828 0.814 0.812 100–500 0.529 0.540 0.790 0.764 0.801 0.552 0.749 0.816 0.834 0.705 0.823 0.814 0.835 0.645 0.810 0.782 0.816 50–100 0.350 0.384 0.723 0.657 0.729 0.384 0.718 0.703 0.774 0.592 0.712 0.683 0.710 0.573 0.710 0.677 0.748 20–50 0.321 0.366 0.699 0.606 0.682 0.355 0.679 0.653 0.714 0.542 0.684 0.639 0.657 0.590 0.710 0.660 0.734 
+
+10–20 0.166 0.172 0.539 0.386 0.480 0.150 0.504 0.443 0.523 0.288 0.493 0.415 0.431 0.404 0.561 0.469 0.563 
+
+5–10 0.084 0.051 0.329 0.199 0.273 0.037 0.283 0.225 0.320 0.088 0.287 0.207 0.231 0.158 0.318 0.255 0.341 
+
+1–5 – – – 0.023 0.046 – – 0.028 0.050 – – 0.032 0.039 – – 0.031 0.056 
+
+TABLE IX: All-object (static + dynamic) vehicle AP by point count. Per row/input, the best detector is bold (green: one-frame; orange: five-frame). Unmatched predictions are false positives in every bin; cross-bin matches are ignored. One-frame 1–5 entries are removed by ground-truth filtering. 
+
+Classical CenterPoint DSVT VoxelNeXt TransFusion Point count AP 1-frame 5-frame 1-frame 5-frame 1-frame 5-frame 1-frame 5-frame 
+
+w/o +vel w/o +vel w/o +vel w/o +vel w/o +vel w/o +vel w/o +vel w/o +vel 
+
+0–100 m 
+
+500+ 0.207 0.898 0.888 0.886 0.888 0.901 0.903 0.895 0.914 0.915 0.924 0.918 0.926 0.894 0.898 0.883 0.873 100–500 0.225 0.792 0.779 0.771 0.778 0.787 0.796 0.780 0.817 0.831 0.849 0.829 0.847 0.817 0.835 0.816 0.810 50–100 0.099 0.519 0.513 0.471 0.496 0.499 0.497 0.511 0.598 0.577 0.593 0.552 0.583 0.539 0.607 0.576 0.588 20–50 0.047 0.289 0.301 0.300 0.335 0.245 0.258 0.281 0.388 0.365 0.380 0.373 0.401 0.362 0.445 0.417 0.432 
+
+10–20 0.012 0.062 0.102 0.098 0.121 0.045 0.060 0.078 0.136 0.108 0.119 0.126 0.138 0.107 0.159 0.152 0.178 
+
+5–10 0.003 0.009 0.030 0.034 0.045 0.006 0.015 0.021 0.052 0.024 0.031 0.041 0.048 0.026 0.041 0.056 0.069 
+
+1–5 – – – 0.009 0.012 – – 0.004 0.013 – – 0.012 0.014 – – 0.016 0.021 100–200 m 
+
+500+ 0.047 0.224 0.221 0.209 0.293 0.226 0.304 0.316 0.376 0.246 0.320 0.333 0.393 0.363 0.289 0.267 0.296 100–500 0.209 0.586 0.593 0.592 0.603 0.648 0.653 0.667 0.714 0.680 0.723 0.694 0.736 0.670 0.684 0.618 0.596 50–100 0.357 0.658 0.655 0.600 0.611 0.697 0.690 0.687 0.742 0.712 0.737 0.682 0.709 0.685 0.720 0.657 0.671 20–50 0.406 0.617 0.667 0.555 0.582 0.634 0.670 0.666 0.713 0.655 0.694 0.660 0.663 0.687 0.745 0.696 0.717 
+
+10–20 0.194 0.287 0.469 0.290 0.339 0.251 0.410 0.417 0.466 0.311 0.389 0.386 0.400 0.398 0.537 0.474 0.511 
+
+5–10 0.055 0.042 0.188 0.098 0.136 0.030 0.130 0.141 0.205 0.066 0.123 0.140 0.169 0.086 0.161 0.190 0.234 
+
+1–5 – – – 0.013 0.023 – – 0.016 0.037 – – 0.021 0.031 – – 0.027 0.041 200–400 m 
+
+500+ – – – – – – – – – – – – – – – – –100–500 0.092 0.085 0.102 0.207 0.192 0.124 0.143 0.344 0.333 0.192 0.286 0.400 0.369 0.195 0.200 0.285 0.260 50–100 0.208 0.151 0.178 0.180 0.179 0.122 0.146 0.345 0.266 0.101 0.177 0.388 0.330 0.213 0.257 0.282 0.207 20–50 0.224 0.204 0.328 0.204 0.216 0.240 0.323 0.320 0.348 0.193 0.307 0.278 0.278 0.311 0.398 0.339 0.320 10–20 0.276 0.281 0.542 0.294 0.361 0.265 0.524 0.493 0.509 0.310 0.517 0.375 0.400 0.405 0.636 0.469 0.517 
+
+5–10 0.211 0.117 0.448 0.217 0.286 0.084 0.373 0.356 0.414 0.143 0.399 0.247 0.311 0.184 0.467 0.340 0.404 1–5 – – – 0.017 0.035 – – 0.035 0.043 – – 0.025 0.045 – – 0.033 0.052 Full range 
+
+500+ 0.193 0.883 0.871 0.874 0.876 0.888 0.894 0.881 0.898 0.900 0.912 0.903 0.915 0.880 0.882 0.862 0.851 100–500 0.224 0.753 0.747 0.743 0.751 0.764 0.773 0.760 0.795 0.805 0.830 0.805 0.829 0.791 0.807 0.774 0.766 50–100 0.171 0.555 0.552 0.505 0.529 0.561 0.551 0.569 0.641 0.614 0.634 0.593 0.622 0.584 0.642 0.594 0.601 20–50 0.181 0.429 0.474 0.398 0.431 0.424 0.440 0.463 0.534 0.482 0.507 0.496 0.505 0.512 0.595 0.553 0.564 
+
+10–20 0.104 0.171 0.332 0.191 0.232 0.150 0.243 0.261 0.320 0.204 0.245 0.257 0.260 0.249 0.400 0.343 0.381 
+
+5–10 0.060 0.042 0.193 0.087 0.119 0.027 0.109 0.120 0.185 0.057 0.103 0.112 0.125 0.067 0.157 0.166 0.209 
+
+1–5 – – – 0.012 0.019 – – 0.012 0.028 – – 0.017 0.023 – – 0.023 0.034

@@ -1,0 +1,263 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-10-02T22:37:33.429702+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [
+    {
+      "id": "2610.00855v1",
+      "source": "arxiv",
+      "title": "Lang3DSeg: Annotation-Free Open-Vocabulary 3D Segmentation with Point Transformers",
+      "abstract": "Accurate 3D semantic perception is critical for safe autonomous navigation. However, supervised LiDAR segmentation remains tied to closed taxonomies and to the cost of point-wise manual annotation. Open-vocabulary methods avoid that cost by projecting the output of 2D vision-language models onto LiDAR and distilling it into a 3D network. These methods rely almost exclusively on voxel-based sparse convolutions, and point transformers have so far been limited to indoor environments, where 3D data is dense and bounded. We present Lang3DSeg, which establishes a point transformer as the backbone for annotation-free open-vocabulary segmentation of outdoor 3D LiDAR, and is trained from scratch without geometric pre-training. This training paradigm necessitates addressing the inherent noise in 2D-to-3D label projections; specifically, naive projection often suffers from depth ambiguity, where points behind an object are erroneously assigned its semantic label. We therefore composite masks using an explicit class-priority rule and truncate each projected instance at the first gap in its depth distribution, correcting the projection error directly rather than averaging it over registered sequences. Lang3DSeg achieves 52.8% mIoU on nuScenes validation and 41.4% on SemanticKITTI, the highest among published annotation-free methods on both benchmarks. Every 3D semantic segmentation is on a single LiDAR sweep, and inference operates in real-time without running vision-language models.",
+      "authors": [
+        "Cigdem Kokenoz",
+        "Amir Salarpour",
+        "Alkim Domeke",
+        "Christopher Salas",
+        "Pedram MohajerAnsari",
+        "Long Cheng",
+        "Mert D. Pesé",
+        "Bing Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-10-01T00:15:47+00:00",
+      "link": "https://arxiv.org/pdf/2610.00855v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "annotation-free open-vocabulary 3D LiDAR point cloud segmentation",
+      "llm_evidence_cn": "无标注开放词汇三维激光点云分割",
+      "llm_evidence": "无标注开放词汇三维激光点云分割",
+      "canonical_evidence": "无标注开放词汇三维激光点云分割",
+      "llm_tldr_en": "Lang3DSeg builds a point transformer backbone for annotation-free open-vocabulary outdoor LiDAR segmentation by distilling 2D vision-language model outputs into 3D, trained from scratch without geometric pre-training.",
+      "llm_tldr_cn": "针对有监督激光雷达分割受限于封闭类别与逐点标注成本、且开放词汇方法几乎只依赖体素稀疏卷积的问题，本文提出Lang3DSeg，首次将点Transformer作为室外三维激光雷达无标注开放词汇分割的骨干，通过把二维视觉语言模型的输出投影并蒸馏到三维网络。方法无需几何预训练即可从零训练，在室外LiDAR基准上实现了开放词汇语义分割。该工作拓展了点Transformer在室外开放词汇场景的适用性，为低成本三维语义感知提供了新范式。",
+      "llm_tldr": "针对有监督激光雷达分割受限于封闭类别与逐点标注成本、且开放词汇方法几乎只依赖体素稀疏卷积的问题，本文提出Lang3DSeg，首次将点Transformer作为室外三维激光雷达无标注开放词汇分割的骨干，通过把二维视觉语言模型的输出投影并蒸馏到三维网络。方法无需几何预训练即可从零训练，在室外LiDAR基准上实现了开放词汇语义分割。该工作拓展了点Transformer在室外开放词汇场景的适用性，为低成本三维语义感知提供了新范式。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "semantic segmentation of 3D point clouds and volumetric scenes",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.38620v1",
+      "source": "arxiv",
+      "title": "HIGS: Hierarchical Implicit Grids for Joint Geometric and Semantic Scene Understanding",
+      "abstract": "Neural implicit representations have had a significant impact on scene reconstruction by enabling robots to build continuous, differentiable, and high-fidelity 3D maps. Most existing works focus on geometric reconstruction and lack semantic information for high-level spatial understanding and task planning. Also, as the scale and complexity of the environment increase, neural representations face the challenge of maintaining computational efficiency in back-end optimization. To resolve these two challenges, we introduce a hierarchical neural field that leverages multiresolution submaps to achieve an efficient and scalable implicit representation, and a unified query and decoding mechanism to support both geometric and semantic features. More specifically, the learnable map features can be converted to the output with the query and decoding process for both training and inference. For large-scale representation, we decompose a scene into overlapping submaps and do hierarchical optimization within each local submap, thus enabling scalable computation. To further improve efficiency, we design feature encoders that predict initial hierarchical grid features to substantially reduce the time needed to optimize the submap features from scratch. To correct estimation drift among submaps, we align and fuse them entirely within the implicit feature space, leading to substantial acceleration by avoiding the need to decode the final output. Building upon this efficient hierarchical representation, we embed both geometric features and vision-language latent features into the map, and demonstrate it on both Signed Distance Field (SDF) construction and open-vocabulary object grounding. Our approach significantly improves computation and memory efficiency, maintains high estimation accuracy, and endows the robot with spatial awareness on large-scale real-world benchmarks.",
+      "authors": [
+        "Hanwen Cao",
+        "Wenqiang Wu",
+        "Kuang-Ting Tu",
+        "Mathias Otnes",
+        "Jeffrey Delmerico",
+        "Rui Wang",
+        "Yulun Tian",
+        "Nikolay Atanasov"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-09-29T22:22:49+00:00",
+      "link": "https://arxiv.org/pdf/2609.38620v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "hierarchical implicit neural field jointly encoding geometric and semantic 3D scene features",
+      "llm_evidence_cn": "同时编码几何与语义特征的分层隐式神经场",
+      "llm_evidence": "同时编码几何与语义特征的分层隐式神经场",
+      "canonical_evidence": "同时编码几何与语义特征的分层隐式神经场",
+      "llm_tldr_en": "Neural implicit maps often lack semantics and scale poorly. HIGS introduces a hierarchical neural field with multiresolution submaps and unified query-decoding to support both geometry and semantics efficiently for large-scale scene understanding.",
+      "llm_tldr_cn": "神经隐式表示虽能构建连续高保真三维地图，但多数工作只关注几何重建而缺乏语义信息，且在大规模环境中后端优化效率受限。本文提出HIGS分层神经场，利用多分辨率子图实现高效可扩展的隐式表示，并通过统一查询与解码机制同时输出几何与语义特征。该方法在保持计算效率的同时支持几何与语义联合场景理解，为机器人大规模三维语义建图提供了可扩展方案。",
+      "llm_tldr": "神经隐式表示虽能构建连续高保真三维地图，但多数工作只关注几何重建而缺乏语义信息，且在大规模环境中后端优化效率受限。本文提出HIGS分层神经场，利用多分辨率子图实现高效可扩展的隐式表示，并通过统一查询与解码机制同时输出几何与语义特征。该方法在保持计算效率的同时支持几何与语义联合场景理解，为机器人大规模三维语义建图提供了可扩展方案。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "semantic segmentation of 3D point clouds and volumetric scenes",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.33230v1",
+      "source": "arxiv",
+      "title": "AevaScenes: An FMCW LiDAR Dataset and Benchmark for Long-Range Perception",
+      "abstract": "FMCW LiDAR measures per-point radial Doppler velocity alongside range, providing a motion cue unavailable in conventional time-of-flight sensors. Exploiting this signal at long range remains understudied. We present an FMCW LiDAR dataset of 575 sequences (57.5K frames) with over 8 million annotated 3D boxes across 16 detection classes and per-point labels across 24 semantic classes, captured by six commercial FMCW LiDAR sensors and six paired 4K cameras across eight Bay Area cities, including 237 nighttime sequences, with annotations extending to 400m. We define a benchmark with three tasks: 3D object detection, scene flow estimation, and semantic segmentation. Detection and scene flow are evaluated across three range bins to 400m, with a public evaluation server. We explore the impact of Doppler measurements on flagship recognition tasks, and find significant improvements up to 2X in detection AP of far-away vehicles and pedestrians, particularly in low-latency single-frame settings. We similarly find scene flow accuracy is significantly improved with Doppler measurements across all ranges. Our dataset and benchmark have been publicly released at https://scenes.aeva.com.",
+      "authors": [
+        "Gautham Narayan Narasimhan",
+        "Heethesh Vhavle",
+        "Kumar Bhargav Viswanatha",
+        "James Reuther",
+        "Deva Ramanan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-09-27T05:16:14+00:00",
+      "link": "https://arxiv.org/pdf/2609.33230v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "LiDAR dataset with per-point labels across 24 semantic classes and semantic segmentation benchmark",
+      "llm_evidence_cn": "含24类逐点语义标注的激光雷达数据集与语义分割基准",
+      "llm_evidence": "含24类逐点语义标注的激光雷达数据集与语义分割基准",
+      "canonical_evidence": "含24类逐点语义标注的激光雷达数据集与语义分割基准",
+      "llm_tldr_en": "FMCW LiDAR offers per-point Doppler velocity but is understudied at long range. AevaScenes provides 575 sequences with 8M boxes and per-point labels, benchmarking 3D detection, scene flow, and semantic segmentation to 400m.",
+      "llm_tldr_cn": "FMCW激光雷达可提供逐点径向多普勒速度，但该信号在远距离感知中尚未被充分研究。本文发布AevaScenes数据集，包含575个序列、逾800万三维框标注，覆盖16类检测与24类点云语义分割类别，并配备六台FMCW激光雷达与六台4K相机。基准涵盖三维检测、场景流与语义分割三任务，在400米范围内分档评测，为远距离点云感知与语义分割提供重要数据支撑。",
+      "llm_tldr": "FMCW激光雷达可提供逐点径向多普勒速度，但该信号在远距离感知中尚未被充分研究。本文发布AevaScenes数据集，包含575个序列、逾800万三维框标注，覆盖16类检测与24类点云语义分割类别，并配备六台FMCW激光雷达与六台4K相机。基准涵盖三维检测、场景流与语义分割三任务，在400米范围内分档评测，为远距离点云感知与语义分割提供重要数据支撑。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "semantic segmentation of 3D point clouds and volumetric scenes",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.00970v1",
+      "source": "arxiv",
+      "title": "RelationVGGT: Visual Geometry Transformers for 3D Spatial Relation Segmentation",
+      "abstract": "Recent advances in 3D reconstruction have progressed from per-scene optimization to feed-forward inference, and semantic scene understanding has followed suit -- yet existing methods remain confined to object-centric perception, neglecting spatial relations between objects. We formulate 3D spatial relation segmentation in a feed-forward, pose-free multi-view setting: given a visually specified subject and a relational text query, the model segments the target across views without receiving its category name. To this end, we propose RelationVGGT, a novel feed-forward framework that integrates semantic features from a visual foundation model with geometry-aware representations from a 3D geometry foundation model and leverages a relation transformer for subject-conditioned, cross-view relation prediction -- requiring neither per-scene optimization nor known camera poses. We additionally provide a fully automated annotation pipeline built on ScanNet++ with VLMs and LLMs, enabling scalable training data generation for this new task.",
+      "authors": [
+        "Minsu Kim",
+        "Jaesung Choe",
+        "Jiwoo Lee",
+        "Yu-Chiang Frank Wang",
+        "Seon Joo Kim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-10-01T03:00:27+00:00",
+      "link": "https://arxiv.org/pdf/2610.00970v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "feed-forward multi-view segmentation fusing visual semantic features with 3D geometry representations",
+      "llm_evidence_cn": "融合视觉语义特征与三维几何表示的前馈多视角分割",
+      "llm_evidence": "融合视觉语义特征与三维几何表示的前馈多视角分割",
+      "canonical_evidence": "融合视觉语义特征与三维几何表示的前馈多视角分割",
+      "llm_tldr_en": "RelationVGGT tackles 3D spatial relation segmentation in a pose-free multi-view setting, fusing semantic features from a visual foundation model with geometry-aware representations to segment targets from relational text queries.",
+      "llm_tldr_cn": "现有三维场景理解多局限于以物体为中心的感知，忽视物体间空间关系，且依赖逐场景优化与位姿。本文提出RelationVGGT，在前馈、无位姿的多视角设定下，融合视觉基础模型的语义特征与三维几何基础模型的几何表示，并借助关系Transformer按关系文本查询跨视角分割目标。实验表明模型无需类别名称即可完成关系分割。该工作把开放词汇语义与几何融合引入三维分割，为语义场景理解提供新思路。",
+      "llm_tldr": "现有三维场景理解多局限于以物体为中心的感知，忽视物体间空间关系，且依赖逐场景优化与位姿。本文提出RelationVGGT，在前馈、无位姿的多视角设定下，融合视觉基础模型的语义特征与三维几何基础模型的几何表示，并借助关系Transformer按关系文本查询跨视角分割目标。实验表明模型无需类别名称即可完成关系分割。该工作把开放词汇语义与几何融合引入三维分割，为语义场景理解提供新思路。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "cross modal feature alignment and fusion for open vocabulary 3D object detection and segmentation",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.38864v1",
+      "source": "arxiv",
+      "title": "AdaOcc: Adaptive 3D Occupancy Prediction for Embodied Tasks",
+      "abstract": "Embodied tasks demand accurate, flexible, and semantically rich 3D scene representations. 3D semantic occupancy is well suited to this requirement, as it can model holistic 3D spaces by encoding geometric occupancy along with semantic categories. However, existing occupancy prediction methods struggle to meet practical deployment requirements, such as adapting to varying computing budgets, sensor setups, and observation views. In this paper, we propose a point-based Adaptive 3D Occupancy Prediction method, called AdaOcc, tailored for embodied scenarios. To accommodate heterogeneous sensor inputs, AdaOcc uses an adaptive geometry-guided dual-branch encoder that can support RGB images in various numbers of views with (estimated) depth maps or LiDAR scans. AdaOcc represents occupied regions via sparse semantic points trained with a progressive query learning strategy, allowing the prediction computational budget to be flexibly adjusted through query point numbers and decoder layers. To facilitate high-fidelity geometric modeling for lightweight point-based occupancy learning, we further propose a novel containment loss that regularizes predicted points to reside within valid occupied regions. Extensive experiments show that our method achieves a new state-of-the-art on Occ-ScanNet with considerable performance improvements over previous methods. Moreover, our framework demonstrates strong practical applicability as an adaptive 3D perception module in real-world embodied systems.",
+      "authors": [
+        "Jinglong Wang",
+        "Yunjie Wang",
+        "Zhiyang Zhang",
+        "Jiawei He",
+        "Ye Yuan",
+        "Bo Qiu",
+        "Jing Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-30T03:18:59+00:00",
+      "link": "https://arxiv.org/pdf/2609.38864v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Adaptive point-based 3D semantic occupancy prediction with multi-view and sensor fusion",
+      "llm_evidence_cn": "多视角与多传感器融合的自适应三维语义占据预测",
+      "llm_evidence": "多视角与多传感器融合的自适应三维语义占据预测",
+      "canonical_evidence": "多视角与多传感器融合的自适应三维语义占据预测",
+      "llm_tldr_en": "AdaOcc is a point-based adaptive 3D semantic occupancy prediction method with a geometry-guided dual-branch encoder supporting varied RGB views with depth or LiDAR for embodied tasks.",
+      "llm_tldr_cn": "具身任务需要灵活且语义丰富的三维场景表示，但现有占据预测难以适应变化的算力、传感器与视角。AdaOcc提出基于点的自适应三维语义占据预测方法，采用几何引导的双分支编码器，支持不同视角数量的RGB图像配合深度图或激光雷达输入。实验表明该方法能在异构传感器设置下有效预测语义占据。其多视角多模态融合的语义场景表示对开放词汇三维映射有较强借鉴意义。",
+      "llm_tldr": "具身任务需要灵活且语义丰富的三维场景表示，但现有占据预测难以适应变化的算力、传感器与视角。AdaOcc提出基于点的自适应三维语义占据预测方法，采用几何引导的双分支编码器，支持不同视角数量的RGB图像配合深度图或激光雷达输入。实验表明该方法能在异构传感器设置下有效预测语义占据。其多视角多模态融合的语义场景表示对开放词汇三维映射有较强借鉴意义。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "semantic segmentation of 3D point clouds and volumetric scenes",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.01589v1",
+      "source": "arxiv",
+      "title": "PAGER: Partial-to-global Alignment via Geometric and Relational Distillation",
+      "abstract": "Pretrained 3D encoders are typically developed on globally reconstructed scenes expressed in a consistent world coordinate frame, whereas embodied systems must reason from partial, viewpoint-dependent observations in camera coordinates. We show that this shift from globally learned 3D feature spaces to realistic partial observations exposes a severe representation mismatch, which we find consistently across representative state-of-the-art encoders, including Sonata and Concerto. A frozen Sonata encoder with a global linear probe achieves 72.47 mIoU on full ScanNet scenes, but 2.57 mIoU on single-frame camera-coordinate inputs. Training-free gravity alignment recovers performance to 41.64 mIoU, showing that coordinate-frame mismatch is a dominant source of degradation but cannot be fully resolved through canonicalization alone. We introduce PAGER, a label-free adaptation method that aligns partial-view features with a frozen global 3D semantic space using only paired partial/global geometry. It learns lightweight adaptation modules while keeping the pretrained encoder and global segmentation probe frozen. Matched-point feature alignment anchors partial features to their global counterparts, while relational supervision preserves their similarity structure with respect to the global representation. Global geometry provides supervision only during training. Inference operates directly on the partial observation. Without partial-view labels, PAGER outperforms label-supervised PEFT on both Sonata and Concerto, and in zero-shot ScanNet$\\rightarrow$ScanNet++ transfer surpasses fully fine-tuned Sonata ($53.93$ vs.\\ $48.09$ mIoU), suggesting that preserving the frozen global representation can improve cross-dataset transfer.",
+      "authors": [
+        "Akira-Miranda Adeyomi Adeniran-Lowe",
+        "Binod Singh",
+        "Lars Arnold Dethlefsen",
+        "Lazaros Nalpantidis",
+        "Theodora Kontogianni"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-10-01T12:42:20+00:00",
+      "link": "https://arxiv.org/pdf/2610.01589v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "partial viewpoint-dependent 3D observations cause representation mismatch, recovering segmentation mIoU on ScanNet",
+      "llm_evidence_cn": "部分视角观测导致三维特征表示失配，在ScanNet上恢复分割性能",
+      "llm_evidence": "部分视角观测导致三维特征表示失配，在ScanNet上恢复分割性能",
+      "canonical_evidence": "部分视角观测导致三维特征表示失配，在ScanNet上恢复分割性能",
+      "llm_tldr_en": "PAGER shows pretrained 3D encoders fail on partial camera-coordinate observations and proposes geometric and relational distillation to align partial views with global scene representations.",
+      "llm_tldr_cn": "预训练三维编码器多在全局重建的完整场景上训练，而具身系统只能从相机坐标下的部分视角观测进行推理，导致严重的表示失配。论文揭示该问题在Sonata、Concerto等先进编码器上普遍存在，并指出坐标系不一致是主因。作者提出PAGER，通过几何与关系蒸馏将部分观测对齐到全局特征空间。实验表明该方法能大幅恢复单帧输入下的分割性能，对部分观测下的三维语义理解具有重要意义。",
+      "llm_tldr": "预训练三维编码器多在全局重建的完整场景上训练，而具身系统只能从相机坐标下的部分视角观测进行推理，导致严重的表示失配。论文揭示该问题在Sonata、Concerto等先进编码器上普遍存在，并指出坐标系不一致是主因。作者提出PAGER，通过几何与关系蒸馏将部分观测对齐到全局特征空间。实验表明该方法能大幅恢复单帧输入下的分割性能，对部分观测下的三维语义理解具有重要意义。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "semantic segmentation of 3D point clouds and volumetric scenes",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

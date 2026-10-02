@@ -1,0 +1,105 @@
+{
+  "date": "20261002",
+  "date_label": "",
+  "generated_at": "2026-10-02 22:40:35 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2610.00855v1",
+      "route": "202610/02/2610.00855v1-lang3dseg-annotation-free-open-vocabulary-3d-segmentation-with-point-transformers",
+      "title": "Lang3DSeg: Annotation-Free Open-Vocabulary 3D Segmentation with Point Transformers",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "无标注开放词汇三维激光点云分割",
+      "first_seen_at": "2026-10-02 22:40:35 UTC",
+      "updated_at": "2026-10-02 22:40:35 UTC"
+    },
+    {
+      "paper_id": "2609.38620v1",
+      "route": "202610/02/2609.38620v1-higs-hierarchical-implicit-grids-for-joint-geometric-and-semantic-scene-understanding",
+      "title": "HIGS: Hierarchical Implicit Grids for Joint Geometric and Semantic Scene Understanding",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "同时编码几何与语义特征的分层隐式神经场",
+      "first_seen_at": "2026-10-02 22:40:35 UTC",
+      "updated_at": "2026-10-02 22:40:35 UTC"
+    },
+    {
+      "paper_id": "2610.00970v1",
+      "route": "202610/02/2610.00970v1-relationvggt-visual-geometry-transformers-for-3d-spatial-relation-segmentation",
+      "title": "RelationVGGT: Visual Geometry Transformers for 3D Spatial Relation Segmentation",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "融合视觉语义特征与三维几何表示的前馈多视角分割",
+      "first_seen_at": "2026-10-02 22:40:35 UTC",
+      "updated_at": "2026-10-02 22:40:35 UTC"
+    },
+    {
+      "paper_id": "2609.33230v1",
+      "route": "202610/02/2609.33230v1-aevascenes-an-fmcw-lidar-dataset-and-benchmark-for-long-range-perception",
+      "title": "AevaScenes: An FMCW LiDAR Dataset and Benchmark for Long-Range Perception",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "含24类逐点语义标注的激光雷达数据集与语义分割基准",
+      "first_seen_at": "2026-10-02 22:40:35 UTC",
+      "updated_at": "2026-10-02 22:40:35 UTC"
+    },
+    {
+      "paper_id": "2609.38864v1",
+      "route": "202610/02/2609.38864v1-adaocc-adaptive-3d-occupancy-prediction-for-embodied-tasks",
+      "title": "AdaOcc: Adaptive 3D Occupancy Prediction for Embodied Tasks",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "多视角与多传感器融合的自适应三维语义占据预测",
+      "first_seen_at": "2026-10-02 22:40:35 UTC",
+      "updated_at": "2026-10-02 22:40:35 UTC"
+    },
+    {
+      "paper_id": "2610.01589v1",
+      "route": "202610/02/2610.01589v1-pager-partial-to-global-alignment-via-geometric-and-relational-distillation",
+      "title": "PAGER: Partial-to-global Alignment via Geometric and Relational Distillation",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "部分视角观测导致三维特征表示失配，在ScanNet上恢复分割性能",
+      "first_seen_at": "2026-10-02 22:40:35 UTC",
+      "updated_at": "2026-10-02 22:40:35 UTC"
+    }
+  ]
+}
