@@ -1,0 +1,65 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-10-04T21:53:49.852939+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.38177v1",
+      "source": "arxiv",
+      "title": "Imagine3D-LLM: Teaching MLLMs to Imagine 3D Scenes Before Answering",
+      "abstract": "Reasoning about the 3D world from multi-view images remains a fundamental challenge for Multimodal Large Language Models (MLLMs). While modern MLLMs handle single-image inputs effectively, they struggle to integrate evidence across viewpoints into a coherent 3D understanding. A growing body of work attempts to close this gap by injecting 3D awareness into MLLMs, either by boosting fine-grained pixel-level cross-view correspondence or by fusing features from 3D geometry foundation models, yet a substantial gap to human reasoning persists. In this work, we revisit human spatial reasoning, which suggests that rather than relying on fine-grained geometry cues, humans roughly identify common objects across views, infer the relative geometry between viewpoints, and assemble a coarse 3D layout of the scene. Inspired by this process, we introduce Imagine3D-LLM, an MLLM that learns to assemble a similar compact 3D representation of the scene and conditions its answer on this representation. Concretely, we append a small set of learnable summary tokens after the image tokens, decode them into a compact 3D Gaussian Splatting representation supervised by a photometric reconstruction loss, and train jointly with the standard next-token prediction objective. Notably, although only the summary tokens receive direct reconstruction supervision, this objective also induces stronger cross-frame correspondence within the LLM's underlying image features, suggesting that learning to reconstruct propagates 3D-aware signals throughout the model. As a result, Imagine3D-LLM consistently outperforms prior approaches across multiple spatial reasoning and 3D understanding benchmarks, suggesting that imagining the scene can be more effective than being told its pixel-wise geometry.",
+      "authors": [
+        "Jaewoo Jung",
+        "Hyeonseo Yu",
+        "Honggyu An",
+        "Jisang Han",
+        "Mungyeom Kim",
+        "Minkyeong Jeon",
+        "Heeseong Shin",
+        "Wonjun Moon",
+        "Federico Tombari",
+        "Daniel Barath",
+        "Marc Pollefeys",
+        "Seungryong Kim",
+        "Sunghwan Hong"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.CL"
+      ],
+      "published": "2026-09-29T17:59:52+00:00",
+      "link": "https://arxiv.org/pdf/2609.38177v1",
+      "tags": [
+        "keyword:ovd-fusion",
+        "query:ovd-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "fusing multi-view features for 3D scene understanding in MLLMs",
+      "llm_evidence_cn": "为MLLM融合多视角特征做三维场景理解",
+      "llm_evidence": "为MLLM融合多视角特征做三维场景理解",
+      "canonical_evidence": "为MLLM融合多视角特征做三维场景理解",
+      "llm_tldr_en": "Imagine3D-LLM teaches MLLMs to imagine a 3D scene from multi-view images by roughly identifying objects across views and inferring viewpoint geometry before answering.",
+      "llm_tldr_cn": "从多视角图像推理三维世界仍是多模态大模型的根本挑战，现代MLLM虽擅长单图输入，却难以跨视角整合证据形成连贯三维理解。现有注入三维感知的方法或增强像素级跨视角对应，或融合三维几何基础模型特征，但仍与人推理存在明显差距。本文回归人类空间推理机制，先跨视角粗略识别共同物体并推断视角间相对几何，再据此想象三维场景后作答。实验表明先想象三维场景可提升多视角三维推理表现，为该方向提供新范式。",
+      "llm_tldr": "从多视角图像推理三维世界仍是多模态大模型的根本挑战，现代MLLM虽擅长单图输入，却难以跨视角整合证据形成连贯三维理解。现有注入三维感知的方法或增强像素级跨视角对应，或融合三维几何基础模型特征，但仍与人推理存在明显差距。本文回归人类空间推理机制，先跨视角粗略识别共同物体并推断视角间相对几何，再据此想象三维场景后作答。实验表明先想象三维场景可提升多视角三维推理表现，为该方向提供新范式。",
+      "llm_tags": [
+        "query:ovd-fusion"
+      ],
+      "matched_query_tag": "query:ovd-fusion",
+      "matched_query_text": "language guided fusion of 2D vision language features into 3D scene representations for semantic understanding",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "date": "20261004",
+  "date_label": "",
+  "generated_at": "2026-10-04 21:54:06 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.38177v1",
+      "route": "202610/04/2609.38177v1-imagine3d-llm-teaching-mllms-to-imagine-3d-scenes-before-answering",
+      "title": "Imagine3D-LLM: Teaching MLLMs to Imagine 3D Scenes Before Answering",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "ovd-fusion"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "为MLLM融合多视角特征做三维场景理解",
+      "first_seen_at": "2026-10-04 21:54:06 UTC",
+      "updated_at": "2026-10-04 21:54:06 UTC"
+    }
+  ]
+}

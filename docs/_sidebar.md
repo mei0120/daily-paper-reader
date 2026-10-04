@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-10-04 <!--dpr-date:20261004-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202610/04/2609.38177v1-imagine3d-llm-teaching-mllms-to-imagine-3d-scenes-before-answering" data-sidebar-item="{&quot;title&quot;: &quot;Imagine3D-LLM: Teaching MLLMs to Imagine 3D Scenes Before Answering&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.38177v1-imagine3d-llm-teaching-mllms-to-imagine-3d-scenes-before-answering&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;ovd-fusion&quot;}], &quot;evidence&quot;: &quot;为MLLM融合多视角特征做三维场景理解&quot;}">Imagine3D-LLM: Teaching MLLMs to Imagine 3D Scenes Before Answering</a>
   * 2026-10-03 <!--dpr-date:20261003-->
     * 精读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202610/03/2609.31418v1-cognitivereality-robot-agnostic-semantic-gaussian-mapping-with-an-llm-agent-for-immersive-collaborative-vr-teleoperation" data-sidebar-item="{&quot;title&quot;: &quot;CognitiveReality: Robot-Agnostic Semantic Gaussian Mapping with an LLM Agent for Immersive Collaborative VR Teleoperation&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.31418v1-cognitivereality-robot-agnostic-semantic-gaussian-mapping-with-an-llm-agent-for-immersive-collaborative-vr-teleoperation&quot;, &quot;score&quot;: &quot;8.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;ovd-fusion&quot;}], &quot;evidence&quot;: &quot;基于RGB-D的开放词汇语义高斯建图与逐物体质量&quot;}">CognitiveReality: Robot-Agnostic Semantic Gaussian Mapping with an LLM Agent for Immersive Collaborative VR Teleoperation</a>

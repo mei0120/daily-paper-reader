@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-10-03</span>
+      <span class="dpr-home-dashboard-kicker">2026-10-04</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 3 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 1 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>1</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>2</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>0</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>1</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-10-03 22:23:00 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-10-04 21:54:06 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,7 +69,9 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今日精读1篇、速读2篇，聚焦机器人语义建图与3D场景理解。最值得看的是8.0分的CognitiveReality，用LLM Agent实现机器人无关的语义高斯建图，服务沉浸式协作VR遥操作；速读中Task-Adaptive Grounded 3D-Programmers（7.0分）用2D VLM做任务自适应3D编程也值得关注。普通读者可先读CognitiveReality了解VR遥操作与语义建图结合，再按兴趣浏览两篇速读。</p>
+<p>今日速读 1 篇、精读 0 篇，唯一入选的是让多模态大模型&quot;先想象 3D 场景再作答&quot;的 Imagine3D-LLM（6.0/10）。</p>
+<p>值得关注的是它&quot;先构建 3D 空间想象、再据此推理回答&quot;的思路，不过 6.0 的速读分说明亮点与局限并存，需自行判断。</p>
+<p>普通读者可先看它如何生成并利用 3D 想象，再与其他 3D 场景理解工作对比，判断这条路线是否真能提升空间问答表现。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -78,12 +80,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">1 篇</strong>
+    <strong class="dpr-home-dashboard-count">0 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="CognitiveReality: Robot-Agnostic Semantic Gaussian Mapping with an LLM Agent for Immersive Collaborative VR Teleoperation">CognitiveReality: Robot-Agnostic Semantic Gaussian Mapping with an LLM Agent for Immersive Collaborative VR Teleoperation</span></li></ul>
+<p class="dpr-home-dashboard-empty">今日暂无推荐。</p>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">ovd-fusion <strong>1</strong></span></div>
+
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -91,12 +93,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">2 篇</strong>
+    <strong class="dpr-home-dashboard-count">1 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Task-Adaptive Grounded 3D-Programmers Using 2D VLMs">Task-Adaptive Grounded 3D-Programmers Using 2D VLMs</span></li><li><span class="dpr-home-dashboard-paper-title" title="GraphWrit3R: End-to-End 3D Scene Graph Writing">GraphWrit3R: End-to-End 3D Scene Graph Writing</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Imagine3D-LLM: Teaching MLLMs to Imagine 3D Scenes Before Answering">Imagine3D-LLM: Teaching MLLMs to Imagine 3D Scenes Before Answering</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">ovd-fusion <strong>2</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">ovd-fusion <strong>1</strong></span></div>
 </section>
 </div>
 

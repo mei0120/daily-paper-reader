@@ -1,0 +1,24 @@
+{
+  "label": "2026-10-04",
+  "date": "2026-10-04",
+  "generated_at": "2026-10-04T21:54:08",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202610/04/2609.38177v1-imagine3d-llm-teaching-mllms-to-imagine-3d-scenes-before-answering",
+      "section": "quick",
+      "title_en": "Imagine3D-LLM: Teaching MLLMs to Imagine 3D Scenes Before Answering",
+      "authors": "Jaewoo Jung, Hyeonseo Yu, Honggyu An, Jisang Han, Mungyeom Kim, Minkyeong Jeon, Heeseong Shin, Wonjun Moon, Federico Tombari, Daniel Barath, Marc Pollefeys, Seungryong Kim, Sunghwan Hong",
+      "date": "2026-09-29",
+      "pdf": "https://arxiv.org/pdf/2609.38177v1",
+      "score": "6.0",
+      "evidence": "为MLLM融合多视角特征做三维场景理解",
+      "tldr": "多视图图像中的3D推理对MLLM仍困难，模型难以跨视角整合证据形成连贯3D理解。Imagine3D-LLM受人类粗略空间推理启发，在图像token后加入可学习summary token，解码为紧凑3D高斯表示，并以光度重建损失联合下一token预测训练。仅summary token受重建监督，却增强底层图像特征的跨帧对应，在多个空间推理与3D理解基准上持续超越先前方法，表明先想象场景比直接注入像素级几何更有效。",
+      "tags": "query:ovd-fusion",
+      "abstract_en": "Reasoning about the 3D world from multi-view images remains a fundamental challenge for Multimodal Large Language Models (MLLMs). While modern MLLMs handle single-image inputs effectively, they struggle to integrate evidence across viewpoints into a coherent 3D understanding. A growing body of work attempts to close this gap by injecting 3D awareness into MLLMs, either by boosting fine-grained pixel-level cross-view correspondence or by fusing features from 3D geometry foundation models, yet a substantial gap to human reasoning persists. In this work, we revisit human spatial reasoning, which suggests that rather than relying on fine-grained geometry cues, humans roughly identify common objects across views, infer the relative geometry between viewpoints, and assemble a coarse 3D layout of the scene. Inspired by this process, we introduce Imagine3D-LLM, an MLLM that learns to assemble a similar compact 3D representation of the scene and conditions its answer on this representation. Concretely, we append a small set of learnable summary tokens after the image tokens, decode them into a compact 3D Gaussian Splatting representation supervised by a photometric reconstruction loss, and train jointly with the standard next-token prediction objective. Notably, although only the summary tokens receive direct reconstruction supervision, this objective also induces stronger cross-frame correspondence within the LLM's underlying image features, suggesting that learning to reconstruct propagates 3D-aware signals throughout the model. As a result, Imagine3D-LLM consistently outperforms prior approaches across multiple spatial reasoning and 3D understanding benchmarks, suggesting that imagining the scene can be more effective than being told its pixel-wise geometry.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
